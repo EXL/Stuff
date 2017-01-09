@@ -1,0 +1,444 @@
+diff --git a/mkspecs/features/moc_old.prf b/mkspecs/features/moc_old.prf
+new file mode 100644
+index 0000000..7255758
+--- /dev/null
++++ b/mkspecs/features/moc_old.prf
+@@ -0,0 +1,116 @@
++
++#global defaults
++qtPrepareTool(QMAKE_MOC, moc)
++isEmpty(MOC_DIR):MOC_DIR = .
++isEmpty(QMAKE_H_MOD_MOC):QMAKE_H_MOD_MOC = moc_
++isEmpty(QMAKE_EXT_CPP_MOC):QMAKE_EXT_CPP_MOC = .moc
++
++# On Windows, put the includes into a .inc file which moc will read, if the project
++# has too many includes. We do this to overcome a command-line limit on Win < XP
++INCLUDETEMP=
++WIN_INCLUDETEMP=
++win32:count($$list($$INCLUDEPATH), 40, >) {
++    INCLUDETEMP = $$MOC_DIR/mocinclude.tmp
++
++    WIN_INCLUDETEMP=$$INCLUDETEMP
++
++    EOC = $$escape_expand(\\n\\t)
++
++    contains(TEMPLATE, "vc.*") {
++        # the VCPROJ generator will replace the \r\h with the coded \r\n: &#x0d;&#x0a;
++        # No other generator understands the \h
++        if(win32-msvc2*|wince*msvc*): EOC = $$escape_expand(\\r\\h)
++        else: EOC = $$escape_expand(\\\\\\n\\t)
++    }
++
++    unset(INCFILELIST)
++    RET =
++    for(incfile, $$list($$INCLUDEPATH)) {
++        INCFILELIST = -I$$incfile
++        isEmpty(RET): RET += @echo $$INCFILELIST> $$WIN_INCLUDETEMP $$EOC
++        else:         RET += @echo $$INCFILELIST>> $$WIN_INCLUDETEMP $$EOC
++    }
++    !isEmpty(INCFILELIST):RET += @echo $$INCFILELIST>> $$WIN_INCLUDETEMP $$EOC
++
++    build_pass|isEmpty(BUILDS) {
++        mocinclude.target = $$INCLUDETEMP
++        mocinclude.commands = $$RET
++        QMAKE_EXTRA_TARGETS += mocinclude
++    }
++}
++
++defineReplace(mocCmdBase) {
++    !isEmpty(WIN_INCLUDETEMP) {
++        RET =
++        contains(TEMPLATE, "vc.*") {
++            RET += $$mocinclude.commands
++        }
++        RET += $$QMAKE_MOC $(DEFINES) @$$WIN_INCLUDETEMP $$join(QMAKE_COMPILER_DEFINES, " -D", -D)
++        return($$RET)
++    }
++    return($$QMAKE_MOC $$join(QMAKE_COMPILER_DEFINES, " -D", -D))
++}
++
++#moc headers
++moc_header.CONFIG = moc_verify
++moc_header.dependency_type = TYPE_C
++moc_header.commands = ${QMAKE_FUNC_mocCmdBase} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
++moc_header.output = $$MOC_DIR/$${QMAKE_H_MOD_MOC}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
++moc_header.input = HEADERS
++moc_header.variable_out = SOURCES
++moc_header.name = MOC ${QMAKE_FILE_IN}
++!contains(TEMPLATE, "vc.*") {
++	!isEmpty(INCLUDETEMP):moc_header.depends += $$INCLUDETEMP
++}
++silent:moc_header.commands = @echo moc ${QMAKE_FILE_IN} && $$moc_header.commands
++QMAKE_EXTRA_COMPILERS += moc_header
++INCREDIBUILD_XGE += moc_header
++
++#moc sources
++moc_source.CONFIG = no_link moc_verify
++moc_source.dependency_type = TYPE_C
++moc_source.commands = ${QMAKE_FUNC_mocCmdBase} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
++moc_source.output = $$MOC_DIR/$${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}$${QMAKE_EXT_CPP_MOC}
++moc_source.input = SOURCES OBJECTIVE_SOURCES
++moc_source.name = MOC ${QMAKE_FILE_IN}
++!contains(TEMPLATE, "vc.*") {
++	!isEmpty(INCLUDETEMP):moc_source.depends += $$INCLUDETEMP
++}
++silent:moc_source.commands = @echo moc ${QMAKE_FILE_IN} && $$moc_source.commands
++QMAKE_EXTRA_COMPILERS += moc_source
++INCREDIBUILD_XGE += moc_source
++
++#make sure we can include these files
++moc_dir_short = $$MOC_DIR
++contains(QMAKE_HOST.os,Windows):moc_dir_short ~= s,^.:,/,
++contains(moc_dir_short, ^[/\\\\].*):INCLUDEPATH += $$MOC_DIR
++else:INCLUDEPATH += $$OUT_PWD/$$MOC_DIR
++
++# Backwards compatibility: Make shadow builds with default MOC_DIR work
++# if the user did not add the source dir explicitly.
++equals(MOC_DIR, .) {
++    CONFIG -= include_source_dir
++    CONFIG = include_source_dir $$CONFIG
++}
++
++#auto depend on moc
++unix:!symbian:!no_mocdepend {
++     moc_source.depends += $$first(QMAKE_MOC)
++     moc_header.depends += $$first(QMAKE_MOC)
++     !contains(TARGET, moc) { #auto build moc
++         isEmpty(QMAKE_MOC_SRC):QMAKE_MOC_SRC = "$(QTDIR)/src/tools/moc"
++    	 make_moc.target = $$first(QMAKE_MOC)
++	     make_moc.commands = (cd $$QMAKE_MOC_SRC && $(MAKE))
++	     QMAKE_EXTRA_TARGETS += make_moc
++     }
++}
++
++#generate a mocclean
++build_pass|isEmpty(BUILDS):mocclean.depends = compiler_moc_header_clean compiler_moc_source_clean
++else:mocclean.CONFIG += recursive
++QMAKE_EXTRA_TARGETS += mocclean
++
++#generate a mocables
++build_pass|isEmpty(BUILDS):mocables.depends = compiler_moc_header_make_all compiler_moc_source_make_all
++else:mocables.CONFIG += recursive
++QMAKE_EXTRA_TARGETS += mocables
+diff --git a/mkspecs/qws/linux-arm-gnu-g++/qmake.conf b/mkspecs/qws/linux-arm-gnu-g++/qmake.conf
+new file mode 100644
+index 0000000..d057631
+--- /dev/null
++++ b/mkspecs/qws/linux-arm-gnu-g++/qmake.conf
+@@ -0,0 +1,21 @@
++#
++# qmake configuration for building with arm-linux-gnu-g++
++#
++
++include(../../common/linux.conf)
++include(../../common/gcc-base-unix.conf)
++include(../../common/g++-unix.conf)
++include(../../common/qws.conf)
++
++# modifications to g++.conf
++QMAKE_CC                = arm-linux-gnu-gcc
++QMAKE_CXX               = arm-linux-gnu-g++
++QMAKE_LINK              = arm-linux-gnu-g++
++QMAKE_LINK_SHLIB        = arm-linux-gnu-g++
++
++# modifications to linux.conf
++QMAKE_AR                = arm-linux-gnu-ar cqs
++QMAKE_OBJCOPY           = arm-linux-gnu-objcopy
++QMAKE_STRIP             = arm-linux-gnu-strip
++
++load(qt_config)
+diff --git a/mkspecs/qws/linux-arm-gnu-g++/qplatformdefs.h b/mkspecs/qws/linux-arm-gnu-g++/qplatformdefs.h
+new file mode 100644
+index 0000000..dece7c5
+--- /dev/null
++++ b/mkspecs/qws/linux-arm-gnu-g++/qplatformdefs.h
+@@ -0,0 +1,42 @@
++/****************************************************************************
++**
++** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
++** Contact: http://www.qt-project.org/legal
++**
++** This file is part of the qmake spec of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial License Usage
++** Licensees holding valid commercial Qt licenses may use this file in
++** accordance with the commercial license agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Digia.  For licensing terms and
++** conditions see http://qt.digia.com/licensing.  For further information
++** use the contact form at http://qt.digia.com/contact-us.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Digia gives you certain additional
++** rights.  These rights are described in the Digia Qt LGPL Exception
++** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++**
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#include "../../linux-g++/qplatformdefs.h"
+diff --git a/src/3rdparty/freetype/include/freetype/config/ftconfig.h b/src/3rdparty/freetype/include/freetype/config/ftconfig.h
+index 3c0b8b1..c6cf7a3 100644
+--- a/src/3rdparty/freetype/include/freetype/config/ftconfig.h
++++ b/src/3rdparty/freetype/include/freetype/config/ftconfig.h
+@@ -327,7 +327,11 @@ FT_BEGIN_HEADER
+       "adds   %1, %1, %0\n\t"       /* %1 += %0 */
+       "adc    %2, %2, #0\n\t"       /* %2 += carry */
+       "mov    %0, %1, lsr #16\n\t"  /* %0  = %1 >> 16 */
++#if __GNUC_PREREQ(3,4)
+       "orr    %0, %2, lsl #16\n\t"  /* %0 |= %2 << 16 */
++#else
++      "orr    %0, %0, %2, lsl #16\n\t" /* %0 |= %2 << 16 */
++#endif // __GNUC_PREREQ(3,4)
+       : "=r"(a), "=&r"(t2), "=&r"(t)
+       : "r"(a), "r"(b) );
+     return a;
+diff --git a/src/3rdparty/javascriptcore/JavaScriptCore/pcre/pcre_internal.h b/src/3rdparty/javascriptcore/JavaScriptCore/pcre/pcre_internal.h
+index 0016bb5..86dd424 100644
+--- a/src/3rdparty/javascriptcore/JavaScriptCore/pcre/pcre_internal.h
++++ b/src/3rdparty/javascriptcore/JavaScriptCore/pcre/pcre_internal.h
+@@ -242,7 +242,7 @@ detect the types that may be repeated. These are the types that consume
+ characters. If any new escapes are put in between that don't consume a
+ character, that code will have to change. */
+ 
+-enum { ESC_B = 1, ESC_b, ESC_D, ESC_d, ESC_S, ESC_s, ESC_W, ESC_w, ESC_REF };
++enum StupidGCC3 { ESC_B = 1, ESC_b, ESC_D, ESC_d, ESC_S, ESC_s, ESC_W, ESC_w, ESC_REF };
+ 
+ /* Opcode table: OP_BRA must be last, as all values >= it are used for brackets
+ that extract substrings. Starting from 1 (i.e. after OP_END), the values up to
+diff --git a/src/corelib/kernel/qobject.h b/src/corelib/kernel/qobject.h
+index d80a6bf..27a23d5 100644
+--- a/src/corelib/kernel/qobject.h
++++ b/src/corelib/kernel/qobject.h
+@@ -353,19 +353,19 @@ QList<T> qFindChildren(const QObject *o, const QRegExp &re);
+ #ifdef QT_DEPRECATED
+ template<typename T>
+ inline QT_DEPRECATED T qFindChild(const QObject *o, const QString &name = QString())
+-{ return o->findChild<T>(name); }
++{ return o->template findChild<T>(name); }
+ 
+ template<typename T>
+ inline QT_DEPRECATED QList<T> qFindChildren(const QObject *o, const QString &name = QString())
+ {
+-    return o->findChildren<T>(name);
++    return o->template findChildren<T>(name);
+ }
+ 
+ #ifndef QT_NO_REGEXP
+ template<typename T>
+ inline QT_DEPRECATED QList<T> qFindChildren(const QObject *o, const QRegExp &re)
+ {
+-    return o->findChildren<T>(re);
++    return o->template findChildren<T>(re);
+ }
+ #endif
+ 
+diff --git a/src/corelib/thread/qmutex_unix.cpp b/src/corelib/thread/qmutex_unix.cpp
+index 6da22a3..d6c8aa1 100644
+--- a/src/corelib/thread/qmutex_unix.cpp
++++ b/src/corelib/thread/qmutex_unix.cpp
+@@ -57,7 +57,17 @@
+ # include <mach/mach.h>
+ # include <mach/task.h>
+ #elif defined(Q_OS_LINUX) && !defined(QT_LINUXBASE)
+-# include <linux/futex.h>
++#if __GNUC_PREREQ(3,4)
++#include <linux/futex.h>
++#else
++#include <asm/unistd.h>
++#define SYS_futex (__NR_SYSCALL_BASE+240)
++#define FUTEX_WAIT (0)
++#define FUTEX_WAKE (1)
++#define FUTEX_FD (2)
++#define FUTEX_REQUEUE (3)
++#define FUTEX_CMP_REQUEUE (4)
++#endif // __GNUC_PREREQ(3,4)
+ # include <sys/syscall.h>
+ # include <unistd.h>
+ # include <QtCore/qelapsedtimer.h>
+diff --git a/src/corelib/thread/qthread_unix.cpp b/src/corelib/thread/qthread_unix.cpp
+index 4d85968..1bb729e 100644
+--- a/src/corelib/thread/qthread_unix.cpp
++++ b/src/corelib/thread/qthread_unix.cpp
+@@ -121,6 +121,10 @@ enum { ThreadPriorityResetFlag = 0x80000000 };
+ #define HAVE_TLS
+ #endif
+ 
++#if GCC_VERSION < 4
++#undef HAVE_TLS 
++#endif
++
+ #ifdef HAVE_TLS
+ static __thread QThreadData *currentThreadData = 0;
+ #endif
+@@ -295,6 +299,11 @@ void QThreadPrivate::createEventDispatcher(QThreadData *data)
+ static void setCurrentThreadName(pthread_t threadId, const char *name)
+ {
+ #  if defined(Q_OS_LINUX) && !defined(QT_LINUXBASE)
++
++#   if !defined(PR_SET_NAME)
++#   define PR_SET_NAME    15
++#   endif // !defined(PR_SET_NAME)
++
+     Q_UNUSED(threadId);
+     prctl(PR_SET_NAME, (unsigned long)name, 0, 0, 0);
+ #  elif (defined(Q_OS_MAC) && MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_6)
+diff --git a/src/corelib/tools/qchar.cpp b/src/corelib/tools/qchar.cpp
+index 761fbf6..f5b9c05 100644
+--- a/src/corelib/tools/qchar.cpp
++++ b/src/corelib/tools/qchar.cpp
+@@ -919,7 +919,7 @@ ushort QChar::mirroredChar(ushort ucs2)
+ }
+ 
+ 
+-enum {
++enum StupidGCC3 {
+     Hangul_SBase = 0xac00,
+     Hangul_LBase = 0x1100,
+     Hangul_VBase = 0x1161,
+diff --git a/src/corelib/tools/qmap.h b/src/corelib/tools/qmap.h
+index 85204b3..bbb56da 100644
+--- a/src/corelib/tools/qmap.h
++++ b/src/corelib/tools/qmap.h
+@@ -64,7 +64,7 @@ struct Q_CORE_EXPORT QMapData
+         Node *backward;
+         Node *forward[1];
+     };
+-    enum { LastLevel = 11, Sparseness = 3 };
++    enum StupidGCC3 { LastLevel = 11, Sparseness = 3 };
+ 
+     QMapData *backward;
+     QMapData *forward[QMapData::LastLevel + 1];
+diff --git a/src/gui/dialogs/qcolordialog.cpp b/src/gui/dialogs/qcolordialog.cpp
+index 9cf5466..14631c0 100644
+--- a/src/gui/dialogs/qcolordialog.cpp
++++ b/src/gui/dialogs/qcolordialog.cpp
+@@ -681,7 +681,7 @@ protected:
+     void mousePressEvent(QMouseEvent *);
+ 
+ private:
+-    enum { foff = 3, coff = 4 }; //frame and contents offset
++    enum StupidGCC3 { foff = 3, coff = 4 }; //frame and contents offset
+     int val;
+     int hue;
+     int sat;
+diff --git a/src/gui/itemviews/qlistview.cpp b/src/gui/itemviews/qlistview.cpp
+index df908e2..1942c17 100644
+--- a/src/gui/itemviews/qlistview.cpp
++++ b/src/gui/itemviews/qlistview.cpp
+@@ -2918,7 +2918,8 @@ void QIconModeViewBase::doDynamicLayout(const QListViewLayoutInfo &info)
+     if (moved.count() != items.count())
+         moved.resize(items.count());
+ 
+-    QRect rect(QPoint(), topLeft);
++    QPoint p;
++    QRect rect(p, topLeft);
+     QListViewItem *item = 0;
+     for (int row = info.first; row <= info.last; ++row) {
+         item = &items[row];
+diff --git a/src/gui/painting/qtessellator.cpp b/src/gui/painting/qtessellator.cpp
+index 26992ba..841db63 100644
+--- a/src/gui/painting/qtessellator.cpp
++++ b/src/gui/painting/qtessellator.cpp
+@@ -169,11 +169,11 @@ public:
+         Edge *edge_table;
+         int first_unused;
+         int max_edges;
+-        enum { default_alloc = 32 };
++        enum StupidGCC3 { default_alloc = 32 };
+     };
+ 
+     struct Vertices {
+-        enum { default_alloc = 128 };
++        enum StupidGCC3_2 { default_alloc = 128 };
+         Vertices();
+         ~Vertices();
+         void init(int maxVertices);
+diff --git a/src/gui/widgets/qcalendarwidget.cpp b/src/gui/widgets/qcalendarwidget.cpp
+index 328ddff..c932ca7 100644
+--- a/src/gui/widgets/qcalendarwidget.cpp
++++ b/src/gui/widgets/qcalendarwidget.cpp
+@@ -64,7 +64,7 @@
+ 
+ QT_BEGIN_NAMESPACE
+ 
+-enum {
++enum StupidGCC3 {
+     RowCount = 6,
+     ColumnCount = 7,
+     HeaderColumn = 0,
+diff --git a/src/gui/widgets/qsplashscreen.cpp b/src/gui/widgets/qsplashscreen.cpp
+index 61d60c3..cd82cdf 100644
+--- a/src/gui/widgets/qsplashscreen.cpp
++++ b/src/gui/widgets/qsplashscreen.cpp
+@@ -241,7 +241,8 @@ void QSplashScreen::setPixmap(const QPixmap &pixmap)
+     d->pixmap = pixmap;
+     setAttribute(Qt::WA_TranslucentBackground, pixmap.hasAlpha());
+ 
+-    QRect r(QPoint(), d->pixmap.size());
++    QPoint p;
++    QRect r(p, d->pixmap.size());
+     resize(r.size());
+     move(QApplication::desktop()->screenGeometry().center() - r.center());
+     if (isVisible())
+diff --git a/src/network/socket/qnativesocketengine.cpp b/src/network/socket/qnativesocketengine.cpp
+index 8a1e1b5..cc4d84e 100644
+--- a/src/network/socket/qnativesocketengine.cpp
++++ b/src/network/socket/qnativesocketengine.cpp
+@@ -679,7 +679,17 @@ QNetworkInterface QNativeSocketEngine::multicastInterface() const
+ {
+     Q_D(const QNativeSocketEngine);
+     Q_CHECK_VALID_SOCKETLAYER(QNativeSocketEngine::multicastInterface(), QNetworkInterface());
++
++#if __GNUC_PREREQ(3,4)
+     Q_CHECK_TYPE(QNativeSocketEngine::multicastInterface(), QAbstractSocket::UdpSocket, QNetworkInterface());
++#else
++     if (d->socketType != QAbstractSocket::UdpSocket) {
++        qWarning("QNativeSocketEngine::multicastInterface() was called by a"
++                 " socket other than QAbstractSocket::UdpSocket");
++        return QNetworkInterface();
++     }
++#endif // __GNUC_PREREQ(3,4)
++	
+     return d->nativeMulticastInterface();
+ }
+ 
+diff --git a/src/network/socket/qudpsocket.cpp b/src/network/socket/qudpsocket.cpp
+index b87a694..8563d33 100644
+--- a/src/network/socket/qudpsocket.cpp
++++ b/src/network/socket/qudpsocket.cpp
+@@ -422,7 +422,16 @@ bool QUdpSocket::leaveMulticastGroup(const QHostAddress &groupAddress,
+ QNetworkInterface QUdpSocket::multicastInterface() const
+ {
+     Q_D(const QUdpSocket);
++
++#if __GNUC_PREREQ(3,4)
+     QT_CHECK_BOUND("QUdpSocket::multicastInterface()", QNetworkInterface());
++#else
++    if (!isValid()) {
++	qWarning("QUdpSocket::multicastInterface() called on a QUdpSocket when not in QUdpSocket::BoundState");
++	return QNetworkInterface();
++    }
++#endif // __GNUC_PREREQ(3,4)
++
+     return d->socketEngine->multicastInterface();
+ }
+ 

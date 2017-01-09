@@ -1,0 +1,114 @@
+diff --git a/data/ui/preferences.ui b/data/ui/preferences.ui
+index 647c90d..d08b497 100644
+--- a/data/ui/preferences.ui
++++ b/data/ui/preferences.ui
+@@ -554,6 +554,30 @@ along with plank.  If not, see <http://www.gnu.org/licenses/>.
+               </packing>
+             </child>
+             <child>
++              <object class="GtkLabel" id="l_tooltips_enabled">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="halign">end</property>
++                <property name="label" translatable="yes">Show Tooltips:</property>
++              </object>
++              <packing>
++                <property name="left_attach">2</property>
++                <property name="top_attach">6</property>
++              </packing>
++            </child>
++            <child>
++              <object class="GtkSwitch" id="sw_tooltips_enabled">
++                <property name="visible">True</property>
++                <property name="can_focus">True</property>
++                <property name="halign">start</property>
++                <property name="valign">center</property>
++              </object>
++              <packing>
++                <property name="left_attach">3</property>
++                <property name="top_attach">6</property>
++              </packing>
++            </child>
++            <child>
+               <placeholder/>
+             </child>
+             <child>
+diff --git a/lib/Widgets/PreferencesWindow.vala b/lib/Widgets/PreferencesWindow.vala
+index 34cd21a..5e0125a 100644
+--- a/lib/Widgets/PreferencesWindow.vala
++++ b/lib/Widgets/PreferencesWindow.vala
+@@ -73,6 +73,8 @@ namespace Plank
+ 		[GtkChild]
+ 		Gtk.Switch sw_lock_items;
+ 		[GtkChild]
++		Gtk.Switch sw_tooltips_enabled;
++		[GtkChild]
+ 		Gtk.Switch sw_pressure_reveal;
+ 		[GtkChild]
+ 		Gtk.Switch sw_zoom_enabled;
+@@ -140,6 +142,9 @@ namespace Plank
+ 			case "LockItems":
+ 				sw_lock_items.set_active (prefs.LockItems);
+ 				break;
++			case "TooltipsEnabled":
++				sw_tooltips_enabled.set_active (prefs.TooltipsEnabled);
++				break;
+ 			case "Monitor":
+ 				var pos = 0;
+ 				foreach (unowned string plug_name in Plank.PositionManager.get_monitor_plug_names (get_screen ())) {
+@@ -260,6 +265,11 @@ namespace Plank
+ 			prefs.LockItems = ((Gtk.Switch) widget).get_active ();
+ 		}
+ 		
++		void tooltips_enabled_toggled (GLib.Object widget, ParamSpec param)
++		{
++			prefs.TooltipsEnabled = ((Gtk.Switch) widget).get_active ();
++		}
++		
+ 		void pressure_reveal_toggled (GLib.Object widget, ParamSpec param)
+ 		{
+ 			prefs.PressureReveal = ((Gtk.Switch) widget).get_active ();
+@@ -324,6 +334,7 @@ namespace Plank
+ 			sw_workspace_only.notify["active"].connect (workspace_only_toggled);
+ 			sw_show_unpinned.notify["active"].connect (show_unpinned_toggled);
+ 			sw_lock_items.notify["active"].connect (lock_items_toggled);
++			sw_tooltips_enabled.notify["active"].connect (tooltips_enabled_toggled);
+ 			sw_pressure_reveal.notify["active"].connect (pressure_reveal_toggled);
+ 			sw_zoom_enabled.notify["active"].connect (zoom_enabled_toggled);
+ 			cb_alignment.changed.connect (alignment_changed);
+@@ -348,6 +359,7 @@ namespace Plank
+ 			sw_workspace_only.notify["active"].disconnect (workspace_only_toggled);
+ 			sw_show_unpinned.notify["active"].disconnect (show_unpinned_toggled);
+ 			sw_lock_items.notify["active"].disconnect (lock_items_toggled);
++			sw_tooltips_enabled.notify["active"].disconnect (tooltips_enabled_toggled);
+ 			sw_pressure_reveal.notify["active"].disconnect (pressure_reveal_toggled);
+ 			sw_zoom_enabled.notify["active"].disconnect (zoom_enabled_toggled);
+ 			cb_alignment.changed.disconnect (alignment_changed);
+@@ -396,6 +408,7 @@ namespace Plank
+ 			sw_workspace_only.set_active (prefs.CurrentWorkspaceOnly);
+ 			sw_show_unpinned.set_active (!prefs.PinnedOnly);
+ 			sw_lock_items.set_active (prefs.LockItems);
++			sw_tooltips_enabled.set_active (prefs.TooltipsEnabled);
+ 			sw_pressure_reveal.set_active (prefs.PressureReveal);
+ 			sw_zoom_enabled.set_active (prefs.ZoomEnabled);
+ 			cb_alignment.active_id = ((int) prefs.Alignment).to_string ();
+diff --git a/lib/libplank.symbols b/lib/libplank.symbols
+index 8672738..8e23585 100644
+--- a/lib/libplank.symbols
++++ b/lib/libplank.symbols
+@@ -287,6 +287,7 @@ plank_dock_preferences_get_HideMode
+ plank_dock_preferences_get_IconSize
+ plank_dock_preferences_get_ItemsAlignment
+ plank_dock_preferences_get_LockItems
++plank_dock_preferences_get_TooltipsEnabled
+ plank_dock_preferences_get_Monitor
+ plank_dock_preferences_get_Offset
+ plank_dock_preferences_get_PinnedOnly
+@@ -310,6 +311,7 @@ plank_dock_preferences_set_HideMode
+ plank_dock_preferences_set_IconSize
+ plank_dock_preferences_set_ItemsAlignment
+ plank_dock_preferences_set_LockItems
++plank_dock_preferences_set_TooltipsEnabled
+ plank_dock_preferences_set_Monitor
+ plank_dock_preferences_set_Offset
+ plank_dock_preferences_set_PinnedOnly

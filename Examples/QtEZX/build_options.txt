@@ -1,0 +1,7 @@
+export PATH=/opt/toolchains/motoezx/crosstool/bin/:$PATH
+
+./configure -opensource -confirm-license -little-endian -host-little-endian -qt-gfx-transformed -embedded arm-gnu -no-webkit -no-script -no-scripttools -no-declarative -nomake examples -nomake demos -nomake docs -fast -static -prefix /opt/QtSDKs/Qt4.8.6-iwmmxt-static
+
+make -j3
+
+sudo make isntall

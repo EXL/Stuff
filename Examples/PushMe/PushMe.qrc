@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>PushMe_es.qm</file>
+        <file>PushMe_ru.qm</file>
+        <file>PushMe_en.qm</file>
+    </qresource>
+</RCC>
