@@ -26,11 +26,11 @@ QString Widget::decodePackedGSM7HexString(unsigned char *in)
     // ??? = ??? - (??? * 7) = 662
     // ??? = ??? / 7
 
-    u_int8_t bpos;
-    u_int16_t x;
-    u_int16_t y;
-    u_int8_t n_ch;
-    u_int16_t fill_bits = 1;
+    unsigned char bpos;
+    unsigned short x;
+    unsigned short y;
+    unsigned char n_ch;
+    unsigned short fill_bits = 1;
 
     for (x = 0, y = 0, bpos = fill_bits; x < PATH_MAX; x++) {
         switch (bpos) {
