@@ -9,6 +9,7 @@ Exported from https://gist.github.com/EXL
 * **IconTest**: Qt Window Icon Test.
 * **IconTestWinExtras**: Qt Window Icon Test with Qt Win Extras.
 * **Iterator**: Template iterator by file content.
+* **MotoFan2WordPress**: Script for import MotoFan.Ru database to WordPress.
 * **Motorola_SMS_Unpacker**: Utility for decoding GSM-7 packed characters SMS from Motorola Phones.
 * **MySqlPhpTest**: PHP script for testing a MySQL database connection.
 * **OpenGLES_Linux**: OpenGLES for Linux example.

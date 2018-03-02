@@ -1,0 +1,45 @@
+--- functions_orig.php	2017-01-25 15:41:20.000000000 +0700
++++ functions.php	2018-03-02 14:45:53.508809602 +0700
+@@ -156,7 +156,11 @@
+ 	if (!function_exists('redwaves_get_thumbnail')) {
+ 		function redwaves_get_thumbnail( $size = 'featured' ) {
+ 			global $post;
+-			
++
++			if (!empty($post->post_content_filtered)) {
++				return $post->post_content_filtered;
++			}
++
+ 			// This variable will be used only if the post has no featured image already set.
+ 			$images = get_children( 'post_type=attachment&post_mime_type=image&post_parent=' . $post->ID );			
+ 			if ( $size == 'big' ) {
+@@ -647,6 +651,22 @@
+ 	add_filter( 'script_loader_src', 'redwaves_remove_cssjs_ver', 10, 2 );				
+ 
+ 	/*-----------------------------------------------------------------------------------*/
++	/*   EXL's hack for thumbs, see https://wordpress.stackexchange.com/a/113701 for info
++	/*-----------------------------------------------------------------------------------*/
++
++	function preserve_content_filtered ( $data, $postarr ) {
++		if ( ! isset($postarr['ID']) || ! $postarr['ID'] ) return $data;
++		if ( ! in_array( $data['post_type'], array( 'post', 'page' ) ) ) return $data;
++		$before = get_post( $postarr['ID'] );
++		if ( empty( $before->post_content_filtered ) ) return $data;
++		if ( empty( $data['post_content_filtered'] ) ) {
++			$data['post_content_filtered'] = $before->post_content_filtered;
++		}
++		return $data;
++	}
++	add_filter( 'wp_insert_post_data', 'preserve_content_filtered', 999, 2 );
++
++	/*-----------------------------------------------------------------------------------*/
+ 	/*  Load WP Customizer & Options Panel
+ 	/*-----------------------------------------------------------------------------------*/
+ 
+@@ -664,4 +684,4 @@
+ 	/*-----------------------------------------------------------------------------------*/
+ 	/*  That's All, Bye!
+ 	/*-----------------------------------------------------------------------------------*/
+-?>
+\ No newline at end of file
++?>

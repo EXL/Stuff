@@ -1,0 +1,12 @@
+{
+  "name": "MotoFan2WordPress",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node MotoFan2WordPress"
+  },
+  "dependencies": {
+    "mysql": "~2.15.0",
+    "sync-request": "~5.0.0"
+  }
+}
