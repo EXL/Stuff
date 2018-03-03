@@ -10,22 +10,13 @@
 //  4. Run import Script:
 //      $ node MotoFan2WordPress
 // License: MIT
-// (c) EXL, 02-MAR-2018
+// (c) EXL, 02-MAR-2018, email: exlmotodev@gmail.com
 
-const MySql = require("mysql");
+const MySql = require('mysql');
 const Request = require('sync-request');
 const Url = require('url');
 
-const Settings = {
-    url:            'http://localhost/',
-    host:           'localhost',
-    user:           'root',
-    pass:           'hidden',
-    db_mf:          'admin_motofan',
-    db_wp:          'mydb',
-    charset:        'utf8mb4',
-    timeout:        12000
-};
+const Utils = require('./Utils.js');
 
 function main() {
     console.log("++++= Started at: " + Date());
@@ -34,11 +25,11 @@ function main() {
 
 function toMotoFanCMS_DB() {
     var con = MySql.createConnection({
-        host:       Settings.host,
-        user:       Settings.user,
-        password:   Settings.pass,
-        database:   Settings.db_mf,
-        charset:    Settings.charset
+        host:       Utils.settings.host,
+        user:       Utils.settings.user,
+        password:   Utils.settings.pass,
+        database:   Utils.settings.db_mf,
+        charset:    Utils.settings.charset
     });
 
     con.connect(function(err) {
@@ -46,7 +37,7 @@ function toMotoFanCMS_DB() {
             throw err;
         }
         console.log('MotoFan CMS DB: Connected!');
-        con.query('SELECT * FROM news', function (err, result, fields) {
+        con.query('SELECT * FROM news', function (err, result) {
             if (err) {
                 throw err;
             }
@@ -60,13 +51,8 @@ function formatDateToMySQL(aDate) {
     return aDate.toISOString().replace(/T/, ' ').replace(/\..+/, '');
 }
 
-function toExit() {
-    console.log("Ended at: " + Date());
-    process.exit(0);
-}
-
 function getSaveUsername(aUn) {
-    return aUn.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"-");
+    return aUn.toLowerCase().replace(/[.,\/#!$%^&*;:{}=\-_`~()]/g,"-");
 }
 
 function createAuthorsMatrix(aNews) {
@@ -75,7 +61,11 @@ function createAuthorsMatrix(aNews) {
                   pass: '$P$BuTtc7RgaVQ5b64N/I/XI4IC2/EMJu/', date: formatDateToMySQL(new Date()) });
     users.set('Zorge.R', { id: '2', un: 'Zorge.R', unn: 'zorge-r', email: 'zorg.rhrd@gmail.com',
                   pass: '$P$BuTtc7RgaVQ5b64N/I/XI4IC2/EMJu/', date: formatDateToMySQL(new Date()) });
-    aNews.forEach(function each(el, index, array) {
+    users.set('yakim', { id: '3', un: 'yakim', unn: 'yakim', email: 'ss.yakim@gmail.com',
+                  pass: '$P$BuTtc7RgaVQ5b64N/I/XI4IC2/EMJu/', date: formatDateToMySQL(new Date()) });
+    users.set('Воха', { id: '4', un: 'Воха', unn: 'voha', email: 'voha@wap-robin.com',
+                  pass: '$P$BuTtc7RgaVQ5b64N/I/XI4IC2/EMJu/', date: formatDateToMySQL(new Date()) });
+    aNews.forEach(function each(el) {
         if (!users.get(el.author.toLowerCase()) && !users.get(el.author)) {
             users.set(el.author, { id: (users.size + 1) + '', un: el.author, unn: getSaveUsername(el.author),
                       email: getSaveUsername(el.author) + '@noreply.com', pass: '$P$BuTtc7RgaVQ5b64N/I/XI4IC2/EMJu/',
@@ -87,8 +77,8 @@ function createAuthorsMatrix(aNews) {
 
 function getCountNewsInTerm(aTerm, aNews) {
     var cnt = 0;
-    aNews.forEach(function each(el, index, array) {
-        if (el.cat_id == aTerm) {
+    aNews.forEach(function each(el) {
+        if (el.cat_id === parseInt(aTerm)) {
             cnt++;
         }
     });
@@ -120,13 +110,13 @@ function processTermsTaxonomy(aUsers, aNews, aTerms, con) {
             return;
         }
         process.stdout.write("Commit term taxonomy #" + (current+1) + "... ");
-        runSqlQuery(con, "INSERT INTO wp_term_taxonomy (term_taxonomy_id, term_id, taxonomy, description, parent, count) VALUES ('" +
-                    escSqlString((current+1) + '') + "', '" +
-                    escSqlString((current+1) + '') + "', '" +
-                    escSqlString('category') + "', '" +
-                    escSqlString('') + "', '" +
-                    escSqlString('0') + "', '" +
-                    escSqlString(aTerms[current].count) + "');").then(function() {
+        Utils.runSqlQuery(con, "INSERT INTO wp_term_taxonomy (term_taxonomy_id, term_id, taxonomy, description, parent, count) VALUES ('" +
+                    Utils.escSqlString((current+1) + '') + "', '" +
+                    Utils.escSqlString((current+1) + '') + "', '" +
+                    Utils.escSqlString('category') + "', '" +
+                    Utils.escSqlString('') + "', '" +
+                    Utils.escSqlString('0') + "', '" +
+                    Utils.escSqlString(aTerms[current].count) + "');").then(function() {
                         process.stdout.write("done.\n");
                         ++current;
                         nextLapDb();
@@ -144,10 +134,10 @@ function processTermsRels(aUsers, aNews, aTerms, con) {
             return;
         }
         process.stdout.write("Commit term relationship #" + (current+1) + "... ");
-        runSqlQuery(con, "INSERT INTO wp_term_relationships (object_id, term_taxonomy_id, term_order) VALUES ('" +
-                    escSqlString((current+1) + '') + "', '" +
-                    escSqlString(aNews[current].cat_id + '') + "', '" +
-                    escSqlString('0') + "');").then(function() {
+        Utils.runSqlQuery(con, "INSERT INTO wp_term_relationships (object_id, term_taxonomy_id, term_order) VALUES ('" +
+                    Utils.escSqlString(Utils.hackDataBaseOffset(aNews[current].id) + '') + "', '" +
+                    Utils.escSqlString(aNews[current].cat_id + '') + "', '" +
+                    Utils.escSqlString('0') + "');").then(function() {
                         process.stdout.write("done.\n");
                         ++current;
                         nextLapDb();
@@ -165,11 +155,11 @@ function processTerms(aUsers, aNews, aTerms, con) {
             return;
         }
         process.stdout.write("Commit term #" + (current+1) + "... ");
-        runSqlQuery(con, "INSERT INTO wp_terms (term_id, name, slug, term_group) VALUES ('" +
-                    escSqlString((current+1) + '') + "', '" +
-                    escSqlString(aTerms[current].name) + "', '" +
-                    escSqlString(aTerms[current].slug) + "', '" +
-                    escSqlString('0') + "');").then(function() {
+        Utils.runSqlQuery(con, "INSERT INTO wp_terms (term_id, name, slug, term_group) VALUES ('" +
+                    Utils.escSqlString((current+1) + '') + "', '" +
+                    Utils.escSqlString(aTerms[current].name) + "', '" +
+                    Utils.escSqlString(aTerms[current].slug) + "', '" +
+                    Utils.escSqlString('0') + "');").then(function() {
                         process.stdout.write("done.\n");
                         ++current;
                         nextLapDb();
@@ -188,18 +178,18 @@ function processUsers(aUsers, aNews, aTerms, con) {
             return;
         }
         process.stdout.write("Commit user #" + (current+1) + "... ");
-        runSqlQuery(con, "INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, \
+        Utils.runSqlQuery(con, "INSERT INTO wp_users (ID, user_login, user_pass, user_nicename, user_email, user_url, \
                                                 user_registered, user_activation_key, user_status, display_name) VALUES ('" +
-                    escSqlString(users[current][1].id) + "', '" +
-                    escSqlString(users[current][1].un) + "', '" +
-                    escSqlString(users[current][1].pass) + "', '" +
-                    escSqlString(users[current][1].unn) + "', '" +
-                    escSqlString(users[current][1].email) + "', '" +
-                    escSqlString('') + "', '" +
-                    escSqlString(users[current][1].date) + "', '" +
-                    escSqlString('') + "', '" +
-                    escSqlString('0') + "', '" +
-                    escSqlString(users[current][1].un) + "');").then(function() {
+                    Utils.escSqlString(users[current][1].id) + "', '" +
+                    Utils.escSqlString(users[current][1].un) + "', '" +
+                    Utils.escSqlString(users[current][1].pass) + "', '" +
+                    Utils.escSqlString(users[current][1].unn) + "', '" +
+                    Utils.escSqlString(users[current][1].email) + "', '" +
+                    Utils.escSqlString('') + "', '" +
+                    Utils.escSqlString(users[current][1].date) + "', '" +
+                    Utils.escSqlString('') + "', '" +
+                    Utils.escSqlString('0') + "', '" +
+                    Utils.escSqlString(users[current][1].un) + "');").then(function() {
                         process.stdout.write("done.\n");
                         ++current;
                         nextLapDb();
@@ -214,38 +204,38 @@ function processPosts(aUsers, aNews, con) {
         if (current >= times) {
             console.log("SQL: " + current + " news are stored to the DB.");
             con.end();
-            toExit();
+            Utils.toExit();
             return;
         }
         process.stdout.write("Commit post #" + (current+1) + "... ");
-        runSqlQuery(con, "INSERT INTO wp_posts (ID, post_author, post_date, post_date_gmt, post_content, post_title, \
+        Utils.runSqlQuery(con, "INSERT INTO wp_posts (ID, post_author, post_date, post_date_gmt, post_content, post_title, \
                                                 post_excerpt, post_status, comment_status, ping_status, post_password, \
                                                 post_name, to_ping, pinged, post_modified, post_modified_gmt, \
                                                 post_content_filtered, post_parent, guid, menu_order, post_type, \
                                                 post_mime_type, comment_count) VALUES ('" +
-                    escSqlString((current + 1) + '') + "', '" +
-                    escSqlString(getUserId(aUsers, aNews[current].author)) + "', '" +
-                    escSqlString(formatDateToMySQL(aNews[current].date)) + "', '" +
-                    escSqlString(formatDateToMySQL(aNews[current].date)) + "', '" +
-                    escSqlString(aNews[current].body) + "', '" +
-                    escSqlString(aNews[current].title) + "', '" +
-                    escSqlString('') + "', '" +
-                    escSqlString('publish') + "', '" +
-                    escSqlString('open') + "', '" +
-                    escSqlString('open') + "', '" +
-                    escSqlString('') + "', '" +
-                    escSqlString(aNews[current].title) + "', '" +
-                    escSqlString('') + "', '" +
-                    escSqlString('') + "', '" +
-                    escSqlString(formatDateToMySQL(aNews[current].date)) + "', '" +
-                    escSqlString(formatDateToMySQL(aNews[current].date)) + "', '" +
-                    escSqlString(aNews[current].preview_url) + "', '" +
-                    escSqlString('0') + "', '" +
-                    escSqlString(Settings.url + '?p=' + (current + 1)) + "', '" +
-                    escSqlString('0') + "', '" +
-                    escSqlString('post') + "', '" +
-                    escSqlString('') + "', '" +
-                    escSqlString('0') + "');").then(function() {
+                    Utils.escSqlString(Utils.hackDataBaseOffset(aNews[current].id) + '') + "', '" +
+                    Utils.escSqlString(getUserId(aUsers, aNews[current].author)) + "', '" +
+                    Utils.escSqlString(formatDateToMySQL(aNews[current].date)) + "', '" +
+                    Utils.escSqlString(formatDateToMySQL(aNews[current].date)) + "', '" +
+                    Utils.escSqlString(aNews[current].body) + "', '" +
+                    Utils.escSqlString(aNews[current].title) + "', '" +
+                    Utils.escSqlString('') + "', '" +
+                    Utils.escSqlString('publish') + "', '" +
+                    Utils.escSqlString('open') + "', '" +
+                    Utils.escSqlString('open') + "', '" +
+                    Utils.escSqlString('') + "', '" +
+                    Utils.escSqlString(aNews[current].title) + "', '" +
+                    Utils.escSqlString('') + "', '" +
+                    Utils.escSqlString('') + "', '" +
+                    Utils.escSqlString(formatDateToMySQL(aNews[current].date)) + "', '" +
+                    Utils.escSqlString(formatDateToMySQL(aNews[current].date)) + "', '" +
+                    Utils.escSqlString(aNews[current].preview_url) + "', '" +
+                    Utils.escSqlString('0') + "', '" +
+                    Utils.escSqlString(Utils.settings.url + '?p=' + (current + 1)) + "', '" +
+                    Utils.escSqlString('0') + "', '" +
+                    Utils.escSqlString('post') + "', '" +
+                    Utils.escSqlString('') + "', '" +
+                    Utils.escSqlString('0') + "');").then(function() {
                         process.stdout.write("done.\n");
                         ++current;
                         nextLapDb();
@@ -265,11 +255,11 @@ function getUserId(aUsers, aUser) {
 
 function toMotoFanWordpress_DB(aNews) {
     var con = MySql.createConnection({
-        host:       Settings.host,
-        user:       Settings.user,
-        password:   Settings.pass,
-        database:   Settings.db_wp,
-        charset:    Settings.charset
+        host:       Utils.settings.host,
+        user:       Utils.settings.user,
+        password:   Utils.settings.pass,
+        database:   Utils.settings.db_wp,
+        charset:    Utils.settings.charset
     });
 
     con.connect(function(err) {
@@ -278,43 +268,17 @@ function toMotoFanWordpress_DB(aNews) {
         }
         console.log('MotoFan WordPress DB: Connected!');
 
-        runSqlQuery(con, 'TRUNCATE TABLE wp_posts');
-        runSqlQuery(con, 'TRUNCATE TABLE wp_users');
-        runSqlQuery(con, 'TRUNCATE TABLE wp_terms');
-        runSqlQuery(con, 'TRUNCATE TABLE wp_term_relationships');
-        runSqlQuery(con, 'TRUNCATE TABLE wp_term_taxonomy');
-        runSqlQuery(con, 'TRUNCATE TABLE wp_termmeta');
-
-        //processPosts(createAuthorsMatrix(aNews), aNews, con);
-        processUsers(createAuthorsMatrix(aNews), aNews, createTermsMatrix(aNews), con);
-    });
-}
-
-// https://stackoverflow.com/a/7760578
-function escSqlString(str) {
-    return (str) ? str.replace(/[\0\x08\x09\x1a\n\r"'\\%]/g, function(char) {
-        switch (char) {
-            case "%":
-                return char;
-            case "\0":
-                return "\\0";
-            case "\x08":
-                return "\\b";
-            case "\x09":
-                return "\\t";
-            case "\x1a":
-                return "\\z";
-            case "\n":
-                return "\\n";
-            case "\r":
-                return "\\r";
-            case "\"":
-            case "'":
-            case "\\":
-                return "\\"+char; // prepends a backslash to backslash, percent,
-                                  // and double/single quotes
+        Utils.runSqlQuery(con, 'DELETE FROM wp_posts WHERE post_type="post"');
+        if (Utils.settings.only_posts) {
+            processPosts(createAuthorsMatrix(aNews), aNews, con);
+        } else {
+            Utils.runSqlQuery(con, 'TRUNCATE TABLE wp_users');
+            Utils.runSqlQuery(con, 'DELETE FROM wp_terms WHERE term_id<=' + Utils.settings.end_cat);
+            Utils.runSqlQuery(con, 'DELETE FROM wp_term_relationships WHERE object_id<=' + Utils.settings.end_post);
+            Utils.runSqlQuery(con, 'DELETE FROM wp_term_taxonomy WHERE term_taxonomy_id<=' + Utils.settings.end_cat);
+            processUsers(createAuthorsMatrix(aNews), aNews, createTermsMatrix(aNews), con);
         }
-    }) : "";
+    });
 }
 
 function detectImage(aUrl) {
@@ -324,14 +288,18 @@ function detectImage(aUrl) {
 }
 
 function getPreviewUrl(aBody) {
-    var matches = aBody.match(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig);
-    var img_link = '';
-    if (matches != null) {
-        for (var i = 0; i < matches.length; ++i) {
-            var i_url = matches[i];
-            if (detectImage(i_url)) {
-                return i_url;
-            }
+    var img_link = '', m, urls = [];
+    rex = /<img\s[^>]*?src\s*=\s*['"]([^'"]*?)['"][^>]*?>/g;
+    while (m = rex.exec(aBody)) {
+        urls.push(m[1]);
+    }
+    if (urls.length > 0) {
+        var i_url = urls[0]; // First Picture
+        if (i_url.indexOf('http') < 0) {
+            i_url = Utils.settings.url_img + i_url.replace('../../..', '');
+        }
+        if (detectImage(i_url)) {
+            return i_url;
         }
     }
     return img_link;
@@ -342,21 +310,24 @@ function testImageOn404(aBody, aNum) {
     if (img_src === '') {
         return '';
     }
-    try {
-    var res = Request('GET', img_src, { timeout: Settings.timeout });
-    var check = res && res.headers && res.headers['content-type'] &&
-            res.headers['content-type'].match(/(image)+\//g) &&
-            ((res.headers['content-type'].match(/(image)+\//g)).length != 0);
-    if (check) {
+    if (img_src.indexOf('motofan.ru/images') > 0) {
         console.log('Image #' + aNum + ':\tGood: ' + img_src);
-    } else {
-        throw 'err';
+        return img_src;
     }
+    try {
+        var res = Request('GET', img_src, { timeout: Utils.settings.timeout });
+        var check = res && res.headers && res.headers['content-type'] &&
+                res.headers['content-type'].match(/(image)+\//g) &&
+                ((res.headers['content-type'].match(/(image)+\//g)).length !== 0);
+        if (check) {
+            console.log('Image #' + aNum + ':\tGood: ' + img_src);
+        } else {
+            throw 'err';
+        }
     } catch (err) {
         console.log('Image #' + aNum + ':\tBad: ' + img_src);
         img_src = '';
     }
-
     return img_src;
 }
 
@@ -365,40 +336,27 @@ function getShortLink(aLink) {
 }
 
 function createLink(aLink) {
-    if (aLink.indexOf('http') != -1) {
+    if (aLink.indexOf('http') !== -1) {
         return '<a href="' + aLink + '" title="' + aLink + '" target="_blank">' + getShortLink(aLink) + '</a>';
     } else {
         return aLink;
     }
 }
 
-function filterBody(aBody, aSource, aOther) {
+function filterBody(aBody, aSource) {
     return aBody + '\n\n' + '<em><strong>Источник</strong>: ' + createLink(aSource) + '</em>';
 }
 
 function handleMotoFanDB(aResult) {
     var news = [];
     console.log("Checking broken images...");
-    aResult.forEach(function each(el, index, array) {
-        news.push({ cat_id: el.category_id, date: el.date, author: el.poster,
-                      title: el.title, body: filterBody(el.body, el.source, el.poster),
+    aResult.forEach(function each(el, index) {
+        news.push({ id: el.id, cat_id: el.category_id, date: el.date, author: el.poster,
+                      title: el.title, body: filterBody(el.body, el.source),
                       preview_url: testImageOn404(el.body, index + 1) });
     });
     console.log("Checking broken images... done!");
     toMotoFanWordpress_DB(news);
-}
-
-function runSqlQuery(aCon, aQuery) {
-    return new Promise(function(resolve) {
-        aCon.query(aQuery, function(err, result) {
-            if (err) {
-                throw err;
-            }
-            if (result) {
-                resolve(aCon);
-            }
-        });
-    });
 }
 
 main();
