@@ -1,0 +1,24 @@
+[Unit]
+Description=Node.js Telegram Crawler News Server
+Wants=network-online.target
+After=multi-user.target
+#After=network.target remote-fs.target timers.target
+#Requires=After=network-online.target
+
+[Service]
+ExecStart=/usr/bin/node /root/TgNews2MotoFan/TgNews2MotoFan.js
+WorkingDirectory=/root/TgNews2MotoFan/
+SyslogIdentifier=TgCrawler
+# Restart service after 15 seconds if node service crashes
+Restart=always
+RestartSec=15
+StandardOutput=journal
+StandardError=journal
+#StandardOutput=syslog
+#StandardError=syslog
+#User=<alternate user>
+#Group=<alternate group>
+Environment=NODE_ENV=production PORT=1337
+
+[Install]
+WantedBy=multi-user.target

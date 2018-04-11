@@ -1,0 +1,12 @@
+{
+  "name": "TgNews2MotoFan",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node TgNews2MotoFan"
+  },
+  "dependencies": {
+    "mysql": "~2.15.0",
+    "node-telegram-bot-api": "~0.28.0"
+  }
+}
