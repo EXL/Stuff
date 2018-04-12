@@ -31,7 +31,7 @@ class TG_Widget extends WP_Widget {
         // Our variables from the widget settings.
         $title = apply_filters('widget_title', $instance['title']);
         // $name = $instance['name'];
-        // $show_info = isset( $instance['show_info'] ) ? $instance['show_info'] : false;
+        $show_info = (int) isset( $instance['show_info'] ) ? $instance['show_info'] : false;
 
         echo $before_widget;
 
@@ -42,14 +42,19 @@ class TG_Widget extends WP_Widget {
 
         // Display telegram news posts
         global $wpdb;
-        $query = "SELECT * FROM (SELECT * FROM tg_news ORDER BY id DESC LIMIT 10) sub ORDER BY id DESC";
+        $post_cnt = ($show_info) ? 5 : 10;
+        $query = 'SELECT * FROM (SELECT * FROM tg_news ORDER BY id DESC LIMIT ' . $post_cnt . ') sub ORDER BY id DESC';
         $results = $wpdb->get_results($query);
         if (sizeof($results) > 0) {
-            echo '<ul>';
+            if (!$show_info) echo '<ul>';
             foreach ($results as $post) {
-                echo '<li class="cat-item cat-item-5"><div style="font-size: 13px;">' . $post->post . '</div></li>';
+                if ($show_info) {
+                    echo '<script async src="https://telegram.org/js/telegram-widget.js?4" data-telegram-post="motofan_ru/' . $post->msgId . '" data-width="900px"></script>';
+                } else {
+                    echo '<li class="cat-item cat-item-5"><div style="font-size: 13px;">' . $post->post . '</div></li>';
+                }
             }
-            echo '</ul>';
+            if (!$show_info) echo '</ul>';
         } else {
             printf('<ul><p class="cat-item cat-item-5">' . __('Пока здесь ничего нет!', 'tg_widget') . '</p></ul>');
         }
@@ -61,27 +66,32 @@ class TG_Widget extends WP_Widget {
         // Strip tags from title and name to remove HTML
         $instance['title'] = strip_tags($new_instance['title']);
         //$instance['name'] = strip_tags( $new_instance['name'] );
-        //$instance['show_info'] = $new_instance['show_info'];
+        $instance['show_info'] = $new_instance['show_info'];
         return $instance;
     }
 
     function form($instance) {
         // Set up some default widget settings.
-        $defaults = array('title' => __('Лента Telegram', 'tg_widget'), 'name' => __('Bilal Shaheen', 'tg_widget'), 'show_info' => true);
+        $defaults = array('title' => __('Лента Telegram', 'tg_widget'), 'name' => __('Bilal Shaheen', 'tg_widget'), 'show_info' => 1);
         $instance = wp_parse_args((array)$instance, $defaults); ?>
         <p>
             <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Заголовок:', 'tg_widget'); ?></label>
             <input id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>"
                    value="<?php echo $instance['title']; ?>" style="width:100%;"/>
         </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('show_info'); ?>"><?php _e('Использовать виджеты:', 'tg_widget'); ?></label>
+            <input id="<?php echo $this->get_field_id('show_info'); ?>" name="<?php echo $this->get_field_name('show_info'); ?>"
+                   value="<?php echo $instance['show_info']; ?>" style="width:100%;"/>
+        </p>
         <?php
         /*<p>
-            <label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php _e('Your Name:', 'tg_widget'); ?></label>
-            <input id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" value="<?php echo $instance['name']; ?>" style="width:100%;" />
+            <input class="checkbox" type="checkbox" <?php checked( $instance['show_info'], true ); ?> id="<?php echo $this->get_field_id( 'show_info' ); ?>" name="<?php echo $this->get_field_name( 'show_info' ); ?>" />
+            <label for="<?php echo $this->get_field_id( 'show_info' ); ?>"><?php _e('Использовать виджеты?', 'tg_widget'); ?></label>
         </p>
         <p>
-            <input class="checkbox" type="checkbox" <?php checked( $instance['show_info'], true ); ?> id="<?php echo $this->get_field_id( 'show_info' ); ?>" name="<?php echo $this->get_field_name( 'show_info' ); ?>" />
-            <label for="<?php echo $this->get_field_id( 'show_info' ); ?>"><?php _e('Display info publicly?', 'tg_widget'); ?></label>
+            <label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php _e('Your Name:', 'tg_widget'); ?></label>
+            <input id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" value="<?php echo $instance['name']; ?>" style="width:100%;" />
         </p> */
     }
 }
