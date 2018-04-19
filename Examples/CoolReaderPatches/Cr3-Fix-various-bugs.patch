@@ -1,0 +1,137 @@
+From 705869446c0a4dce3ce4bf54d667d21ba4843d3f Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Fri, 20 Apr 2018 06:00:01 +0700
+Subject: [PATCH] Fix various bugs
+
+---
+ .gitignore             |  1 +
+ cr3qt/src/cr3widget.h  |  2 +-
+ cr3qt/src/settings.cpp | 12 +++++++++---
+ cr3qt/src/settings.h   |  1 +
+ cr3qt/src/settings.ui  | 12 ++++++------
+ 5 files changed, 18 insertions(+), 10 deletions(-)
+
+diff --git a/.gitignore b/.gitignore
+index 91eb1d8..115f561 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -7,3 +7,4 @@ qtbuild
+ qt-build
+ qtcreator-build
+ *~
++CMakeLists.txt.user
+diff --git a/cr3qt/src/cr3widget.h b/cr3qt/src/cr3widget.h
+index 0386c01..5765719 100644
+--- a/cr3qt/src/cr3widget.h
++++ b/cr3qt/src/cr3widget.h
+@@ -124,7 +124,7 @@ class CR3View : public QWidget, public LVDocViewCallback
+ 
+         void setUseClickForNextPage(bool value);
+ 
+-public slots:
++    public slots:
+         void contextMenu( QPoint pos );
+         void setScrollBar( QScrollBar * scroll );
+         /// on scroll
+diff --git a/cr3qt/src/settings.cpp b/cr3qt/src/settings.cpp
+index 433de6c..d378620 100644
+--- a/cr3qt/src/settings.cpp
++++ b/cr3qt/src/settings.cpp
+@@ -114,14 +114,14 @@ SettingsDlg::SettingsDlg(QWidget *parent, CR3View * docView ) :
+         lString16 fn = bgFiles[i];
+         QString f = cr2qt(fn);
+         if ( f==bgFile )
+-            bgIndex = i;
++            bgIndex = i + 1;
+         m_backgroundFiles.append(f);
+         fn = LVExtractFilenameWithoutExtension(fn);
+         bgFileLabels.append(cr2qt(fn));
+     }
+     m_ui->cbPageSkin->clear();
+     m_ui->cbPageSkin->addItems( bgFileLabels );
+-    m_ui->cbPageSkin->setCurrentIndex(bgIndex+1);
++    m_ui->cbPageSkin->setCurrentIndex( bgIndex );
+ 
+     optionToUi( PROP_WINDOW_FULLSCREEN, m_ui->cbWindowFullscreen );
+     optionToUi( PROP_PAGE_TURN_CLICK, m_ui->cbTurnPageMouse );
+@@ -327,6 +327,13 @@ void SettingsDlg::on_buttonBox_accepted()
+     close();
+ }
+ 
++void SettingsDlg::on_buttonBox_clicked(QAbstractButton * button)
++{
++    if (m_ui->buttonBox->buttonRole( button ) == QDialogButtonBox::ApplyRole) {
++        m_docview->setOptions( m_props );
++    }
++}
++
+ void SettingsDlg::optionToUi( const char * optionName, QCheckBox * cb )
+ {
+     int state = ( m_props->getIntDef( optionName, 1 ) != 0 ) ? 1 : 0;
+@@ -930,7 +937,6 @@ void SettingsDlg::on_cbPageSkin_currentIndexChanged(int index)
+         m_props->setString( PROP_BACKGROUND_IMAGE, m_backgroundFiles[index] );
+ }
+ 
+-
+ void SettingsDlg::on_cbFloatingPunctuation_stateChanged(int s)
+ {
+     setCheck( PROP_FLOATING_PUNCTUATION, s );
+diff --git a/cr3qt/src/settings.h b/cr3qt/src/settings.h
+index 7fe8a90..630341c 100644
+--- a/cr3qt/src/settings.h
++++ b/cr3qt/src/settings.h
+@@ -196,6 +196,7 @@ private slots:
+     void on_cbTurnPageMouse_stateChanged(int );
+     void on_buttonBox_accepted();
+     void on_buttonBox_rejected();
++    void on_buttonBox_clicked(QAbstractButton * button);
+     void on_cbFloatingPunctuation_stateChanged(int );
+     void on_cbFontGamma_currentIndexChanged(QString );
+     void on_cbStyleName_currentIndexChanged(int index);
+diff --git a/cr3qt/src/settings.ui b/cr3qt/src/settings.ui
+index 0a44969..5cf9a26 100644
+--- a/cr3qt/src/settings.ui
++++ b/cr3qt/src/settings.ui
+@@ -9,8 +9,8 @@
+    <rect>
+     <x>0</x>
+     <y>0</y>
+-    <width>433</width>
+-    <height>783</height>
++    <width>454</width>
++    <height>809</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+@@ -30,7 +30,7 @@
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+-      <number>1</number>
++      <number>2</number>
+      </property>
+      <widget class="QWidget" name="tabWindow">
+       <property name="toolTip">
+@@ -1617,8 +1617,8 @@
+              <rect>
+               <x>0</x>
+               <y>0</y>
+-              <width>395</width>
+-              <height>646</height>
++              <width>416</width>
++              <height>672</height>
+              </rect>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_9">
+@@ -1798,7 +1798,7 @@
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="standardButtons">
+-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
++      <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      </property>
+     </widget>
+    </item>
+-- 
+2.17.0
+
