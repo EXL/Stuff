@@ -5,7 +5,6 @@ Exported from https://gist.github.com/EXL
 
 * **AllodsDataUnpacker**: AllodsDataUnpacker is simple unpacker for allods midlet.
 * **Arkanoid**: Simple Arkanoid Based on QPainter.
-* **CoolReaderPatches**: Various patches for [Cool Reader 3](https://github.com/buggins/coolreader).
 * **GradientComboBox**: QComboBox Gradient Sample.
 * **IconTest**: Qt Window Icon Test.
 * **IconTestWinExtras**: Qt Window Icon Test with Qt Win Extras.
