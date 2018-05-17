@@ -1,0 +1,3 @@
+[submodule "android-openssl"]
+	path = android-openssl
+	url = https://github.com/orangefour/android-openssl
