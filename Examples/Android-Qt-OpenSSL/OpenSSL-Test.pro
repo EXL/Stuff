@@ -34,6 +34,10 @@ FORMS += \
         widget.ui
 
 CONFIG += mobility
-MOBILITY = 
+MOBILITY =
+
+DISTFILES += android/AndroidManifest.xml
+
+ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 include(android-openssl/android-openssl.pri)
