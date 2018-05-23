@@ -2,6 +2,10 @@
 // License: MIT
 // (c) EXL, 11-APR-2018, email: exlmotodev@gmail.com
 
+// Fix deprecated warnings
+process.env["NTBA_FIX_319"] = 1;
+process.env["NTBA_FIX_350"] = 1;
+
 var MySql = require("mysql");
 var TelegramBot = require('node-telegram-bot-api');
 
