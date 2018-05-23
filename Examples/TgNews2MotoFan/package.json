@@ -7,6 +7,6 @@
   },
   "dependencies": {
     "mysql": "~2.15.0",
-    "node-telegram-bot-api": "~0.28.0"
+    "node-telegram-bot-api": "~0.30.0"
   }
 }
