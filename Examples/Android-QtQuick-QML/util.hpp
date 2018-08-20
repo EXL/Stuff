@@ -1,18 +1,20 @@
-#ifndef VIBRO_HPP
-#define VIBRO_HPP
+#ifndef UTIL_HPP
+#define UTIL_HPP
 
 #include <QObject>
+#include <QSettings>
+
 #include <QDebug>
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroidExtras/QAndroidJniObject>
 #endif
 
-class VibroHelperJNI: public QObject {
+class HelperJNI: public QObject {
     Q_OBJECT
-    
+
 public:
-    explicit VibroHelperJNI(QObject* parent = 0): QObject(parent) { }
+    explicit HelperJNI(QObject* parent = 0): QObject(parent) { }
     Q_INVOKABLE int qml_to_cpp_to_jni_to_java__bicycle4ever() {
         qWarning() << "Vibro: C++";
 #ifdef Q_OS_ANDROID
@@ -27,6 +29,14 @@ public:
 #endif
         return 1;
     }
+    Q_INVOKABLE int readSettings() {
+        qWarning() << "!!! READ SETTINGS !!!";
+        QSettings settings;
+        settings.beginGroup("Eeeeeek");
+        qWarning() << "Saved arg is: " << settings.value("Arg").toInt();
+        settings.endGroup();
+        return 1;
+    }
 };
 
-#endif // VIBRO_HPP
+#endif // UTIL_HPP
