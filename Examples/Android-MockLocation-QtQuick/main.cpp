@@ -3,6 +3,7 @@
 
 #include "vibro.hpp"
 
+#ifdef Q_OS_ANDROID
 #include "ru_exlmoto_qmldestroytest_NativeHelper.h"
 
 JNIEXPORT void JNICALL Java_ru_exlmoto_qmldestroytest_NativeHelper_invokeVoidMethod
@@ -12,6 +13,7 @@ JNIEXPORT void JNICALL Java_ru_exlmoto_qmldestroytest_NativeHelper_invokeVoidMet
     
     qWarning() << "Hello from Java => C++ again! Arg is: " << static_cast<int>(jInt) << " (Function)";
 }
+#endif
 
 int main(int argc, char *argv[])
 {

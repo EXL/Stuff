@@ -21,6 +21,7 @@ public:
         return 1;
     }
     Q_INVOKABLE int cpp_to_java_and_java_to_cpp() {
+        qWarning() << "Invoke: C++";
 #ifdef Q_OS_ANDROID
         QAndroidJniObject::callStaticMethod<void>("ru/exlmoto/qmldestroytest/QmlDestroyTest", "invoke", "(I)V", 30);
 #endif
