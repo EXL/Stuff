@@ -9,9 +9,9 @@ Window {
     width: 640
     height: 480
     title: qsTr("Hello World")
-    
-    VibroHelperJNI {
-        id: vibro
+
+    HelperJNI {
+        id: helperJni
     }
 
     Column {
@@ -20,13 +20,19 @@ Window {
         Button {
             text: "Vibrate"
             onClicked: {
-                vibro.qml_to_cpp_to_jni_to_java__bicycle4ever()
+                helperJni.qml_to_cpp_to_jni_to_java__bicycle4ever()
             }
         }
         Button {
             text: "Invoke"
             onClicked: {
-                vibro.cpp_to_java_and_java_to_cpp()
+                helperJni.cpp_to_java_and_java_to_cpp()
+            }
+        }
+        Button {
+            text: "Log Arg"
+            onClicked: {
+                helperJni.readSettings()
             }
         }
     }
