@@ -5,6 +5,7 @@
 //    $ pwd
 //    ../QmlDestroyTest/android/src
 //    $ javah ru.exlmoto.qmldestroytest.NativeHelper
+//    $ mv *.h ../..
 
 package ru.exlmoto.qmldestroytest;
 

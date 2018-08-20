@@ -34,3 +34,5 @@ DISTFILES += android/src/ru/exlmoto/qmldestroytest/QmlDestroyTest.java \
              android/AndroidManifest.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
+
+OTHER_FILES +=  ReadMe.md

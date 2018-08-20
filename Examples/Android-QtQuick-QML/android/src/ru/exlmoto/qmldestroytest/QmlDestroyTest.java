@@ -14,7 +14,7 @@ import android.widget.Toast;
 public class QmlDestroyTest extends org.qtproject.qt5.android.bindings.QtActivity {
     public static Vibrator m_vibrator;
     public static QmlDestroyTest m_instance;
-    
+
     static String TAG = "QmlDestroyTest";
 
     public QmlDestroyTest() {
@@ -30,9 +30,7 @@ public class QmlDestroyTest extends org.qtproject.qt5.android.bindings.QtActivit
     @Override
     public void onStop() {
         Log.w(TAG, "onStop() called!");
-
         NativeHelper.invokeVoidMethod(42);
-
         super.onStop();
     }
 
@@ -41,12 +39,12 @@ public class QmlDestroyTest extends org.qtproject.qt5.android.bindings.QtActivit
         Log.w(TAG, "onDestroy() called!");
         super.onDestroy();
     }
-    
+
     public static void invoke(int x) {
         final int z = x;
         m_instance.runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(m_instance, "Invoke from C++ => Java: " + String.valueOf(z) + " (Button)", 
+                Toast.makeText(m_instance, "Invoke from C++ => Java: " + String.valueOf(z) + " (Button)",
                                            Toast.LENGTH_SHORT).show();
             }
         });
