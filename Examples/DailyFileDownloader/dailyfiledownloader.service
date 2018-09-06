@@ -1,0 +1,12 @@
+[Unit]
+Description=Python Script for downloading and decompressing XML-file for baat.
+Wants=network-online.target
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env PYTHONUNBUFFERED=1 python3 /home/baat/tools/DailyFileDownloader/DailyFileDownloader.py
+SyslogIdentifier=DailyFileDownloader
+
+[Install]
+WantedBy=multi-user.target

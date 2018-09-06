@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer for DailyFileDownloader Python script
+
+[Timer]
+OnCalendar=0/12:00:00
+Unit=dailyfiledownloader.service
+
+[Install]
+WantedBy=multi-user.target
