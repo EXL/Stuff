@@ -19,4 +19,5 @@ Exported from https://gist.github.com/EXL
 * **PythonDigestBot**: JADBP is Just Another Digest Bot on Python for Telegram.
 * **QtEZX**: Patches for Qt 4.8.x to EZX Platform.
 * **Shutdowner**: Shutdowner is simple countdown timer with monitoring user activity and shutdown computer after time up.
+* **SDL2_messagebox_test**: Utility for test `SDL_ShowSimpleMessageBox()` and `SDL_ShowMessageBox()` functions in SDL2 library.
 * **TgNews2MotoFan**: Telegram News Crawler Bot + Widget for WordPress especially for MotoFan.Ru site.
