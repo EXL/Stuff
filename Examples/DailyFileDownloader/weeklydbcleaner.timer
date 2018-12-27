@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer for WeeklyDbCleaner Python script
+
+[Timer]
+OnCalendar=Mon *-*-* 13:00:00
+Unit=weeklydbcleaner.service
+
+[Install]
+WantedBy=multi-user.target

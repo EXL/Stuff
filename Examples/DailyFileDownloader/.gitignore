@@ -70,3 +70,9 @@ fabric.properties
 dist/
 build/
 venv/
+
+# Nano swap files
+*.swp
+
+# Other Files
+tv_program_manager.py

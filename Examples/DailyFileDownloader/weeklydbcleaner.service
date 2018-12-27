@@ -1,0 +1,12 @@
+[Unit]
+Description=Python Script for cleaning database for baat.
+Wants=network-online.target
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env PYTHONUNBUFFERED=1 python3 /home/baat/tools/DailyFileDownloader/tv_program_manager.py --delete-older 7
+SyslogIdentifier=WeeklyDbCleaner
+
+[Install]
+WantedBy=multi-user.target

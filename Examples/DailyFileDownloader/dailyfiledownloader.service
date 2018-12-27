@@ -5,7 +5,8 @@ After=multi-user.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/env PYTHONUNBUFFERED=1 python3 /home/baat/tools/DailyFileDownloader/DailyFileDownloader.py
+ExecStartPre=/usr/bin/env PYTHONUNBUFFERED=1 python3 /home/baat/tools/DailyFileDownloader/DailyFileDownloader.py https://epg.it999.ru/edem.xml.gz /var/www/html/online/tv3/
+ExecStart=/usr/bin/env PYTHONUNBUFFERED=1 python3 /home/baat/tools/DailyFileDownloader/tv_program_manager.py -f /var/www/html/online/tv3/edem.xml
 SyslogIdentifier=DailyFileDownloader
 
 [Install]

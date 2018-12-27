@@ -11,5 +11,10 @@ Disable:
 ```bash
 $ sudo systemctl stop dailyfiledownloader.timer
 $ sudo systemctl disable dailyfiledownloader.timer
-$ sudo rm -Rf /etc/systemd/systemd/dailyfiledownloader*
+$ sudo rm -Rf /etc/systemd/system/dailyfiledownloader*
+```
+Show timers:
+
+```bash
+$ systemctl list-timers
 ```
