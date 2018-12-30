@@ -4,7 +4,7 @@ GLFM-example
 A simple GLFM example for Android.
 See: https://www.linux.org.ru/forum/development/14702973
 
-## Build and Install on Linux:
+## Build and Install (Linux):
 
 ```bash
 git clone https://github.com/EXLMOTODEV/GLFM-example --recursive
