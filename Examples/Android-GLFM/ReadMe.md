@@ -2,7 +2,10 @@ GLFM-example
 ============
 
 A simple GLFM example for Android.
-See: https://www.linux.org.ru/forum/development/14702973
+
+Additional information:\
+https://www.linux.org.ru/forum/development/14702973\
+https://www.linux.org.ru/forum/development/14721134
 
 ## Build and Install (Linux):
 
