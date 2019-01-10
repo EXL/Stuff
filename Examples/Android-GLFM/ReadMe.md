@@ -3,9 +3,9 @@ GLFM-example
 
 A simple GLFM example for Android.
 
-Additional information:\
-https://www.linux.org.ru/forum/development/14702973\
-https://www.linux.org.ru/forum/development/14721134
+Additional information:
+1. https://www.linux.org.ru/forum/development/14702973
+2. https://www.linux.org.ru/forum/development/14721134
 
 ## Build and Install (Linux):
 
