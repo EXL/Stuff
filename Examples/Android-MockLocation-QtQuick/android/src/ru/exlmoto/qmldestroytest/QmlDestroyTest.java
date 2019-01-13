@@ -137,6 +137,8 @@ public class QmlDestroyTest extends org.qtproject.qt5.android.bindings.QtActivit
         // TODO Auto-generated method stub
     }
 
+    // INFO:
+    // See: https://stackoverflow.com/questions/29368519/mock-location-not-working-on-google-map
     /** Define a mock GPS provider as an asynchronous task of this Activity. */
     public static class MockGpsProvider extends AsyncTask<String, Integer, Void> {
         public static final String LOG_TAG = "GpsMockProvider";
