@@ -72,7 +72,7 @@ public class QmlDestroyTest extends org.qtproject.qt5.android.bindings.QtActivit
 
 //                mMockGpsProviderTask = new MockGpsProvider();
 //                mMockGpsProviderTask.execute(coordinates);
-//                Move this to invoke
+//                INFO: Move this to invoke() method.
             } catch (Exception e) {
             }
         }
@@ -111,10 +111,15 @@ public class QmlDestroyTest extends org.qtproject.qt5.android.bindings.QtActivit
 
     @Override
     public void onLocationChanged(Location location) {
+        /*
         Log.w(TAG, "===> Index: " + mMockGpsProviderIndex +
             " | LON: " + location.getLongitude() +
             " | LAT: " + location.getLatitude() +
             " | ALT: " + location.getAltitude());
+        // NOTE: Log this into QML code.
+        */
+        NativeHelper.sendMockLocationDataToQml(mMockGpsProviderIndex.intValue(), location.getLongitude(),
+                                               location.getLatitude(), location.getAltitude());
     }
 
     @Override
@@ -221,17 +226,16 @@ public class QmlDestroyTest extends org.qtproject.qt5.android.bindings.QtActivit
     }
 
     public static void invoke(int x) {
+        String toast = "Mocking location data already started, sorry!";
         if (m_instance.mMockGpsProviderTask == null) {
             m_instance.mMockGpsProviderTask = new MockGpsProvider(m_instance);
             m_instance.mMockGpsProviderTask.execute(m_instance.fCoordinates);
+            toast = "Start mocking location data.";
         }
+        final String fToast = toast;
         m_instance.runOnUiThread(new Runnable() {
             public void run() {
-                Toast.makeText(m_instance,
-                               (m_instance.mMockGpsProviderTask == null) ?
-                                "Start mocking location data." :
-                                "Mocking location data already started, sorry!",
-                               Toast.LENGTH_SHORT).show();
+                Toast.makeText(m_instance, fToast, Toast.LENGTH_SHORT).show();
             }
         });
     }
