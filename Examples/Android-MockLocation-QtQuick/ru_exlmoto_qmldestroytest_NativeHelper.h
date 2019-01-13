@@ -15,6 +15,14 @@ extern "C" {
 JNIEXPORT void JNICALL Java_ru_exlmoto_qmldestroytest_NativeHelper_invokeVoidMethod
   (JNIEnv *, jclass, jint);
 
+/*
+ * Class:     ru_exlmoto_qmldestroytest_NativeHelper
+ * Method:    sendMockLocationDataToQml
+ * Signature: (IDDD)V
+ */
+JNIEXPORT void JNICALL Java_ru_exlmoto_qmldestroytest_NativeHelper_sendMockLocationDataToQml
+  (JNIEnv *, jclass, jint, jdouble, jdouble, jdouble);
+
 #ifdef __cplusplus
 }
 #endif

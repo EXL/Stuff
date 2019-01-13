@@ -11,4 +11,5 @@ package ru.exlmoto.qmldestroytest;
 
 public class NativeHelper {
     public native static void invokeVoidMethod(int arg);
+    public native static void sendMockLocationDataToQml(int i, double lo, double la, double al);
 }

@@ -10,6 +10,11 @@
 
 void writeSettings(int);
 
+int HelperJNI::index;
+double HelperJNI::lon;
+double HelperJNI::lat;
+double HelperJNI::alt;
+
 JNIEXPORT void JNICALL Java_ru_exlmoto_qmldestroytest_NativeHelper_invokeVoidMethod
   (JNIEnv *jEnv, jclass jClazz, jint jInt)
 {
@@ -22,6 +27,20 @@ JNIEXPORT void JNICALL Java_ru_exlmoto_qmldestroytest_NativeHelper_invokeVoidMet
 
     qWarning() << "!!! WRITE SETTINGS !!!";
     writeSettings(arg);
+}
+
+JNIEXPORT void JNICALL Java_ru_exlmoto_qmldestroytest_NativeHelper_sendMockLocationDataToQml
+  (JNIEnv *jEnv, jclass jClazz, jint i, jdouble lo, jdouble la, jdouble al)
+{
+    Q_UNUSED(jEnv);
+    Q_UNUSED(jClazz);
+
+    qWarning() << "===> Index:" << i << "| LON: " << lo << "| LAT: " << la << "| ALT: " << al;
+
+    HelperJNI::index = i;
+    HelperJNI::lon = lo;
+    HelperJNI::lat = la;
+    HelperJNI::alt = al;
 }
 #endif
 

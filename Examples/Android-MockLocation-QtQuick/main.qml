@@ -17,23 +17,46 @@ Window {
     Column {
         spacing: 10
         anchors.centerIn: parent
+
 //        Button {
 //            text: "Vibrate"
 //            onClicked: {
 //                helperJni.qml_to_cpp_to_jni_to_java__bicycle4ever()
 //            }
 //        }
+
         Button {
             text: "Invoke Mock Location Data"
             onClicked: {
                 helperJni.cpp_to_java_and_java_to_cpp()
             }
         }
+
+        Text {
+            id: label
+        }
+
 //        Button {
 //            text: "Log Arg"
 //            onClicked: {
 //                helperJni.readSettings()
 //            }
 //        }
+    }
+
+    Timer {
+        id: timer
+        interval: 200 // 0.2 sec?
+        repeat: true
+        triggeredOnStart: false
+
+        onTriggered: {
+            label.text = helperJni.getText()
+            // console.log("Im Here! " + helperJni.getText());
+        }
+    }
+
+    Component.onCompleted: {
+        timer.start();
     }
 }
