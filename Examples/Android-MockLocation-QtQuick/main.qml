@@ -15,8 +15,9 @@ Window {
     }
 
     Column {
+        anchors.fill: parent
+        anchors.margins: 5
         spacing: 10
-        anchors.centerIn: parent
 
 //        Button {
 //            text: "Vibrate"
@@ -34,6 +35,8 @@ Window {
 
         Text {
             id: label
+            font.family: "Roboto Mono"
+            font.pointSize: 12
         }
 
 //        Button {
