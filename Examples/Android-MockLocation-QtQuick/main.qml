@@ -17,23 +17,23 @@ Window {
     Column {
         spacing: 10
         anchors.centerIn: parent
+//        Button {
+//            text: "Vibrate"
+//            onClicked: {
+//                helperJni.qml_to_cpp_to_jni_to_java__bicycle4ever()
+//            }
+//        }
         Button {
-            text: "Vibrate"
-            onClicked: {
-                helperJni.qml_to_cpp_to_jni_to_java__bicycle4ever()
-            }
-        }
-        Button {
-            text: "Invoke"
+            text: "Invoke Mock Location Data"
             onClicked: {
                 helperJni.cpp_to_java_and_java_to_cpp()
             }
         }
-        Button {
-            text: "Log Arg"
-            onClicked: {
-                helperJni.readSettings()
-            }
-        }
+//        Button {
+//            text: "Log Arg"
+//            onClicked: {
+//                helperJni.readSettings()
+//            }
+//        }
     }
 }
