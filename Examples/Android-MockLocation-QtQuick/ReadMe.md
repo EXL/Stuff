@@ -20,7 +20,7 @@ $ javah ru.exlmoto.qmldestroytest.NativeHelper
 $ mv *.h ../..
 ```
 
-Enjoy!
+Tested with Qt 5.12.0. Enjoy!
 
 Additional information:
 1. Stack Overflow: [Mock location not working on Google map](https://stackoverflow.com/questions/29368519/mock-location-not-working-on-google-map).
