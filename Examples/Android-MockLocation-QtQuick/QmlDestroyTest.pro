@@ -30,6 +30,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += android/src/ru/exlmoto/qmldestroytest/QmlDestroyTest.java \
+             android/src/ru/exlmoto/qmldestroytest/MockLocationService.java \
              android/src/ru/exlmoto/qmldestroytest/NativeHelper.java \
              android/AndroidManifest.xml
 

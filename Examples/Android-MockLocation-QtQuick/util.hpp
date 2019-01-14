@@ -33,10 +33,10 @@ public:
 #endif
         return 1;
     }
-    Q_INVOKABLE int cpp_to_java_and_java_to_cpp() {
+    Q_INVOKABLE int cpp_to_java_and_java_to_cpp(int aZ) {
         qWarning() << "Invoke: C++";
 #ifdef Q_OS_ANDROID
-        QAndroidJniObject::callStaticMethod<void>("ru/exlmoto/qmldestroytest/QmlDestroyTest", "invoke", "(I)V", 30);
+        QAndroidJniObject::callStaticMethod<void>("ru/exlmoto/qmldestroytest/QmlDestroyTest", "invoke", "(I)V", aZ);
 #endif
         return 1;
     }
@@ -49,8 +49,8 @@ public:
         return 1;
     }
     Q_INVOKABLE QString getText() {
-        return QString("Index: ") + QString::number(index) +
-               QString(" | LON: ") + QString::number(lon) +
+        return /*QString("Index: ") + QString::number(index) +*/
+               QString("LON: ") + QString::number(lon) +
                QString(" | LAT: ") + QString::number(lat) +
                QString(" | ALT: ") + QString::number(alt);
     }

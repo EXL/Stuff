@@ -66,6 +66,11 @@
     </activity>
 
     <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
+    <service
+        android:name=".MockLocationService"
+        android:enabled="true"
+        android:exported="true">
+    </service>
 
     </application>
 

@@ -35,7 +35,7 @@ JNIEXPORT void JNICALL Java_ru_exlmoto_qmldestroytest_NativeHelper_sendMockLocat
     Q_UNUSED(jEnv);
     Q_UNUSED(jClazz);
 
-    qWarning() << "===> Index:" << i << "| LON: " << lo << "| LAT: " << la << "| ALT: " << al;
+    qWarning() << "===> LON: " << lo << "| LAT: " << la << "| ALT: " << al;
 
     HelperJNI::index = i;
     HelperJNI::lon = lo;

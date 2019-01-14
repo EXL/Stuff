@@ -29,7 +29,14 @@ Window {
         Button {
             text: "Invoke Mock Location Data"
             onClicked: {
-                helperJni.cpp_to_java_and_java_to_cpp()
+                helperJni.cpp_to_java_and_java_to_cpp(0)
+            }
+        }
+
+        Button {
+            text: "Stop Mock Location Service"
+            onClicked: {
+                helperJni.cpp_to_java_and_java_to_cpp(1)
             }
         }
 
