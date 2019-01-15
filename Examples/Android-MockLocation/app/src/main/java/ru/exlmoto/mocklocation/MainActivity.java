@@ -13,11 +13,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -26,14 +26,14 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
+    private final int DIALOG_MOCK_LOCATION = 0;
+    private final int DIALOG_ERROR_OPEN_DEVELOPER_OPTIONS = 1;
+    private final int REQUEST_PERMISSION_LOCATION = 2;
     private MainActivity mainActivity = null;
     private TextView textView = null;
     private TextView textViewLoc = null;
     private DialogListener dialogListener = null;
     private ErrorDialogListener errorDialogListener = null;
-
-    private final int DIALOG_MOCK_LOCATION = 0;
-    private final int DIALOG_ERROR_OPEN_DEVELOPER_OPTIONS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,16 +57,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
+            showLocationPermission();
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
 
@@ -100,6 +91,58 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 showToast(toast);
             }
         });
+    }
+
+    // https://stackoverflow.com/a/35486162
+    private void showLocationPermission() {
+        int permissionCheck = ActivityCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                showExplanation("Permission Needed", "Rationale", Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_PERMISSION_LOCATION);
+            } else {
+                requestPermission(Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_PERMISSION_LOCATION);
+            }
+        } else {
+            Toast.makeText(MainActivity.this, "Permission (already) Granted!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode,
+            String permissions[],
+            int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_PERMISSION_LOCATION:
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(MainActivity.this, "Permission Granted!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(MainActivity.this, "Permission Denied!", Toast.LENGTH_SHORT).show();
+                }
+        }
+    }
+
+    private void showExplanation(String title,
+                                 String message,
+                                 final String permission,
+                                 final int permissionRequestCode) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        requestPermission(permission, permissionRequestCode);
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void requestPermission(String permissionName, int permissionRequestCode) {
+        ActivityCompat.requestPermissions(this,
+                new String[]{permissionName}, permissionRequestCode);
     }
 
     @Override
@@ -187,6 +230,28 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
     }
 
+    @SuppressLint({"NewApi"})
+    public boolean isMockLocationEnabled() {
+        boolean enabled = false;
+        try {
+            if (Build.VERSION.SDK_INT >= 23) {
+                try {
+                    LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+                    locationManager.addTestProvider("test", false, true, false, false, true, true, true, 3, 15);
+                    locationManager.removeTestProvider("test");
+                    enabled = true;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                enabled = !Settings.Secure.getString(this.getContentResolver(), "mock_location").equals("0");
+            }
+            return enabled;
+        } catch (Exception unused) {
+            return false;
+        }
+    }
+
     class DialogListener implements AlertDialog.OnClickListener {
         public void onClick(DialogInterface dialogInterface, int i) {
             switch (i) {
@@ -221,28 +286,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     MainActivity.this.startActivity(new Intent("android.intent.action.VIEW", Uri.parse("https://www.youtube.com/watch?v=hdz7ro0oZq8")));
                     MainActivity.this.finish();
             }
-        }
-    }
-
-    @SuppressLint({"NewApi"})
-    public boolean isMockLocationEnabled() {
-        boolean enabled = false;
-        try {
-            if (Build.VERSION.SDK_INT >= 23) {
-                try {
-                    LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-                    locationManager.addTestProvider("test", false, true, false, false, true, true, true, 3, 15);
-                    locationManager.removeTestProvider("test");
-                    enabled = true;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                enabled = !Settings.Secure.getString(this.getContentResolver(), "mock_location").equals("0");
-            }
-            return enabled;
-        } catch (Exception unused) {
-            return false;
         }
     }
 }

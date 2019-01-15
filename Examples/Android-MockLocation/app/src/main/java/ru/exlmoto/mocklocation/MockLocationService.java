@@ -8,7 +8,9 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -87,12 +89,27 @@ public class MockLocationService extends Service {
 
     // INFO:
     // See: https://stackoverflow.com/questions/29368519/mock-location-not-working-on-google-map
-    /** Define a mock GPS provider as an asynchronous task of this Activity. */
+
+    public IBinder onBind(Intent intent) {
+        Log.d(LOG_TAG, "onBind");
+        return null;
+    }
+
+    void someTask() {
+        mMockGpsProviderTask = new MockGpsProvider();
+        mMockGpsProviderTask.execute(fCoordinates);
+    }
+
+    /**
+     * Define a mock GPS provider as an asynchronous task of this Activity.
+     */
     public class MockGpsProvider extends AsyncTask<String, Integer, Void> {
         public static final String LOG_TAG = "GpsMockProvider";
         public static final String GPS_MOCK_PROVIDER = LocationManager.GPS_PROVIDER;
 
-        /** Keeps track of the currently processed coordinate. */
+        /**
+         * Keeps track of the currently processed coordinate.
+         */
         public Integer index = 0;
 
         @Override
@@ -136,6 +153,9 @@ public class MockLocationService extends Service {
                 location.setAccuracy(16F);
                 // location.setAltitude(0D);
                 location.setBearing(0F);
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
+                    location.setElapsedRealtimeNanos(SystemClock.elapsedRealtimeNanos());
+                }
 
                 // show debug message in log
                 Log.d(LOG_TAG, location.toString());
@@ -167,15 +187,5 @@ public class MockLocationService extends Service {
             Log.d(LOG_TAG, "onProgressUpdate():" + values[0]);
             mMockGpsProviderIndex = values[0];
         }
-    }
-
-    public IBinder onBind(Intent intent) {
-        Log.d(LOG_TAG, "onBind");
-        return null;
-    }
-
-    void someTask() {
-        mMockGpsProviderTask = new MockGpsProvider();
-        mMockGpsProviderTask.execute(fCoordinates);
     }
 }
