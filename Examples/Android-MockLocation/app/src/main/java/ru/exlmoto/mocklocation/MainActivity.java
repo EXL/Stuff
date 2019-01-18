@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private MainActivity mainActivity = null;
     private TextView textView = null;
     private TextView textViewLoc = null;
+    private Button buttonStart = null;
+    private Button buttonStop = null;
     private DialogListener dialogListener = null;
     private ErrorDialogListener errorDialogListener = null;
 
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         mainActivity = this;
         textView = findViewById(R.id.textView);
         textViewLoc = findViewById(R.id.textViewLoc);
+        buttonStart = findViewById(R.id.buttonStart);
+        buttonStop = findViewById(R.id.buttonStop);
 
         dialogListener = new DialogListener();
         errorDialogListener = new ErrorDialogListener();
@@ -61,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
 
-        Button buttonStart = findViewById(R.id.buttonStart);
         buttonStart.setOnClickListener(new OnClickListener() {
             final MainActivity fMainActivity = mainActivity;
 
@@ -76,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             }
         });
 
-        Button buttonStop = findViewById(R.id.buttonStop);
         buttonStop.setOnClickListener(new OnClickListener() {
             final MainActivity fMainActivity = mainActivity;
 
@@ -155,8 +157,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private void updateTextViewLocation(boolean mockEnable) {
         if (mockEnable) {
             textViewLoc.setText("Allow Mock Location enabled.");
+            buttonStart.setEnabled(true);
+            buttonStop.setEnabled(true);
         } else {
             textViewLoc.setText("Allow Mock Location disabled.");
+            buttonStart.setEnabled(false);
+            buttonStop.setEnabled(false);
         }
     }
 
