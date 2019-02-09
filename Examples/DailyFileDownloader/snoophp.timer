@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer for Snoo PHP script.
+
+[Timer]
+OnCalendar=Mon-Sun *-*-* 16:30:00
+OnCalendar=Mon-Sun *-*-* 23:30:00
+Unit=snoophp.service
+
+[Install]
+WantedBy=multi-user.target

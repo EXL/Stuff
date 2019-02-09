@@ -1,5 +1,5 @@
 [Unit]
-Description=Timer for DailyFileDownloader Python script
+Description=Timer for DailyFileDownloader Python script.
 
 [Timer]
 OnCalendar=0/12:00:00

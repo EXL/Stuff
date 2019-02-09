@@ -1,5 +1,5 @@
 [Unit]
-Description=Timer for WeeklyDbCleaner Python script
+Description=Timer for WeeklyDbCleaner Python script.
 
 [Timer]
 OnCalendar=Mon *-*-* 13:00:00

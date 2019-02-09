@@ -1,0 +1,12 @@
+[Unit]
+Description=PHP Script Service Snoo for baat.
+Wants=network-online.target
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/env php /var/www/html/online/tv3/snoo.php
+SyslogIdentifier=SnooPhpBaat
+
+[Install]
+WantedBy=multi-user.target
