@@ -9,7 +9,6 @@ else {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "26.0.1"
     defaultConfig {
         if (buildAsApplication) {
             applicationId "org.libsdl.app"
@@ -21,6 +20,7 @@ android {
         externalNativeBuild {
             ndkBuild {
                 arguments "APP_PLATFORM=android-14"
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
             }
         }
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
