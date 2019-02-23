@@ -16,4 +16,4 @@ ANDROID_HOME="/opt/android-sdk/" ./gradlew assembleDebug
 /opt/android-sdk/platform-tools/adb shell am start -n org.libsdl.app/org.libsdl.app.SDLActivity
 ```
 
-Thanks for the example to @suikki (Olli Kallioinen).
+Thanks for the [simpleSDL](https://github.com/suikki/simpleSDL) example to @[suikki](https://github.com/suikki) (Olli Kallioinen).
