@@ -1,0 +1,17 @@
+agctf_ag_crossfire
+agctf_duff
+agctf_face
+cbble
+ctf_dust_new
+ctf_Dust_pcg
+Ctf_Dust_Wireplay
+ctf_dust2_czz
+ctf_dust2
+ctf_hell
+ctf_plaka
+ctf_verso
+dm_assault_x
+dm_dust
+stalkfire
+trench_64
+winterdust2
