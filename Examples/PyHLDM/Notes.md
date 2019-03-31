@@ -28,4 +28,4 @@ $ find -type f -iname "*.jpg" -exec jpegoptim --strip-all {} \;
 $ find -type f -iname "*.png" -exec optipng -o7 -strip all {} \;
 ```
 
-Drop `images/` and `images/thumbs` dirictories with image files here. Syntax: `mapname000X.{jpg,png}`, where X is number of screen starts with 0.
+Drop `images/` and `images/thumbs` directories with images here. Syntax: `mapname000X.{jpg,png}`, where X is number of screen starts with 0.
