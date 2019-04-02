@@ -1,0 +1,51 @@
+--- /usr/bin/yaffshiv	2019-04-01 17:08:04.000000000 +0700
++++ yaffshiv	2019-04-02 07:44:13.538054609 +0700
+@@ -225,6 +225,7 @@
+     YAFFS_OBJECT_TYPE_DIRECTORY = 3
+     YAFFS_OBJECT_TYPE_HARDLINK  = 4
+     YAFFS_OBJECT_TYPE_SPECIAL   = 5
++    YAFFS_OBJECT_TYPE_BAD       = 0xFFFFFFFF
+ 
+     # These must be overidden with valid data by any subclass wishing
+     # to use the read_long, read_short, read_next or read_block methods.
+@@ -319,6 +320,7 @@
+                 YAFFS.YAFFS_OBJECT_TYPE_DIRECTORY : "YAFFS_OBJECT_TYPE_DIRECTORY",
+                 YAFFS.YAFFS_OBJECT_TYPE_HARDLINK  : "YAFFS_OBJECT_TYPE_HARDLINK",
+                 YAFFS.YAFFS_OBJECT_TYPE_SPECIAL   : "YAFFS_OBJECT_TYPE_SPECIAL",
++                YAFFS.YAFFS_OBJECT_TYPE_BAD       : "YAFFS_OBJECT_TYPE_BAD",
+                }
+ 
+     def __init__(self, data, config):
+@@ -477,6 +479,10 @@
+             (obj_hdr_data, obj_hdr_spare) = self.read_block()
+             obj_hdr = YAFFSEntry(obj_hdr_data, obj_hdr_spare, self.config)
+ 
++            # Drop some bad objects.
++            if str(obj_hdr.yaffs_obj_type) == YAFFSObjType.TYPE2STR[YAFFS.YAFFS_OBJECT_TYPE_BAD]:
++                continue
++
+             # Sanity check the file name. This is done primarily for cases where there is trailing data
+             # at the end of the YAFFS file system, so if we're processing bogus data then the file name
+             # will likely be garbled.
+@@ -527,6 +533,8 @@
+         self.config = config
+ 
+     def parse(self):
++        hack = 0
++
+         '''
+         Parses the YAFFS file system, builds directory structures and stores file info / data.
+         Must be called before all other methods in this class.
+@@ -543,7 +551,11 @@
+                                                                                                               entry.parent_obj_id))
+                     path = entry.name
+ 
+-                # Store full file paths and entry data for later use
++                # Hack for Motorola's CG48.smg file.
++                hack += 1
++                entry.yaffs_obj_id = hack
++
++                # Store full file paths and entry data for later usex
+                 self.file_paths[entry.yaffs_obj_id] = path
+                 self.file_entries[entry.yaffs_obj_id] = entry
+ 
