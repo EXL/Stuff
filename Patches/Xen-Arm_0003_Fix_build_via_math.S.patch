@@ -1,0 +1,147 @@
+diff --git a/Config.mk b/Config.mk
+index f44bbcf..6fb1ab5 100755
+--- a/Config.mk
++++ b/Config.mk
+@@ -37,7 +37,7 @@ HOSTCFLAGS = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+ #
+ # Cross Tool chain configuration
+ #
+-TOOLCHAIN_PREFIX = /opt/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-
++#TOOLCHAIN_PREFIX = /opt/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-
+ 
+ #
+ # Toolchain configuration
+diff --git a/tools/minios/Config.mk b/tools/minios/Config.mk
+index b63f4fe..3496483 100755
+--- a/tools/minios/Config.mk
++++ b/tools/minios/Config.mk
+@@ -15,7 +15,7 @@ HOSTCFLAGS 		= -Wall -Werror -Wstrict-prototypes -g -fomit-frame-pointer
+ # Cross Tool chain configuration
+ #
+ #CROSS_COMPILE		= arm_v4t_le-
+-CROSS_COMPILE		= /opt/arm-linux-4.1.1/bin/arm-linux-
++#CROSS_COMPILE		= /home/exl/x-tools/arm-qemu-eabi/bin/arm-qemu-eabi-
+ 
+ #
+ # Target Configuration for Xeno-mini
+diff --git a/tools/minios/Makefile b/tools/minios/Makefile
+index 39b878e..7672d50 100755
+--- a/tools/minios/Makefile
++++ b/tools/minios/Makefile
+@@ -10,6 +10,8 @@ OBJS            := arch/$(XENO_TARGET_ARCH)/$(XENO_TARGET_ARCH).o
+ OBJS            += kernel/built_in.o
+ OBJS            += lib/built_in.o
+ 
++all: default
++
+ default: $(XENO_TARGET_IMAGE)
+ 
+ $(XENO_TARGET_IMAGE): build
+diff --git a/tools/minios/arch/arm/common/math.S b/tools/minios/arch/arm/common/math.S
+index 8716640..0b48309 100755
+--- a/tools/minios/arch/arm/common/math.S
++++ b/tools/minios/arch/arm/common/math.S
+@@ -129,7 +129,7 @@
+ 5:
+ .endm
+ 
+-
++/*
+ 	.global __udivsi3
+ 	.align 0
+ __udivsi3:
+@@ -235,7 +235,7 @@ __modsi3:
+ 10:	cmp	ip, #0
+ 	rsbmi	r0, r0, #0
+ 	mov	pc, lr
+-
++*/
+ Ldiv0:
+ 
+ 	str	lr, [sp, #-4]!
+diff --git a/tools/minios/kernel/gnttab.c b/tools/minios/kernel/gnttab.c
+index 0cea337..ba8f808 100755
+--- a/tools/minios/kernel/gnttab.c
++++ b/tools/minios/kernel/gnttab.c
+@@ -190,7 +190,7 @@ gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly)
+ 			return 0;
+ 		}
+ 	}
+-	while ((nflags = atomic_cmpxchg_u16(&shared[ref].flags, flags, 0)) !=
++	while ((nflags = atomic_cmpxchg_u16((u16 *)&shared[ref].flags, flags, 0)) !=
+ 	       flags);
+ 
+ 	return 1;
+@@ -248,7 +248,7 @@ gnttab_end_foreign_transfer_ref(grant_ref_t ref)
+          * reference and return failure (== 0).
+          */
+ 	while (!((flags = shared[ref].flags) & GTF_transfer_committed)) {
+-		if ( atomic_cmpxchg_u16(&shared[ref].flags, flags, 0) == flags )
++		if ( atomic_cmpxchg_u16((u16 *)&shared[ref].flags, flags, 0) == flags )
+ 			return 0;
+ 		cpu_relax();
+ 	}
+diff --git a/tools/minios/lib/lib1funcs.S b/tools/minios/lib/lib1funcs.S
+index 6dc0648..0d852f9 100644
+--- a/tools/minios/lib/lib1funcs.S
++++ b/tools/minios/lib/lib1funcs.S
+@@ -36,6 +36,7 @@ Boston, MA 02111-1307, USA.  */
+ #include <linux/linkage.h>
+ #include <asm/assembler.h>
+ 
++#define CONFIG_AEABI
+ 
+ .macro ARM_DIV_BODY dividend, divisor, result, curbit
+ 
+@@ -336,12 +337,24 @@ ENTRY(__aeabi_idivmod)
+ 
+ ENDPROC(__aeabi_idivmod)
+ 
++ENTRY(__aeabi_uldivmod)
++
++	sub sp, sp, #8
++	stmfd   sp!, {sp, lr}
++	bl __qdivrem
++	ldr lr, [sp, #4]
++	add sp, sp, #8
++	ldmfd sp!, {r2, r3}
++	mov pc, lr
++
++ENDPROC(__aeabi_uldivmod)
++
+ #endif
+ 
+ Ldiv0:
+ 
+ 	str	lr, [sp, #-8]!
+-	bl	__div0
++/*	bl	__div0 */ @ See fix on arch/arm/common/math.S:242
+ 	mov	r0, #0			@ About as wrong as it could be.
+ 	ldr	pc, [sp], #8
+ 
+diff --git a/tools/minios/lib/math.c b/tools/minios/lib/math.c
+index 9a7eb18..058073f 100755
+--- a/tools/minios/lib/math.c
++++ b/tools/minios/lib/math.c
+@@ -57,7 +57,7 @@
+ 
+ #include <os/types.h>
+ 
+-#if 0
++#if 1
+ /*
+  * Depending on the desired operation, we view a `long long' (aka quad_t) in
+  * one or more of the following formats.
+diff --git a/xen/include/public/xen.h b/xen/include/public/xen.h
+index 0f5b4e5..625b6b7 100644
+--- a/xen/include/public/xen.h
++++ b/xen/include/public/xen.h
+@@ -386,7 +386,7 @@ typedef struct vcpu_info {
+      * to block: this avoids wakeup-waiting races.
+      */
+     uint32_t evtchn_upcall_pending;
+-    //uint32_t evtchn_upcall_mask;
++    uint32_t evtchn_upcall_mask;
+     unsigned long evtchn_pending_sel;
+     arch_vcpu_info_t arch;
+     vcpu_time_info_t time;

@@ -1,0 +1,40 @@
+From 90ae44b5bc4b03af8ccc71c6f34ab9ed20ccce3e Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Thu, 3 May 2018 08:51:31 +0700
+Subject: [PATCH 2/2] Fix Segmentation fault in the Release build
+
+Backtrace:
+    LVStyleSheet::apply(ldomNode const *, css_style_rec_tag *)                                                                                     0x55555567bc28
+    setNodeStyle(ldomNode *, LVFastRef<css_style_rec_tag>, LVProtectedFastRef<LVFont>)                                                             0x5555556d2d23
+    ldomNode::initNodeStyle()                                                                                                                      0x555555640954
+    updateStyleDataRecursive(ldomNode *)                                                                                                           0x555555640e50
+    updateStyleDataRecursive(ldomNode *)                                                                                                           0x555555640ef0
+    updateStyleDataRecursive(ldomNode *)                                                                                                           0x555555640ef0
+    updateStyleDataRecursive(ldomNode *)                                                                                                           0x555555640ef0
+    ldomDocument::render(LVRendPageList *, LVDocViewCallback *, int, int, bool, int, LVProtectedFastRef<LVFont>, int, LVFastRef<CRPropAccessor>)   0x555555646771
+    LVDocView::Render(int, int, LVRendPageList *)                                                                                                  0x5555556ae862
+    LVDocView::checkRender()                                                                                                                       0x5555556aea50
+    LVDocView::updateBookMarksRanges()                                                                                                             0x5555556b2fa6
+    LVDocView::propsApply(LVFastRef<CRPropAccessor>)                                                                                               0x5555556c7815
+    CR3View::loadSettings(QString)                                                                                                                 0x5555555ce64e
+    MainWindow::MainWindow(QWidget *)                                                                                                              0x5555555da585
+    main                                                                                                                                           0x5555555b928c
+---
+ crengine/src/lvstsheet.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/crengine/src/lvstsheet.cpp b/crengine/src/lvstsheet.cpp
+index f0261d31..a6a251e5 100644
+--- a/crengine/src/lvstsheet.cpp
++++ b/crengine/src/lvstsheet.cpp
+@@ -967,6 +967,7 @@ bool LVCssSelectorRule::check( const ldomNode * & node )
+             for (;;)
+             {
+                 node = node->getParentNode();
++                if (!node) return false;
+                 if (node->isNull())
+                     return false;
+                 if (node->getNodeId() == _id)
+-- 
+2.17.0
+

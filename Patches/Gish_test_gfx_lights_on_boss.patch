@@ -1,0 +1,200 @@
+diff --git a/gish/build.gradle b/gish/build.gradle
+index 8f089ec..710594c 100644
+--- a/gish/build.gradle
++++ b/gish/build.gradle
+@@ -4,7 +4,7 @@ android {
+     compileSdkVersion 23
+ 
+     defaultConfig {
+-        applicationId "ru.exlmoto.gish"
++        applicationId "ru.exlmoto.gish_debug"
+         minSdkVersion 9
+         targetSdkVersion 14
+ 
+diff --git a/gish/src/main/cpp/Gish/game/gamemenu.c b/gish/src/main/cpp/Gish/game/gamemenu.c
+index 6c1b00a..027ff92 100644
+--- a/gish/src/main/cpp/Gish/game/gamemenu.c
++++ b/gish/src/main/cpp/Gish/game/gamemenu.c
+@@ -354,7 +354,7 @@ void pregamemenu(void)
+             }
+           }
+         if (game.levelnum<35)
+-          game.levelnum++;
++          ;//game.levelnum++;
+         }
+       if (game.levelnum==64)
+         {
+diff --git a/gish/src/main/cpp/Gish/game/player.c b/gish/src/main/cpp/Gish/game/player.c
+index 4a58ea7..9f8f294 100644
+--- a/gish/src/main/cpp/Gish/game/player.c
++++ b/gish/src/main/cpp/Gish/game/player.c
+@@ -260,72 +260,87 @@ void saveplayers(void)
+   FILE *fp;
+   char path[PATH_MAX];
+ 
+-  if ((fp=fopen(userpath(path,"gish.pla"),"wb"))!=NULL)
+-    {
+-    version=3;
+-    fwrite2(&version,4,1,fp);
+-    for (count=0;count<8;count++)
+-      {
+-      fwrite2(player[count].name,1,32,fp);
+-      fwrite2(&player[count].levelnum,4,1,fp);
+-      fwrite2(&player[count].numoflives,4,1,fp);
+-      fwrite2(&player[count].totalscore,4,1,fp);
+-      fwrite2(&player[count].difficulty,4,1,fp);
+-      fwrite2(&player[count].gamepassed,4,1,fp);
+-      fwrite2(&player[count].highscore,4,1,fp);
+-      fwrite2(player[count].unlock,4,16,fp);
+-      }
+-    fclose(fp);
+-    }
++//  if ((fp=fopen(userpath(path,"gish.pla"),"wb"))!=NULL)
++//    {
++//    version=3;
++//    fwrite2(&version,4,1,fp);
++//    for (count=0;count<8;count++)
++//      {
++//      fwrite2(player[count].name,1,32,fp);
++//      fwrite2(&player[count].levelnum,4,1,fp);
++//      fwrite2(&player[count].numoflives,4,1,fp);
++//      fwrite2(&player[count].totalscore,4,1,fp);
++//      fwrite2(&player[count].difficulty,4,1,fp);
++//      fwrite2(&player[count].gamepassed,4,1,fp);
++//      fwrite2(&player[count].highscore,4,1,fp);
++//      fwrite2(player[count].unlock,4,16,fp);
++//      }
++//    fclose(fp);
++//    }
+   }
+ 
+ void loadplayers(void)
+   {
+-  int count;
++  int count = 0;
+   int version;
+   FILE *fp;
+   char path[PATH_MAX];
+ 
+-  if ((fp=fopen(userpath(path,"gish.pla"),"rb"))!=NULL)
+-    {
+-    fread2(&version,4,1,fp);
+-    if (version==2)
+-      {
+-      for (count=0;count<8;count++)
+-        {
+-        fread2(player[count].name,1,32,fp);
+-        fread2(&player[count].levelnum,4,1,fp);
+-        fread2(&player[count].numoflives,4,1,fp);
+-        fread2(&player[count].totalscore,4,1,fp);
+-        player[count].difficulty=1;
+-        fread2(&player[count].gamepassed,4,1,fp);
+-        fread2(&player[count].highscore,4,1,fp);
+-        fread2(player[count].unlock,4,16,fp);
+-        }
+-      }
+-    if (version==3)
+-      {
+-      for (count=0;count<8;count++)
+-        {
+-        fread2(player[count].name,1,32,fp);
+-        fread2(&player[count].levelnum,4,1,fp);
+-        fread2(&player[count].numoflives,4,1,fp);
+-        fread2(&player[count].totalscore,4,1,fp);
+-        fread2(&player[count].difficulty,4,1,fp);
+-        fread2(&player[count].gamepassed,4,1,fp);
+-        fread2(&player[count].highscore,4,1,fp);
+-        fread2(player[count].unlock,4,16,fp);
+-        if (cache_fix)
+-          {
+-          player[count].unlock[0] = 1;
+-          player[count].unlock[1] = 1;
+-          player[count].unlock[2] = 1;
+-          player[count].unlock[3] = 1;
+-          }
+-        }
+-      }
+-    fclose(fp);
+-    }
++  TO_DEBUG_LOG("AFAFAFA");
++
++  player[count].levelnum = 13;
++  strcpy(player[count].name, "Android");
++  player[count].numoflives = 5;
++  player[count].totalscore = 0;
++  player[count].difficulty=3;
++  player[count].gamepassed = 0;
++  player[count].highscore = 0;
++  player[count].unlock[0] = 1;
++  player[count].unlock[1] = 1;
++  player[count].unlock[2] = 1;
++  player[count].unlock[3] = 1;
++
++
++//  if ((fp=fopen(userpath(path,"gish.pla"),"rb"))!=NULL)
++//    {
++//    fread2(&version,4,1,fp);
++//    if (version==2)
++//      {
++//      for (count=0;count<8;count++)
++//        {
++//        fread2(player[count].name,1,32,fp);
++//        //fread2(&player[count].levelnum,4,1,fp);
++//        fread2(&player[count].numoflives,4,1,fp);
++//        fread2(&player[count].totalscore,4,1,fp);
++//        player[count].difficulty=1;
++//        fread2(&player[count].gamepassed,4,1,fp);
++//        fread2(&player[count].highscore,4,1,fp);
++//        fread2(player[count].unlock,4,16,fp);
++//        }
++//      }
++//    if (version==3)
++//      {
++//      for (count=0;count<8;count++)
++//        {
++//        fread2(player[count].name,1,32,fp);
++//        //fread2(&player[count].levelnum,4,1,fp);
++//        fread2(&player[count].numoflives,4,1,fp);
++//        fread2(&player[count].totalscore,4,1,fp);
++//        fread2(&player[count].difficulty,4,1,fp);
++//        fread2(&player[count].gamepassed,4,1,fp);
++//        fread2(&player[count].highscore,4,1,fp);
++//        fread2(player[count].unlock,4,16,fp);
++//        if (cache_fix)
++//          {
++//          player[count].unlock[0] = 1;
++//          player[count].unlock[1] = 1;
++//          player[count].unlock[2] = 1;
++//          player[count].unlock[3] = 1;
++//          }
++//        }
++//      }
++//    fclose(fp);
++//    }
+   }
+ 
+ void playerstartmenu(void)
+diff --git a/gish/src/main/res/values-ru/strings.xml b/gish/src/main/res/values-ru/strings.xml
+index 9bcaf5a..669b4ae 100644
+--- a/gish/src/main/res/values-ru/strings.xml
++++ b/gish/src/main/res/values-ru/strings.xml
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="app_name">Gish</string>
++    <string name="app_name">Gish Debug</string>
+     <string name="version">v1.1 | 31-JUL-2017</string>
+     <string name="icon_string">Иконка Gish</string>
+     <string name="about_string">Разработчик:\n• © 2004-2017 Cryptic Sea.\n\nИздатели:\n• © 2004 Chronic Logic;\n• © 2005 Stardock;\n• © 2007 Steam.\n\nКупить Gish (игровые файлы нужны для запуска игры):\nhttp://www.chroniclogic.com/gishorder.htm\nhttp://store.steampowered.com/app/9500\n\nПортирование на Android OS с использованием библиотек SDL2, OpenAL, Ogg Vorbis, GL4ES и OpenGL ES:\n• © 2017 S. \"EXL\" KLS\nemail: exl@bk.ru\nemail: exlmotodev@gmail.com\n\nИсходный код:\nhttps://github.com/EXL/Gish\n\nСтатья о портировании Gish:\nhttp://exlmoto.ru/gish-droid\n\nБлагодарности:\n• [SoD]Thor за сенсорное управление;\n• Pickle за OpenGL ES рендерер;\n• ptitSeb за библиотеку GL4ES;\n• SysLord за некоторы патчи для Gish;\n• blinry за репозиторий с кодом Gish;\n• VatsOfGoo за помощь и Data-файлы;\n• Solexid за файловый диалог;\n• Команде GNOME Adwaita за некоторые иконки;\n• Егору Бухамеру за то, что показал мне Gish;\n• Данилу Медведеву за прохождение игры Gish со мной;\n• MaximuM FaziL за перевод лаунчера на русский язык;\n• J()KER за тестирование APK-пакета;\n• Zorge.R за хостинг, терпение и помощь.\n\nРелиз посвящён 14-летию ресурса http://motofan.ru!</string>
+diff --git a/gish/src/main/res/values/strings.xml b/gish/src/main/res/values/strings.xml
+index c67e611..8531338 100644
+--- a/gish/src/main/res/values/strings.xml
++++ b/gish/src/main/res/values/strings.xml
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <resources>
+-    <string name="app_name">Gish</string>
++    <string name="app_name">Gish Debug</string>
+     <string name="version">v1.1 | 31-JUL-2017</string>
+     <string name="icon_string">Gish icon</string>
+     <string name="about_string">Original game was developed by:\n• © 2004-2017 Cryptic Sea.\n\nPublished by:\n• © 2004 Chronic Logic;\n• © 2005 Stardock;\n• © 2007 Steam.\n\nBuy Gish (data files):\nhttp://www.chroniclogic.com/gishorder.htm\nhttp://store.steampowered.com/app/9500\n\nPorting to Android OS native application with using SDL2, OpenAL, Ogg Vorbis, GL4ES and OpenGL ES libraries:\n• © 2017 S. \"EXL\" KLS\nemail: exl@bk.ru\nemail: exlmotodev@gmail.com\n\nSource Code:\nhttps://github.com/EXL/Gish\n\nArticle About Porting Gish:\nhttp://exlmoto.ru/gish-droid\n\nThanks to:\n• [SoD]Thor for touch joystick;\n• Pickle for OpenGL ES render;\n• ptitSeb for GL4ES wrapper library;\n• SysLord for some Gish patches;\n• blinry for Gish source code repository;\n• VatsOfGoo for help and data files;\n• Solexid for simple file picker code;\n• GNOME Adwaita team for some icons;\n• Egor Bukhamer for getting to know Gish;\n• Danil Medvedev for playing to Gish with me;\n• MaximuM FaziL for Russian translation;\n• J()KER for testing APK-package;\n• Zorge.R for hosting, patience and help.\n\nThe release is dedicated to the 14th anniversary of the http://motofan.ru resource!</string>

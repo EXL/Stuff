@@ -1,0 +1,150 @@
+From 47317eca960715229d82c2a8bfd31fbf765fa2fd Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Sun, 21 Aug 2016 08:28:18 +0300
+Subject: [PATCH] Show all system fonts in MS Windows
+
+Fix MinGW build
+Fix battery icon
+Fix typo
+---
+ CMakeLists.txt           | 15 +++++++++++++++
+ cr3qt/src/cr3widget.cpp  |  2 --
+ cr3qt/src/main.cpp       | 22 +++++++++++++++++++++-
+ cr3qt/src/settings.ui    |  2 +-
+ crengine/src/wordfmt.cpp |  2 +-
+ 5 files changed, 38 insertions(+), 5 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 07495779..9e0e7b0c 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -181,6 +181,10 @@ endif(NOT MAC)
+ 
+ if ( NOT ${GUI} STREQUAL FB2PROPS )
+ if (NOT MAC)
++if (DEFINED USE_QT_PNG)
++  SET(PNG_INCLUDE_DIR ${QT_INCLUDE_DIR}/../src/3rdparty/libpng)
++  message("Using QT LIBPNG ${USE_QT_PNG} include dir: ${PNG_INCLUDE_DIR}")
++else()
+ if (NOT WIN32 AND NOT CR3_PNG)
+ FIND_PACKAGE(PNG)
+ endif (NOT WIN32 AND NOT CR3_PNG)
+@@ -194,7 +198,12 @@ if (NOT PNG_FOUND)
+   SET(PNG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/libpng)
+   SET(PNG_LIBRARIES png)
+ endif (NOT PNG_FOUND)
++endif(DEFINED USE_QT_PNG)
+ 
++if (DEFINED USE_QT_JPEG)
++  SET(JPEG_INCLUDE_DIR ${QT_INCLUDE_DIR}/../src/3rdparty/libjpeg)
++  message("Using QT LIBJPEG ${USE_QT_JPEG} include dir: ${JPEG_INCLUDE_DIR}")
++else()
+ if (NOT WIN32 AND NOT CR3_JPEG)
+ FIND_PACKAGE(JPEG)
+ endif (NOT WIN32 AND NOT CR3_JPEG)
+@@ -204,7 +213,12 @@ if (NOT JPEG_FOUND)
+   SET(JPEG_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/libjpeg)
+   SET(JPEG_LIBRARIES jpeg)
+ endif (NOT JPEG_FOUND)
++endif(DEFINED USE_QT_JPEG)
+ 
++if (DEFINED USE_QT_FREETYPE)
++  SET(FREETYPE_INCLUDE_DIRS ${QT_INCLUDE_DIR}/../src/3rdparty/freetype/include)
++  message("Using QT FREETYPE ${USE_QT_FREETYPE} include dir: ${FREETYPE_INCLUDE_DIRS}")
++else()
+ if (NOT WIN32 AND NOT CR3_FREETYPE)
+ FIND_PACKAGE(Freetype)
+ endif (NOT WIN32 AND NOT CR3_FREETYPE)
+@@ -214,6 +228,7 @@ if (NOT FREETYPE_FOUND)
+   SET(FREETYPE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/freetype/include)
+   SET(FREETYPE_LIBRARIES freetype)
+ endif (NOT FREETYPE_FOUND)
++endif(DEFINED USE_QT_FREETYPE)
+ endif (NOT MAC)
+ 
+ #if (ENABLE_CHM)
+diff --git a/cr3qt/src/cr3widget.cpp b/cr3qt/src/cr3widget.cpp
+index 732b88a6..5ff1ef9d 100644
+--- a/cr3qt/src/cr3widget.cpp
++++ b/cr3qt/src/cr3widget.cpp
+@@ -80,8 +80,6 @@ static LVRefVec<LVImageSource> getBatteryIcons( lUInt32 color )
+         ".0..0.XXXX.XXXX.XXXX.XXXX.0.",
+         ".0..0.XXXX.XXXX.XXXX.XXXX.0.",
+         ".0..0.XXXX.XXXX.XXXX.XXXX.0.",
+-        ".0..0.XXXX.XXXX.XXXX.XXXX.0.",
+-        ".0..0.XXXX.XXXX.XXXX.XXXX.0.",
+         ".0000.XXXX.XXXX.XXXX.XXXX.0.",
+         "....0.XXXX.XXXX.XXXX.XXXX.0.",
+         "   .0.....................0.",
+diff --git a/cr3qt/src/main.cpp b/cr3qt/src/main.cpp
+index ed564499..8d93796e 100644
+--- a/cr3qt/src/main.cpp
++++ b/cr3qt/src/main.cpp
+@@ -358,7 +358,8 @@ bool InitCREngine( const char * exename, lString16Collection & fontDirs )
+     lString16 fontdir( sysdir );
+     fontdir << "\\Fonts\\";
+     lString8 fontdir8( UnicodeToUtf8(fontdir) );
+-    const char * fontnames[] = {
++#ifndef _USE_ALL_SYSTEM_FONTS
++    const char *fontnames[] = {
+         "arial.ttf",
+         "ariali.ttf",
+         "arialb.ttf",
+@@ -399,9 +400,28 @@ bool InitCREngine( const char * exename, lString16Collection & fontDirs )
+         "georgiaz.ttf",
+         NULL
+     };
++#else
++    QDir qFontDir(fontdir8.c_str());
++    QStringList qFontFilter;
++    qFontFilter << "*.ttf" << "*.otf" << "*.pfa" << "*.pfb";
++    QStringList qFiles = qFontDir.entryList(qFontFilter);
++
++    // Copy QStringList to char **
++    // (c) http://www.dzone.com/snippets/copy-qstringlist-char-and
++    char **fontnames;
++    fontnames = new char*[qFiles.size() + 1];
++    for (int i = 0; i < qFiles.size(); i++) {
++        fontnames[i] = new char[strlen(qFiles.at(i).toStdString().c_str())+1];
++        memcpy(fontnames[i], qFiles.at(i).toStdString().c_str(), strlen(qFiles.at(i).toStdString().c_str())+1);
++    }
++    fontnames[qFiles.size()] = ((char*) NULL);
++#endif
+     for ( int fi = 0; fontnames[fi]; fi++ ) {
+         fontMan->RegisterFont( fontdir8 + fontnames[fi] );
+     }
++#ifdef _USE_ALL_SYSTEM_FONTS
++    delete[] fontnames;
++#endif
+ #endif
+     // Load font definitions into font manager
+     // fonts are in files font1.lbf, font2.lbf, ... font32.lbf
+diff --git a/cr3qt/src/settings.ui b/cr3qt/src/settings.ui
+index 6c0c42d6..3dc9c263 100644
+--- a/cr3qt/src/settings.ui
++++ b/cr3qt/src/settings.ui
+@@ -1555,7 +1555,7 @@
+          <item row="15" column="1">
+           <widget class="QCheckBox" name="cbEnableDocumentStyles">
+            <property name="text">
+-            <string>Enable documetn internal styles</string>
++            <string>Enable document internal styles</string>
+            </property>
+           </widget>
+          </item>
+diff --git a/crengine/src/wordfmt.cpp b/crengine/src/wordfmt.cpp
+index c3358704..1c70e131 100644
+--- a/crengine/src/wordfmt.cpp
++++ b/crengine/src/wordfmt.cpp
+@@ -20,7 +20,7 @@
+ #endif
+ #include "../include/wordfmt.h"
+ 
+-#ifdef _WIN32
++#if defined _WIN32 && !defined __MINGW32__
+ extern "C" {
+ 	int strcasecmp(const char *s1, const char *s2) {
+         return _stricmp(s1,s2);
+-- 
+2.17.0
+

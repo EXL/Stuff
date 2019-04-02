@@ -1,0 +1,40 @@
+From 165d4502b9df28d0bf73466d10f9383db022ae4a Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Fri, 24 Jan 2014 19:00:54 +0700
+Subject: [PATCH 3/3] Add build pdf settings
+
+---
+ latex/config.yml | 4 ++--
+ latex/makepdf    | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/latex/config.yml b/latex/config.yml
+index 2ed0f79..1e986ad 100644
+--- a/latex/config.yml
++++ b/latex/config.yml
+@@ -1,7 +1,7 @@
+ default:
+-  font: Helvetica
++  font: Droid Serif
+   bold: "{* Bold}"
+-  mono: Andale Mono
++  mono: Consolas
+   prechap: "Chapter "
+   postchap: ""
+   presect: "Section "
+diff --git a/latex/makepdf b/latex/makepdf
+index d60508e..b8150c0 100755
+--- a/latex/makepdf
++++ b/latex/makepdf
+@@ -18,7 +18,7 @@ def figures(lang,&block)
+ 		Dir["#$root/#{lang}/figures-dia/*.dia"].each do |file|
+ 			eps_dest= file.sub(/.*fig0(\d)0?(\d+).dia/, '\1.\2.eps')
+ 			system("dia -t eps-pango -e #$root/figures/#{eps_dest} #{file}")
+-			system("epstopdf #$root/figures/#{eps_dest}")
++			system("epspdf #$root/figures/#{eps_dest}")
+ 		end
+ 		cp(Dir["#$root/#{lang}/figures/*.png"],"#$root/figures")
+ 		cp(Dir["#$root/#{lang}/figures/*.pdf"],"#$root/figures")
+-- 
+1.8.1.2
+

@@ -1,0 +1,157 @@
+From 460aac603b871882a581b66231551e8fbaac9696 Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Wed, 27 May 2015 08:09:19 +1000
+Subject: [PATCH] Delete EZX 18bpp, set 32bpp
+
+Big thanks for:
+https://github.com/radekp/sdl-qtopia/commit/f259b56b627bdbcf2006f29ef7cf13521437c20f
+---
+ src/video/qtopia4/SDL_QWin.cc     |   57 +++++++++++++++++++++---------------
+ src/video/qtopia4/SDL_sysvideo.cc |   14 ++++----
+ 2 files changed, 40 insertions(+), 31 deletions(-)
+
+diff --git a/src/video/qtopia4/SDL_QWin.cc b/src/video/qtopia4/SDL_QWin.cc
+index dac8f39..e73d694 100755
+--- a/src/video/qtopia4/SDL_QWin.cc
++++ b/src/video/qtopia4/SDL_QWin.cc
+@@ -177,21 +177,24 @@ void SDL_QWin::flushRegion(const QRegion &region) {
+ 
+       src += rs.y() * backBuffer->bytesPerLine() + rs.x() * 2;
+ 
++      int fbstep = QDirectPainter::linestep();
++      int bypp = QDirectPainter::screenDepth() / 8;
+       int is_lim = rs.y() + rs.height();
+-      int dst_offset = jd * 720 + id * 3;
++      int dst_offset = jd * fbstep + id * bypp;
+       int src_offset = rs.y() * backBuffer->bytesPerLine() + rs.x() * 2;
+ 
+       for (int ii = rs.y(); ii < is_lim;
+-           dst_offset += 3, src_offset += backBuffer->bytesPerLine(), ii++) {
++           dst_offset += bypp, src_offset += backBuffer->bytesPerLine(), ii++) {
+         dst = dst0 + dst_offset;
+         src = src0 + src_offset;
+         for (int j = 0; j < rs.width(); j++) {
+-          unsigned short tmp = ((unsigned short)(src[1] & 0xf8)) << 2;
+-          dst[0] = src[0] << 1;
+-          dst[1] = ((src[0] & 0x80) >> 7) | ((src[1] & 0x7) << 1) | (tmp & 0xff);
+-          dst[2] = (tmp & 0x300) >> 8;
+-          dst -= 720;
+-          src += 2;
++          //unsigned short tmp = ((unsigned short)(src[1] & 0xf8)) << 2;
++          dst[0] = src[0];
++          dst[1] = src[1]; //((src[0] & 0x80) >> 7) | ((src[1] & 0x7) << 1) | (tmp & 0xff);
++          dst[2] = src[2]; //(tmp & 0x300) >> 8;
++          dst[3] = 0;
++          dst -= fbstep;
++          src += 4;
+         }
+       }
+       //printf("done\n");
+@@ -220,21 +223,24 @@ void SDL_QWin::flushRegion(const QRegion &region) {
+ 
+       src += rs.y() * backBuffer->bytesPerLine() + rs.x() * 2;
+ 
++      int fbstep = QDirectPainter::linestep();
++      int bypp = QDirectPainter::screenDepth() / 8;
+       int is_lim = rs.y() + rs.height();
+-      int dst_offset = jd * 720 + id * 3;
++      int dst_offset = jd * fbstep + id * bypp;
+       int src_offset = rs.y() * backBuffer->bytesPerLine() + rs.x() * 2;
+ 
+       for (int ii = rs.y(); ii < is_lim;
+-           dst_offset -= 3, src_offset += backBuffer->bytesPerLine(), ii++) {
++           dst_offset -= bypp, src_offset += backBuffer->bytesPerLine(), ii++) {
+         dst = dst0 + dst_offset;
+         src = src0 + src_offset;
+         for (int j = 0; j < rs.width(); j++) {
+-          unsigned short tmp = ((unsigned short)(src[1] & 0xf8)) << 2;
+-          dst[0] = src[0] << 1;
+-          dst[1] = ((src[0] & 0x80) >> 7) | ((src[1] & 0x7) << 1) | (tmp & 0xff);
+-          dst[2] = (tmp & 0x300) >> 8;
+-          dst += 720;
+-          src += 2;
++          //unsigned short tmp = ((unsigned short)(src[1] & 0xf8)) << 2;
++          dst[0] = src[0];
++          dst[1] = src[1]; //((src[0] & 0x80) >> 7) | ((src[1] & 0x7) << 1) | (tmp & 0xff);
++          dst[2] = src[2]; //(tmp & 0x300) >> 8;
++          dst[3] = 0;
++          dst += fbstep;
++          src += 4;
+         }
+       }
+     } else
+@@ -244,21 +250,24 @@ void SDL_QWin::flushRegion(const QRegion &region) {
+       uchar *dst0 = vmem;
+       uchar *dst, *src;
+ 
++      int fbstep = QDirectPainter::linestep();
++      int bypp = QDirectPainter::screenDepth() / 8;
+       int is_lim = rect.y() + rect.height();
+       int s_offset = rect.y() * backBuffer->bytesPerLine() + rect.x() * 2;
+-      int offset = rect.y() * 720 + rect.x() * 3;
++      int offset = rect.y() * fbstep + rect.x() * bypp;
+ 
+-      for (int ii = rect.y(); ii < is_lim; ii++, offset += 720,
++      for (int ii = rect.y(); ii < is_lim; ii++, offset += fbstep,
+            s_offset += backBuffer->bytesPerLine()) {
+         dst = dst0 + offset;
+         src = src0 + s_offset;
+         for (int j = 0; j < rect.width(); j++) {
+-          unsigned short tmp = ((unsigned short)(src[1] & 0xf8)) << 2;
+-          dst[0] = src[0] << 1;
+-          dst[1] = ((src[0] & 0x80) >> 7) | ((src[1] & 0x7) << 1) | (tmp & 0xff);
+-          dst[2] = (tmp & 0x300) >> 8;
+-          src += 2;
+-          dst += 3;
++          //unsigned short tmp = ((unsigned short)(src[1] & 0xf8)) << 2;
++          dst[0] = src[0];
++          dst[1] = src[1]; //((src[0] & 0x80) >> 7) | ((src[1] & 0x7) << 1) | (tmp & 0xff);
++          dst[2] = src[2]; //(tmp & 0x300) >> 8;
++          dst[3] = 0;
++          src += 4;
++          dst += 4;
+         }
+       }
+     }
+diff --git a/src/video/qtopia4/SDL_sysvideo.cc b/src/video/qtopia4/SDL_sysvideo.cc
+index 0cabac0..670451c 100755
+--- a/src/video/qtopia4/SDL_sysvideo.cc
++++ b/src/video/qtopia4/SDL_sysvideo.cc
+@@ -196,7 +196,7 @@ extern "C" {
+   int QT_VideoInit(_THIS, SDL_PixelFormat *vformat) {
+     /* Initialize the EzX Application  */
+     /* Determine the screen depth */
+-    vformat->BitsPerPixel = 16; 
++    vformat->BitsPerPixel = 32; 
+ 
+     // For now we hardcode the current depth because anything else
+     // might as well be emulated by SDL rather than by EzX.
+@@ -224,11 +224,11 @@ extern "C" {
+     struct fb_var_screeninfo fbi;
+     Uint32 r = 0, g = 0, b = 0, a = 0;
+ 
+-    fbi.red.length = 5;
+-    fbi.red.offset = 11;
+-    fbi.green.length = 6;
+-    fbi.green.offset = 5;
+-    fbi.blue.length = 5;
++    fbi.red.length = 8;
++    fbi.red.offset = 16;
++    fbi.green.length = 8;
++    fbi.green.offset = 8;
++    fbi.blue.length = 8;
+     fbi.blue.offset = 0;
+     fbi.transp.length = 0;
+     fbi.transp.offset = 0;
+@@ -329,7 +329,7 @@ extern "C" {
+       return(NULL);
+     }
+     /* Create the QImage framebuffer */
+-    qimage = new QImage(current->w, current->h, QImage::Format_RGB16);
++    qimage = new QImage(current->w, current->h, QImage::Format_RGB32);
+     if (qimage->isNull()) {
+       SDL_SetError("Couldn't create screen bitmap");
+       delete qimage;
+-- 
+1.5.4.3
+

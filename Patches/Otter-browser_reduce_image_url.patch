@@ -1,0 +1,46 @@
+diff --git a/src/modules/backends/web/qtwebkit/QtWebKitWebWidget.cpp b/src/modules/backends/web/qtwebkit/QtWebKitWebWidget.cpp
+index 888614c..d00ab3c 100644
+--- a/src/modules/backends/web/qtwebkit/QtWebKitWebWidget.cpp
++++ b/src/modules/backends/web/qtwebkit/QtWebKitWebWidget.cpp
+@@ -1046,7 +1046,7 @@ void QtWebKitWebWidget::showContextMenu(const QPoint &position)
+ 		const bool isImageOpened = getUrl().matches(m_hitResult.imageUrl(), (QUrl::NormalizePathSegments | QUrl::RemoveFragment | QUrl::StripTrailingSlash));
+ 		const QString fileName = m_hitResult.imageUrl().fileName();
+ 		QAction *openImageAction = getAction(OpenImageInNewTabAction);
+-		openImageAction->setText((fileName.isEmpty() || m_hitResult.imageUrl().scheme() == QLatin1String("data")) ? tr("Open Image (Untitled)") : tr("Open Image (%1)").arg(fileName));
++		openImageAction->setText((fileName.isEmpty() || m_hitResult.imageUrl().scheme() == QLatin1String("data")) ? tr("Open Image (Untitled)") : tr("Open Image (%1)").arg(reduceFileName(fileName, 33)));
+ 		openImageAction->setEnabled(!isImageOpened);
+ 
+ 		getAction(InspectElementAction)->setEnabled(!isImageOpened);
+@@ -1097,6 +1097,18 @@ void QtWebKitWebWidget::showContextMenu(const QPoint &position)
+ 	}
+ }
+ 
++QString QtWebKitWebWidget::reduceFileName(const QString &fileName, int length) const
++{
++	if (fileName.length() < length)
++	{
++		return fileName;
++	}
++
++	const int partLength = (length > 5) ? (length - 3) / 2 : 1;
++
++	return fileName.left(partLength) + QString("...") + fileName.right(partLength);
++}
++
+ WebWidget* QtWebKitWebWidget::clone(bool cloneHistory)
+ {
+ 	const QPair<QString, QString> userAgent = getUserAgent();
+diff --git a/src/modules/backends/web/qtwebkit/QtWebKitWebWidget.h b/src/modules/backends/web/qtwebkit/QtWebKitWebWidget.h
+index 1145c6d..e67f28b 100644
+--- a/src/modules/backends/web/qtwebkit/QtWebKitWebWidget.h
++++ b/src/modules/backends/web/qtwebkit/QtWebKitWebWidget.h
+@@ -117,6 +117,9 @@ private:
+ 	bool m_isReloading;
+ 	bool m_isTyped;
+ 
++private:
++	QString reduceFileName(const QString &fileName, int length) const;
++
+ friend class QtWebKitWebBackend;
+ friend class QtWebKitWebPage;
+ };

@@ -1,0 +1,401 @@
+From dd07323268b9291467dcf5a3530abd06b119710c Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Wed, 1 Feb 2017 02:13:54 +0600
+Subject: [PATCH] Fix input #2
+
+---
+ ai/weapons/bubbler.cpp |  2 +-
+ debug.cpp              |  2 +-
+ game.cpp               |  4 ++--
+ input.h                |  2 +-
+ inventory.cpp          |  2 +-
+ main.cpp               | 12 ++++++------
+ map.cpp                |  2 +-
+ map_system.cpp         |  2 +-
+ pause/dialog.cpp       |  6 +++---
+ pause/options.cpp      |  4 ++--
+ player.cpp             | 38 +++++++++++++++++++-------------------
+ replay.cpp             |  6 +++---
+ tsc.cpp                | 16 ++++++++--------
+ 13 files changed, 49 insertions(+), 49 deletions(-)
+
+diff --git a/ai/weapons/bubbler.cpp b/ai/weapons/bubbler.cpp
+index ea5f32a..897e51b 100644
+--- a/ai/weapons/bubbler.cpp
++++ b/ai/weapons/bubbler.cpp
+@@ -79,7 +79,7 @@ void ai_bubbler_l3(Object *o)
+ 		return;
+ 	}
+ 	
+-	if (--o->shot.ttl < 0 || !inputs[FIREKEY])
++	if (--o->shot.ttl < 0 || !_inputs[FIREKEY])
+ 	{
+ 		effect(o->CenterX(), o->CenterY(), EFFECT_FISHY);
+ 		sound(SND_BUBBLER_LAUNCH);
+diff --git a/debug.cpp b/debug.cpp
+index 8da0da4..e91252d 100644
+--- a/debug.cpp
++++ b/debug.cpp
+@@ -46,7 +46,7 @@ void DrawDebug(void)
+ 			AddXP(1);
+ 		}
+ 		
+-		if (inputs[DEBUG_FLY_KEY])
++		if (_inputs[DEBUG_FLY_KEY])
+ 		{
+ 			player->yinertia = -0x880;
+ 			if (!player->hurt_time) player->hurt_time = 20;		// make invincible
+diff --git a/game.cpp b/game.cpp
+index ac79e8c..04d8e5e 100644
+--- a/game.cpp
++++ b/game.cpp
+@@ -189,7 +189,7 @@ bool Game::pause(int pausemode, int param)
+ 	}
+ 	
+ 	if (!game.paused)
+-		memset(inputs, 0, sizeof(inputs));
++		memset(_inputs, 0, sizeof(_inputs));
+ 	
+ 	return 0;
+ }
+@@ -230,7 +230,7 @@ void Game::switchmap(int mapno, int scriptno, int px, int py)
+ 
+ void Game::reset()
+ {
+-	memset(inputs, 0, sizeof(inputs));
++	memset(_inputs, 0, sizeof(_inputs));
+ 	StopLoopSounds();
+ 	StopScripts();
+ 	
+diff --git a/input.h b/input.h
+index 42b3856..43e9fd4 100644
+--- a/input.h
++++ b/input.h
+@@ -37,7 +37,7 @@ enum INPUTS
+ #define DEBUG_SAVE_KEY		F4KEY
+ #define FFWDKEY				F5KEY
+ 
+-extern bool inputs[INPUT_COUNT];
++extern bool _inputs[INPUT_COUNT];
+ extern bool lastinputs[INPUT_COUNT];
+ extern int last_sdl_key;
+ 
+diff --git a/inventory.cpp b/inventory.cpp
+index b5cdb5b..161f164 100644
+--- a/inventory.cpp
++++ b/inventory.cpp
+@@ -310,7 +310,7 @@ static void ExitInventory(void)
+ {
+ 	StopScripts();
+ 	game.setmode(GM_NORMAL);
+-	memset(inputs, 0, sizeof(inputs));
++	memset(_inputs, 0, sizeof(_inputs));
+ }
+ 
+ 
+diff --git a/main.cpp b/main.cpp
+index 3a12bf3..5573ff0 100644
+--- a/main.cpp
++++ b/main.cpp
+@@ -281,14 +281,14 @@ static int frameskip = 0;
+ 	// freeze frame
+ 	if (settings->enable_debug_keys)
+ 	{
+-		if (inputs[FREEZE_FRAME_KEY] && !last_freezekey)
++		if (_inputs[FREEZE_FRAME_KEY] && !last_freezekey)
+ 		{
+ 			can_tick = true;
+ 			freezeframe ^= 1;
+ 			framecount = 0;
+ 		}
+ 		
+-		if (inputs[FRAME_ADVANCE_KEY] && !last_framekey)
++		if (_inputs[FRAME_ADVANCE_KEY] && !last_framekey)
+ 		{
+ 			can_tick = true;
+ 			if (!freezeframe)
+@@ -298,12 +298,12 @@ static int frameskip = 0;
+ 			}
+ 		}
+ 		
+-		last_freezekey = inputs[FREEZE_FRAME_KEY];
+-		last_framekey = inputs[FRAME_ADVANCE_KEY];
++		last_freezekey = _inputs[FREEZE_FRAME_KEY];
++		last_framekey = _inputs[FRAME_ADVANCE_KEY];
+ 	}
+ 	
+ 	// fast-forward key (F5)
+-	if (inputs[FFWDKEY] && (settings->enable_debug_keys || Replay::IsPlaying()))
++	if (_inputs[FFWDKEY] && (settings->enable_debug_keys || Replay::IsPlaying()))
+ 	{
+ 		game.ffwdtime = 2;
+ 	}
+@@ -344,7 +344,7 @@ static int frameskip = 0;
+ 			}
+ 		}
+ 		
+-		memcpy(lastinputs, inputs, sizeof(lastinputs));
++		memcpy(lastinputs, _inputs, sizeof(lastinputs));
+ 	}
+ 	else
+ 	{	// frame is frozen; don't hog CPU
+diff --git a/map.cpp b/map.cpp
+index 9dc8462..2dfb512 100644
+--- a/map.cpp
++++ b/map.cpp
+@@ -651,7 +651,7 @@ void map_scroll_do(void)
+ 			{
+ 				scroll_normal();
+ 				
+-				if (!inputs[DEBUG_MOVE_KEY] || !settings->enable_debug_keys)
++				if (!_inputs[DEBUG_MOVE_KEY] || !settings->enable_debug_keys)
+ 					doing_normal_scroll = true;
+ 			}
+ 		}
+diff --git a/map_system.cpp b/map_system.cpp
+index 47a1934..dbf5c7a 100644
+--- a/map_system.cpp
++++ b/map_system.cpp
+@@ -65,7 +65,7 @@ bool ms_init(int return_to_mode)
+ 
+ void ms_close(void)
+ {
+-	memset(inputs, 0, sizeof(inputs));
++	memset(_inputs, 0, sizeof(_inputs));
+ 	delete ms.sfc;
+ }
+ 
+diff --git a/pause/dialog.cpp b/pause/dialog.cpp
+index 674bd86..997235a 100644
+--- a/pause/dialog.cpp
++++ b/pause/dialog.cpp
+@@ -170,9 +170,9 @@ void c------------------------------() {}
+ 
+ void Dialog::RunInput()
+ {
+-	if (inputs[UPKEY] || inputs[DOWNKEY])
++	if (_inputs[UPKEY] || _inputs[DOWNKEY])
+ 	{
+-		int dir = (inputs[DOWNKEY]) ? 1 : -1;
++		int dir = (_inputs[DOWNKEY]) ? 1 : -1;
+ 		
+ 		if (!fRepeatTimer)
+ 		{
+@@ -197,7 +197,7 @@ void Dialog::RunInput()
+ 	
+ 	if (buttonjustpushed() || justpushed(RIGHTKEY) || justpushed(LEFTKEY))
+ 	{
+-		int dir = (!inputs[LEFTKEY] || buttonjustpushed() || justpushed(RIGHTKEY)) ? 1 : -1;
++		int dir = (!_inputs[LEFTKEY] || buttonjustpushed() || justpushed(RIGHTKEY)) ? 1 : -1;
+ 		
+ 		ODItem *item = ItemAt(fCurSel);
+ 		if (item)
+diff --git a/pause/options.cpp b/pause/options.cpp
+index 0dcf079..7f06f32 100644
+--- a/pause/options.cpp
++++ b/pause/options.cpp
+@@ -37,7 +37,7 @@ bool options_init(int retmode)
+ 	opt.dlg->ondismiss = DialogDismissed;
+ 	opt.dlg->ShowFull();
+ 	
+-	inputs[F3KEY] = 0;
++	_inputs[F3KEY] = 0;
+ 	sound(SND_MENU_MOVE);
+ 	return 0;
+ }
+@@ -107,7 +107,7 @@ void DialogDismissed()
+ {
+ 	if (opt.InMainMenu)
+ 	{
+-		memset(inputs, 0, sizeof(inputs));
++		memset(_inputs, 0, sizeof(_inputs));
+ 		game.pause(false);
+ 	}
+ 	else
+diff --git a/player.cpp b/player.cpp
+index eb74fb1..dec0041 100644
+--- a/player.cpp
++++ b/player.cpp
+@@ -124,7 +124,7 @@ void HandlePlayer(void)
+ 		PDoWeapons();	// p_arms.cpp
+ 		PDoHurtFlash();
+ 		
+-		switch((inputs[DEBUG_MOVE_KEY] && settings->enable_debug_keys) ? MOVEMODE_DEBUG : \
++        switch((_inputs[DEBUG_MOVE_KEY] && settings->enable_debug_keys) ? MOVEMODE_DEBUG : \
+ 			   player->movementmode)
+ 		{
+ 			case MOVEMODE_NORMAL:
+@@ -150,10 +150,10 @@ void HandlePlayer(void)
+ 				player->xinertia = player->yinertia = 0;
+ 				player->blockl = player->blockr = player->blockd = player->blocku = 0;
+ 				
+-				if (inputs[DOWNKEY]) player->y += 0x1000;
+-				if (inputs[UPKEY]) player->y -= 0x1000;
+-				if (inputs[LEFTKEY]) { player->x -= 0x1000; player->dir = LEFT; }
+-				if (inputs[RIGHTKEY]) { player->x += 0x1000; player->dir = RIGHT; }
++                if (_inputs[DOWNKEY]) player->y += 0x1000;
++                if (_inputs[UPKEY]) player->y -= 0x1000;
++                if (_inputs[LEFTKEY]) { player->x -= 0x1000; player->dir = LEFT; }
++                if (_inputs[RIGHTKEY]) { player->x += 0x1000; player->dir = RIGHT; }
+ 				
+ 				map_scroll_jump(player->x, player->y);
+ 				
+@@ -287,7 +287,7 @@ int i;
+ 	}
+ 	else
+ 	{
+-		memcpy(pinputs, inputs, sizeof(pinputs));
++        memcpy(pinputs, _inputs, sizeof(pinputs));
+ 		
+ 		// prevent jumping/shooting when leaving a messagebox
+ 		if (player->inputs_locked_lasttime)
+@@ -680,7 +680,7 @@ int i, key;
+ 			if (!player->walking && !player->lookaway && \
+ 				!pinputs[JUMPKEY] && !pinputs[FIREKEY])
+ 			{
+-				if (!inputs[DEBUG_MOVE_KEY] || !settings->enable_debug_keys)
++                if (!_inputs[DEBUG_MOVE_KEY] || !settings->enable_debug_keys)
+ 				{
+ 					player->lookaway = true;
+ 					player->xinertia = 0;
+@@ -760,13 +760,13 @@ void PStartBooster(void)
+ 		player->booststate = BOOST_UP;
+ 		
+ 		// in order of precedence
+-		if (inputs[LEFTKEY] || inputs[RIGHTKEY])
++        if (_inputs[LEFTKEY] || _inputs[RIGHTKEY])
+ 			player->booststate = BOOST_HOZ;
+ 		
+-		if (inputs[DOWNKEY])
++        if (_inputs[DOWNKEY])
+ 			player->booststate = BOOST_DOWN;
+ 		
+-		if (inputs[UPKEY])
++        if (_inputs[UPKEY])
+ 			player->booststate = BOOST_UP;
+ 		
+ 		// set initial inertia full on
+@@ -787,7 +787,7 @@ void PStartBooster(void)
+ 			{
+ 				player->yinertia = 0;
+ 				
+-				if (inputs[LEFTKEY])
++                if (_inputs[LEFTKEY])
+ 					player->xinertia = -0x5ff;
+ 				else
+ 					player->xinertia = 0x5ff;
+@@ -1167,7 +1167,7 @@ void hurtplayer(int damage)
+ {
+ 	if (damage == 0) return;
+ 	if (!player || !player->hp) return;
+-	if (settings->enable_debug_keys && (game.debug.god || inputs[DEBUG_MOVE_KEY])) return;
++    if (settings->enable_debug_keys && (game.debug.god || _inputs[DEBUG_MOVE_KEY])) return;
+ 	
+ 	if (player->hurt_time)
+ 		return;
+@@ -1236,10 +1236,10 @@ void PHandleZeroG(void)
+ {
+ 	if (!player->inputs_locked)
+ 	{
+-		if (inputs[LEFTKEY] || inputs[RIGHTKEY])
++        if (_inputs[LEFTKEY] || _inputs[RIGHTKEY])
+ 		{
+-			if (inputs[LEFTKEY])  player->xinertia -= 0x100;
+-			if (inputs[RIGHTKEY]) player->xinertia += 0x100;
++            if (_inputs[LEFTKEY])  player->xinertia -= 0x100;
++            if (_inputs[RIGHTKEY]) player->xinertia += 0x100;
+ 		}
+ 		else
+ 		{	// decel
+@@ -1253,10 +1253,10 @@ void PHandleZeroG(void)
+ 			}
+ 		}
+ 		
+-		if (inputs[UPKEY] || inputs[DOWNKEY])
++        if (_inputs[UPKEY] || _inputs[DOWNKEY])
+ 		{
+-			if (inputs[UPKEY]) player->yinertia -= 0x100;
+-			if (inputs[DOWNKEY]) player->yinertia += 0x100;
++            if (_inputs[UPKEY]) player->yinertia -= 0x100;
++            if (_inputs[DOWNKEY]) player->yinertia += 0x100;
+ 		}
+ 		else
+ 		{	// decel
+@@ -1350,7 +1350,7 @@ void PDoRepel(void)
+ 	// directly here.
+ 	static const int REPEL_SPEED =	(1<<CSF);
+ 	
+-	if (settings->enable_debug_keys && inputs[DEBUG_MOVE_KEY])
++    if (settings->enable_debug_keys && _inputs[DEBUG_MOVE_KEY])
+ 		return;
+ 	
+ 	// pushes player out of walls if he become embedded in them, ala Super Mario 1.
+diff --git a/replay.cpp b/replay.cpp
+index 6aa238a..899c499 100644
+--- a/replay.cpp
++++ b/replay.cpp
+@@ -156,7 +156,7 @@ bool Replay::end_playback()
+ 	fclose(play.fp);
+ 	play.fp = NULL;
+ 	
+-	memset(inputs, 0, sizeof(inputs));
++	memset(_inputs, 0, sizeof(_inputs));
+ 	play.termtimer = 110;
+ 	
+ 	return 0;
+@@ -192,7 +192,7 @@ void Replay::run()
+ void Replay::run_record()
+ {
+ 	rec.hdr.total_frames++;
+-	uint32_t keys = EncodeBits(inputs, INPUT_COUNT);
++	uint32_t keys = EncodeBits(_inputs, INPUT_COUNT);
+ 	
+ 	if (keys != rec.lastkeys)
+ 	{
+@@ -262,7 +262,7 @@ static void Replay::run_playback()
+ 	for(int i=0;list[i] != -1;i++)
+ 	{
+ 		int key = list[i];
+-		inputs[key] = keys[key];
++		_inputs[key] = keys[key];
+ 	}
+ 	
+ 	return;
+diff --git a/tsc.cpp b/tsc.cpp
+index 5f80d2e..2fee69d 100644
+--- a/tsc.cpp
++++ b/tsc.cpp
+@@ -547,22 +547,22 @@ int cmdip;
+ 			// if key was just pressed release nod.
+ 			// check them separately to allow holding X while
+ 			// tapping Z to keep text scrolling fast.
+-			if ((inputs[JUMPKEY] && !s->lastjump) || \
+-				(inputs[FIREKEY] && !s->lastfire))
++			if ((_inputs[JUMPKEY] && !s->lastjump) || \
++				(_inputs[FIREKEY] && !s->lastfire))
+ 			{
+ 				// hide the fact that the key was just pushed
+ 				// so player doesn't jump/fire stupidly when dismissing textboxes
+-				lastinputs[JUMPKEY] |= inputs[JUMPKEY];
+-				lastinputs[FIREKEY] |= inputs[FIREKEY];
+-				lastpinputs[JUMPKEY] |= inputs[JUMPKEY];
+-				lastpinputs[FIREKEY] |= inputs[FIREKEY];
++				lastinputs[JUMPKEY] |= _inputs[JUMPKEY];
++				lastinputs[FIREKEY] |= _inputs[FIREKEY];
++				lastpinputs[JUMPKEY] |= _inputs[JUMPKEY];
++				lastpinputs[FIREKEY] |= _inputs[FIREKEY];
+ 				
+ 				s->waitforkey = false;
+ 				textbox.ShowCursor(false);
+ 			}
+ 			
+-			s->lastjump = inputs[JUMPKEY];
+-			s->lastfire = inputs[FIREKEY];
++			s->lastjump = _inputs[JUMPKEY];
++			s->lastfire = _inputs[FIREKEY];
+ 		}
+ 		
+ 		// if still on return
+-- 
+2.11.0.windows.3
+

@@ -1,0 +1,411 @@
+From 77925a84cfdd16c1956e87a39ac643fc133a35fc Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Sun, 4 Mar 2018 17:27:18 +0700
+Subject: [PATCH] WordPress plugin Comments Like Dislike modification
+
+Use comment_karma field in wp_comments table.
+Merge dislikes and likes to the one karma rating.
+Show various information overlays.
+Color indication of karma values.
+Special for the new MotoFan.Ru site on WordPress.
+---
+ comments-like-dislike.php                |  2 +-
+ css/cld-frontend.css                     | 24 +++++++++++++++++----
+ inc/classes/cld-admin.php                | 35 +++++++++++++++++++++---------
+ inc/classes/cld-ajax.php                 | 30 ++++++++++++++++----------
+ inc/classes/cld-hook.php                 | 13 +++++++++++
+ inc/classes/cld-library.php              | 20 ++++++++++++++++-
+ inc/views/frontend/dislike.php           |  3 +--
+ inc/views/frontend/like-dislike-html.php |  5 +++--
+ inc/views/frontend/like.php              | 13 ++++++++---
+ js/cld-frontend.js                       | 37 ++++++++++++++++++++++++--------
+ 10 files changed, 139 insertions(+), 43 deletions(-)
+
+diff --git a/comments-like-dislike.php b/comments-like-dislike.php
+index d38f281..de5c0cd 100644
+--- a/comments-like-dislike.php
++++ b/comments-like-dislike.php
+@@ -3,7 +3,7 @@
+ defined( 'ABSPATH' ) or die( 'No script kiddies please' );
+ 
+ /*
+-  Plugin Name: Comments Like Dislike
++  Plugin Name: Comments Like Dislike (patched by EXL)
+   Description: A simple plugin to add like dislike for your comments
+   Version:     1.0.5
+   Author:      WP Happy Coders
+diff --git a/css/cld-frontend.css b/css/cld-frontend.css
+index 6ad8d26..de5eb80 100644
+--- a/css/cld-frontend.css
++++ b/css/cld-frontend.css
+@@ -1,10 +1,25 @@
++.cld-info-wrap {
++    background: #257924;
++    color: #fff;
++    position: fixed;
++    top: 90px;
++    left: 80%;
++    padding: 10px;
++    z-index: 100;
++    opacity: 0.7;
++    font-size: 13px;
++    font-weight: 1000;
++}
++.cld-loader {
++    margin-right: 5px;
++    float: left;
++}
+ .cld-like-dislike-wrap {
+     display: inline-block;
+-    margin-bottom:20px;
++    margin-bottom: 0px;
+ }
+ .cld-common-wrap {
+     display: inline-block;
+-    min-width: 50px;
+ }
+ .cld-common-wrap > a.cld-like-dislike-trigger {
+     text-decoration: none;
+@@ -13,6 +28,7 @@
+ }
+ .cld-count-wrap {
+     margin-left: 5px;
++    margin-right: 5px;
+ }
+ .cld-share-wrap {
+     display: inline-block;
+@@ -53,10 +69,10 @@ a.cld-twitter:hover {
+     margin-bottom: 20px;
+ }
+ .cld-like-dislike-wrap .cld-common-wrap {
+-    margin-right: 10px;
++    margin-right: 0px;
+ }
+ .cld-like-dislike-wrap.cld-custom img {
+     max-width: 30px;
+     display: inline-block;
+     vertical-align: top;
+-}
+\ No newline at end of file
++}
+diff --git a/inc/classes/cld-admin.php b/inc/classes/cld-admin.php
+index 4bcbe4e..0334be1 100644
+--- a/inc/classes/cld-admin.php
++++ b/inc/classes/cld-admin.php
+@@ -41,6 +41,20 @@ if ( !class_exists( 'CLD_Admin' ) ) {
+ 			 * @since 1.0.5
+ 			 */
+ 			add_filter( 'manage_comments_custom_column', array( $this, 'display_like_dislike_values' ), 10, 2 );
++
++			/**
++			 * EXL's Patch.
++			 * Fix column width. See https://gist.github.com/harisrozak/f390f50288a599830bb29c89c00bb70d for more info
++			 *
++			 */
++			add_action( 'admin_head', array( $this, 'set_normal_width_for_column' ) );
++		}
++
++		function set_normal_width_for_column() {
++			$screen = get_current_screen();
++			if ($screen->id == 'edit-comments') {
++				echo '<style type="text/css">#cld_like_column { width: 50px }</style>\n';
++			}
+ 		}
+ 
+ 		function cld_admin_menu() {
+@@ -105,26 +119,27 @@ if ( !class_exists( 'CLD_Admin' ) ) {
+ 		}
+ 
+ 		function add_like_dislike_column( $columns ) {
+-			$columns['cld_like_column'] = __( 'Likes', 'comments-like-dislike' );
+-			$columns['cld_dislike_column'] = __( 'Dislikes', 'comments-like-dislike' );
++			$columns['cld_like_column'] = __( 'Карма', 'comments-like-dislike' );
++// 			$columns['cld_dislike_column'] = __( 'Dislikes', 'comments-like-dislike' );
+ 			return $columns;
+ 		}
+ 
+ 		function display_like_dislike_values( $column, $comment_id ) {
+ 			if ( 'cld_like_column' == $column ) {
+-				$like_count = get_comment_meta( $comment_id, 'cld_like_count', true );
++				$like_count = $this->get_comment_karma( $comment_id );
++// 				$like_count = get_comment_meta( $comment_id, 'cld_like_count', true );
+ 				if ( empty( $like_count ) ) {
+ 					$like_count = 0;
+ 				}
+ 				echo $like_count;
+ 			}
+-			if ( 'cld_dislike_column' == $column ) {
+-				$dislike_count = get_comment_meta( $comment_id, 'cld_dislike_count', true );
+-				if ( empty( $dislike_count ) ) {
+-					$dislike_count = 0;
+-				}
+-				echo $dislike_count;
+-			}
++// 			if ( 'cld_dislike_column' == $column ) {
++// 				$dislike_count = get_comment_meta( $comment_id, 'cld_dislike_count', true );
++// 				if ( empty( $dislike_count ) ) {
++// 					$dislike_count = 0;
++// 				}
++// 				echo $dislike_count;
++// 			}
+ 		}
+ 
+ 	}
+diff --git a/inc/classes/cld-ajax.php b/inc/classes/cld-ajax.php
+index 648389b..1bd56bb 100644
+--- a/inc/classes/cld-ajax.php
++++ b/inc/classes/cld-ajax.php
+@@ -15,30 +15,38 @@ if ( !class_exists( 'CLD_Ajax' ) ) {
+ 				$type = sanitize_text_field( $_POST['type'] );
+ 				$user_ip = sanitize_text_field( $_POST['user_ip'] );
+ 				if ( $type == 'like' ) {
+-					$like_count = get_comment_meta( $comment_id, 'cld_like_count', true );
++					$like_count = $this->get_comment_karma( $comment_id );
++// 					$like_count = get_comment_meta( $comment_id, 'cld_like_count', true );
+ 					if ( empty( $like_count ) ) {
+ 						$like_count = 0;
+ 					}
+ 					$like_count = $like_count + 1;
+-					$check = update_comment_meta( $comment_id, 'cld_like_count', $like_count );
+-					
++					$check = $this->set_comment_karma( $comment_id, $like_count );
++// 					$check = update_comment_meta( $comment_id, 'cld_like_count', $like_count );
+ 					if ( $check ) {
+-
+ 						$response_array = array( 'success' => true, 'latest_count' => $like_count );
+ 					} else {
+ 						$response_array = array( 'success' => false, 'latest_count' => $like_count );
+ 					}
+ 				} else {
+-					$dislike_count = get_comment_meta( $comment_id, 'cld_dislike_count', true );
+-					if ( empty( $dislike_count ) ) {
+-						$dislike_count = 0;
++					$like_count = $this->get_comment_karma( $comment_id );
++					if ( empty( $like_count ) ) {
++						$like_count = 0;
+ 					}
+-					$dislike_count = $dislike_count + 1;
+-					$check = update_comment_meta( $comment_id, 'cld_dislike_count', $dislike_count );
++					$like_count = $like_count - 1;
++					$check = $this->set_comment_karma( $comment_id, $like_count );
++// 					$dislike_count = get_comment_meta( $comment_id, 'cld_dislike_count', true );
++// 					if ( empty( $dislike_count ) ) {
++// 						$dislike_count = 0;
++// 					}
++// 					$dislike_count = $dislike_count + 1;
++// 					$check = update_comment_meta( $comment_id, 'cld_dislike_count', $dislike_count );
+ 					if ( $check ) {
+-						$response_array = array( 'success' => true, 'latest_count' => $dislike_count );
++						$response_array = array( 'success' => true, 'latest_count' => $like_count );
++// 						$response_array = array( 'success' => true, 'latest_count' => $dislike_count );
+ 					} else {
+-						$response_array = array( 'success' => false, 'latest_count' => $dislike_count );
++						$response_array = array( 'success' => false, 'latest_count' => $like_count );
++// 						$response_array = array( 'success' => false, 'latest_count' => $dislike_count );
+ 					}
+ 				}
+ 				$liked_ips = get_comment_meta($comment_id,'cld_ips',true);
+diff --git a/inc/classes/cld-hook.php b/inc/classes/cld-hook.php
+index dcd55ac..39bd960 100644
+--- a/inc/classes/cld-hook.php
++++ b/inc/classes/cld-hook.php
+@@ -9,6 +9,19 @@ if ( !class_exists( 'CLD_Comments_Hooks' ) ) {
+ 			add_filter( 'comment_text', array( $this, 'comments_like_dislike' ), 20, 2 ); // hook to add html for like dislike
+ 			add_action( 'cld_like_dislike_output', array( $this, 'generate_like_dislike_html' ), 10, 2 );
+ 			add_action( 'wp_head', array( $this, 'custom_styles' ) );
++
++			/**
++			 * EXL's Patch.
++			 * Cute and cool overlay message.
++			 *
++			 */
++			 add_action( 'wp_footer', array( $this, 'overlay_message' ) );
++		}
++
++		function overlay_message() {
++			echo '<div class="cld-info-wrap" style="display:none;">';
++			echo '<img src="' . CLD_IMG_DIR . '/ajax-loader.gif' .'" class="cld-loader"/>';
++			echo '<span class="cld-info"></span></div>';
+ 		}
+ 
+ 		function comments_like_dislike( $comment_text, $comment = null ) {
+diff --git a/inc/classes/cld-library.php b/inc/classes/cld-library.php
+index 40ca308..0490e7e 100644
+--- a/inc/classes/cld-library.php
++++ b/inc/classes/cld-library.php
+@@ -70,6 +70,24 @@ if ( !class_exists( 'CLD_Library' ) ) {
+ 			return $ip;
+ 		}
+ 
++		/**
++		 * EXL's functions for get and set comment_karma field.
++		 *
++		 * See https://github.com/venizeng/wordpress/blob/master/www/wp-content/plugins/goodcomment.php
++		 * for additional info.
++		 */
++		function get_comment_karma( $commentId ) {
++			global $wpdb;
++			$query = "SELECT comment_karma FROM {$wpdb->comments} WHERE comment_ID = {$commentId}";
++			return $wpdb->get_var($query);
++		}
++
++		function set_comment_karma( $commentId, $value ) {
++			global $wpdb;
++			$query = "UPDATE {$wpdb->comments} SET comment_karma = {$value} WHERE comment_ID = {$commentId}";
++			return $wpdb->query($query);
++		}
++
+ 	}
+ 
+-}
+\ No newline at end of file
++}
+diff --git a/inc/views/frontend/dislike.php b/inc/views/frontend/dislike.php
+index efe9a25..cc569d5 100644
+--- a/inc/views/frontend/dislike.php
++++ b/inc/views/frontend/dislike.php
+@@ -51,5 +51,4 @@
+ 		do_action( 'cld_dislike_template', $cld_settings );
+ 		?>
+ 	</a>
+-	<span class="cld-dislike-count-wrap cld-count-wrap"><?php echo (empty( $dislike_count )) ? 0 : number_format( $dislike_count ); ?></span>
+-</div>
+\ No newline at end of file
++</div>
+diff --git a/inc/views/frontend/like-dislike-html.php b/inc/views/frontend/like-dislike-html.php
+index ce2912e..43c4c4b 100644
+--- a/inc/views/frontend/like-dislike-html.php
++++ b/inc/views/frontend/like-dislike-html.php
+@@ -1,6 +1,7 @@
+ <?php
+ $comment_id = $comment->comment_ID;
+-$like_count = get_comment_meta( $comment_id, 'cld_like_count', true );
++$like_count = $this->get_comment_karma( $comment_id );
++// $like_count = get_comment_meta( $comment_id, 'cld_like_count', true );
+ $dislike_count = get_comment_meta( $comment_id, 'cld_dislike_count', true );
+ $post_id = get_the_ID();
+ $cld_settings = get_option( 'cld_settings' );
+@@ -57,4 +58,4 @@ if ( $cld_settings['basic_settings']['status'] != 1 ) {
+ 
+ <?php
+ //$this->print_array($comment);
+-?>
+\ No newline at end of file
++?>
+diff --git a/inc/views/frontend/like.php b/inc/views/frontend/like.php
+index c6562f4..3905ccd 100644
+--- a/inc/views/frontend/like.php
++++ b/inc/views/frontend/like.php
+@@ -5,7 +5,14 @@
+ 	if ( empty( $liked_ips ) ) {
+ 		$liked_ips = array();
+ 	}
+-
++	$color_karma = '';
++	if ($like_count < 0) {
++		$color_karma = 'red';
++	} else if ($like_count > 0) {
++		$color_karma = 'green';
++	} else {
++		$color_karma = 'black';
++	}
+ 	// $this->print_array($liked_ips);
+ 	$user_ip_check = (in_array( $user_ip, $liked_ips )) ? 1 : 0;
+ 	$like_title = isset( $cld_settings['basic_settings']['like_hover_text'] ) ? esc_attr( $cld_settings['basic_settings']['like_hover_text'] ) : __( 'Like', CLD_TD );
+@@ -52,5 +59,5 @@
+ 		do_action( 'cld_like_template', $cld_settings );
+ 		?>
+ 	</a>
+-	<span class="cld-like-count-wrap cld-count-wrap"><?php echo (empty( $like_count )) ? 0 : number_format( $like_count ); ?></span>
+-</div>
+\ No newline at end of file
++	<span class="cld-like-count-wrap cld-count-wrap" style="font-weight:1000;color:<?php echo $color_karma ?>;"><?php echo (empty( $like_count )) ? 0 : number_format( $like_count ); ?></span>
++</div>
+diff --git a/js/cld-frontend.js b/js/cld-frontend.js
+index b977263..7982e03 100644
+--- a/js/cld-frontend.js
++++ b/js/cld-frontend.js
+@@ -22,25 +22,32 @@ function cld_getCookie(cname) {
+ 
+ jQuery(document).ready(function ($) {
+     var ajax_flag = 0;
++    var info_timer;
+     $('.cld-like-dislike-trigger').click(function () {
+         if (ajax_flag == 0) {
++            clearTimeout(info_timer);
++            $('.cld-info-wrap').css('background', '#257924');
++            $('.cld-info-wrap').css('color', '#fff');
++            $('.cld-info-wrap').slideDown(500);
++            $('.cld-info').html('Пожалуйста подождите...');
++            $('.cld-loader').show();
+             var restriction = $(this).data('restriction');
+             var comment_id = $(this).data('comment-id');
+             var trigger_type = $(this).data('trigger-type');
+             var selector = $(this);
+             var cld_cookie = cld_getCookie('cld_' + comment_id);
+-            var current_count = selector.closest('.cld-common-wrap').find('.cld-count-wrap').html();
+-            var new_count = parseInt(current_count) + 1;
++            var current_count = selector.closest('.cld-like-dislike-wrap').find('.cld-count-wrap').html();
++            var new_count = (trigger_type === 'like') ? parseInt(current_count) + 1 : parseInt(current_count) - 1;
++//             var current_count = selector.closest('.cld-common-wrap').find('.cld-count-wrap').html();
++//             var new_count = parseInt(current_count) + 1;
+             var user_ip = $(this).data('user-ip');
+             var ip_check = $(this).data('ip-check');
+             var like_dislike_flag = 1;
+             if (restriction == 'cookie' && cld_cookie != '') {
+                 like_dislike_flag = 0;
+-                
+             }
+             if (restriction == 'ip' && ip_check == '1') {
+                 like_dislike_flag = 0;
+-                
+             }
+             if (like_dislike_flag == 1) {
+                 $.ajax({
+@@ -55,7 +62,7 @@ jQuery(document).ready(function ($) {
+                     },
+                     beforeSend: function (xhr) {
+                         ajax_flag = 1;
+-                        selector.closest('.cld-common-wrap').find('.cld-count-wrap').html(new_count);
++                        selector.closest('.cld-like-dislike-wrap').find('.cld-count-wrap').html(new_count);
+                     },
+                     success: function (res) {
+                         ajax_flag = 0;
+@@ -67,17 +74,29 @@ jQuery(document).ready(function ($) {
+                             var cookie_name = 'cld_' + comment_id;
+                             cld_setCookie(cookie_name, 1, 365);
+                             var latest_count = res.latest_count;
+-                            selector.closest('.cld-common-wrap').find('.cld-count-wrap').html(latest_count);
++                            selector.closest('.cld-like-dislike-wrap').find('.cld-count-wrap').html(latest_count);
++                            show_overlay('Ваш голос учтён!', '#fed61d', 'black');
++                        } else {
++                            show_overlay('Ошибка AJAX!', 'red', '#fff');
+                         }
+                     }
+ 
+                 });
++            } else {
++                show_overlay('Вы уже голосовали!', 'red', '#fff');
+             }
+         }
+     });
+ 
++    function show_overlay(aText, aBackground, aColor) {
++        $('.cld-info-wrap').css('background', aBackground);
++        $('.cld-info-wrap').css('color', aColor);
++        $('.cld-loader').hide();
++        $('.cld-info').html(aText);
++        info_timer = setTimeout(function () {
++            $('.cld-info-wrap').slideUp(500);
++        }, 4000);
++    }
+ 
+     $('.cld-like-dislike-wrap br,.cld-like-dislike-wrap p').remove();
+-
+-
+-});
+\ No newline at end of file
++});
+-- 
+2.16.2
+

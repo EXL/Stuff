@@ -1,0 +1,105 @@
+diff -Naur NXEngine_orig/common/stat.cpp EXLMOTODEV-NXEngine/common/stat.cpp
+--- NXEngine_orig/common/stat.cpp	2013-11-11 03:42:40.000000000 +0700
++++ EXLMOTODEV-NXEngine/common/stat.cpp	2013-11-11 03:46:52.000000000 +0700
+@@ -4,6 +4,9 @@
+ #include <string.h>
+ #include <time.h>
+ 
++#include <SDL/SDL.h>
++#include "graphics/font.h"
++
+ #include "basics.h"
+ #include "misc.fdh"
+ 
+@@ -38,18 +41,25 @@
+ 
+ void stat(const char *fmt, ...)
+ {
+-va_list ar;
+-char buffer[MAXBUFSIZE];
+-
++    va_list ar;
++    char buffer[MAXBUFSIZE];
+ 	va_start(ar, fmt);
+ 	vsnprintf(buffer, sizeof(buffer), fmt, ar);
+ 	va_end(ar);
+ 	
+-	puts(buffer);
+-	fflush(stdout);
+-	
+-	if (logfilename[0])
+-		writelog(buffer, true);
++#ifdef _L10N_CP1251
++    char buffer_w_u[MAXBUFSIZE];
++    NXFont::win1251_to_utf8(buffer, buffer_w_u);
++    puts(buffer_w_u);
++    fflush(stdout);
++    if (logfilename[0])
++        writelog(buffer_w_u, true);
++#else
++    puts(buffer);
++    fflush(stdout);
++    if (logfilename[0])
++        writelog(buffer, true);
++#endif
+ }
+ 
+ void staterr(const char *fmt, ...)
+diff -Naur NXEngine_orig/graphics/font.h EXLMOTODEV-NXEngine/graphics/font.h
+--- NXEngine_orig/graphics/font.h	2013-11-11 03:42:40.000000000 +0700
++++ EXLMOTODEV-NXEngine/graphics/font.h	2013-11-11 03:27:28.000000000 +0700
+@@ -28,7 +28,7 @@
+ 	bool InitChars(TTF_Font *font, uint32_t color);
+ 	bool InitCharsShadowed(TTF_Font *top, uint32_t color, uint32_t shadowcolor);
+ 
+-    int win1251_to_utf8(const char* text, char* utext);
++    static int win1251_to_utf8(const char* text, char* utext);
+ 	
+ 	bool InitBitmapChars(SDL_Surface *sheet, uint32_t fgcolor, uint32_t color);
+ 	bool InitBitmapCharsShadowed(SDL_Surface *sheet, uint32_t fgcolor, uint32_t color, uint32_t shadowcolor);
+diff -Naur NXEngine_orig/nx.pro EXLMOTODEV-NXEngine/nx.pro
+--- NXEngine_orig/nx.pro	2013-11-11 03:42:40.000000000 +0700
++++ EXLMOTODEV-NXEngine/nx.pro	2013-11-11 04:13:25.000000000 +0700
+@@ -29,7 +29,7 @@
+ linux-mips-g++: CONFIG += platform-rzx50
+ 
+ # Targets
+-win32-g++|linux-g++ {
++win32-g++ | linux-g++ | linux-g++-64 {
+     TARGET = nx
+ } linux-mips-g++ {
+     TARGET = nx.dge
+@@ -39,13 +39,13 @@
+ 
+ # Strip release binary
+ CONFIG(release, debug|release) {
+-    linux-g++ | linux-mips-g++ | linux-arm-gnueabi-g++ {
++    linux-g++ | linux-g++-64 | linux-mips-g++ | linux-arm-gnueabi-g++ {
+         QMAKE_POST_LINK += $(STRIP) $(TARGET)
+     }
+ }
+ 
+ # Defines
+-win32-g++|linux-g++ {
++win32-g++ | linux-g++ | linux-g++-64 {
+     DEFINES +=
+ } linux-mips-g++ {
+     CONFIG(platform-rzx50, platform-rzx50|platform-a320) {
+@@ -84,7 +84,7 @@
+ win32-g++: {
+     INCLUDEPATH += C:/MinGW/include
+     INCLUDEPATH += C:/MinGW/include/SDL
+-} linux-g++ {
++} linux-g++ | linux-g++-64 {
+     INCLUDEPATH += /usr/include
+     INCLUDEPATH += /usr/include/SDL
+ } linux-mips-g++ {
+@@ -99,7 +99,7 @@
+ win32-g++ {
+     QMAKE_LFLAGS += -static -static-libgcc -static-libstdc++
+     LIBS += -lmingw32 -lSDL_ttf -lfreetype -lpng -lz -lSDLmain -lSDL -lgdi32 -lwinmm
+-} linux-g++ {
++} linux-g++ | linux-g++-64 {
+     LIBS += -lSDLmain -lSDL -lSDL_ttf
+ } linux-mips-g++ {
+     LIBS += -lSDLmain -lSDL -lSDL_ttf -lSDL_mixer

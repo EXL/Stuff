@@ -1,0 +1,129 @@
+diff -Nuar -Nuar gnokii-0.6.31_orig/common/data/Makefile gnokii-0.6.31/common/data/Makefile
+--- gnokii-0.6.31_orig/common/data/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/common/data/Makefile	2014-06-19 04:11:55.000000000 +0700
+@@ -152,7 +152,7 @@
+ LIBOBJS =  ${LIBOBJDIR}memcmp$U.o
+ LIBPCSCLITE_CFLAGS = 
+ LIBPCSCLITE_LIBS = 
+-LIBS =  
++LIBS =  -L/opt/toolchains/motomagx/arm-eabi2/lib -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lffi -lbluetooth
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool $(shell echo "$(MFLAGS)" | awk '/^[^ ]*s/ { print "--silent" }')
+ LIPO = 
+ LN_S = ln -s
+diff -Nuar -Nuar gnokii-0.6.31_orig/common/devices/Makefile gnokii-0.6.31/common/devices/Makefile
+--- gnokii-0.6.31_orig/common/devices/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/common/devices/Makefile	2014-06-19 04:12:22.000000000 +0700
+@@ -166,7 +166,7 @@
+ LIBOBJS =  ${LIBOBJDIR}memcmp$U.o
+ LIBPCSCLITE_CFLAGS = 
+ LIBPCSCLITE_LIBS = 
+-LIBS =  
++LIBS =  -L/opt/toolchains/motomagx/arm-eabi2/lib -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lffi -lbluetooth
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool $(shell echo "$(MFLAGS)" | awk '/^[^ ]*s/ { print "--silent" }')
+ LIPO = 
+ LN_S = ln -s
+diff -Nuar -Nuar gnokii-0.6.31_orig/common/links/Makefile gnokii-0.6.31/common/links/Makefile
+--- gnokii-0.6.31_orig/common/links/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/common/links/Makefile	2014-06-19 04:12:48.000000000 +0700
+@@ -152,7 +152,7 @@
+ LIBOBJS =  ${LIBOBJDIR}memcmp$U.o
+ LIBPCSCLITE_CFLAGS = 
+ LIBPCSCLITE_LIBS = 
+-LIBS =  
++LIBS =  -L/opt/toolchains/motomagx/arm-eabi2/lib -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lffi -lbluetooth
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool $(shell echo "$(MFLAGS)" | awk '/^[^ ]*s/ { print "--silent" }')
+ LIPO = 
+ LN_S = ln -s
+diff -Nuar -Nuar gnokii-0.6.31_orig/common/Makefile gnokii-0.6.31/common/Makefile
+--- gnokii-0.6.31_orig/common/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/common/Makefile	2014-06-19 04:18:40.000000000 +0700
+@@ -235,7 +235,7 @@
+ LIBOBJS =  ${LIBOBJDIR}memcmp$U.o
+ LIBPCSCLITE_CFLAGS = 
+ LIBPCSCLITE_LIBS = 
+-LIBS =   $(LIBPCSCLITE_LIBS) $(GLIB_LIBS)
++LIBS =  LIBS =  -L/opt/toolchains/motomagx/arm-eabi2/lib -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lffi -lbluetooth  $(LIBPCSCLITE_LIBS) $(GLIB_LIBS)
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool $(shell echo "$(MFLAGS)" | awk '/^[^ ]*s/ { print "--silent" }')
+ LIPO = 
+ LN_S = ln -s
+diff -Nuar -Nuar gnokii-0.6.31_orig/common/phones/Makefile gnokii-0.6.31/common/phones/Makefile
+--- gnokii-0.6.31_orig/common/phones/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/common/phones/Makefile	2014-06-19 04:13:10.000000000 +0700
+@@ -160,7 +160,7 @@
+ LIBOBJS =  ${LIBOBJDIR}memcmp$U.o
+ LIBPCSCLITE_CFLAGS = 
+ LIBPCSCLITE_LIBS = 
+-LIBS =  
++LIBS =  -L/opt/toolchains/motomagx/arm-eabi2/lib -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lffi -lbluetooth
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool $(shell echo "$(MFLAGS)" | awk '/^[^ ]*s/ { print "--silent" }')
+ LIPO = 
+ LN_S = ln -s
+diff -Nuar -Nuar gnokii-0.6.31_orig/gnokii/Makefile gnokii-0.6.31/gnokii/Makefile
+--- gnokii-0.6.31_orig/gnokii/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/gnokii/Makefile	2014-06-19 04:14:54.000000000 +0700
+@@ -166,7 +166,7 @@
+ LIBOBJS =  ${LIBOBJDIR}memcmp$U.o
+ LIBPCSCLITE_CFLAGS = 
+ LIBPCSCLITE_LIBS = 
+-LIBS =  
++LIBS =  -L/opt/toolchains/motomagx/arm-eabi2/lib -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lffi -lbluetooth
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool $(shell echo "$(MFLAGS)" | awk '/^[^ ]*s/ { print "--silent" }')
+ LIPO = 
+ LN_S = ln -s
+diff -Nuar -Nuar gnokii-0.6.31_orig/gnokiid/Makefile gnokii-0.6.31/gnokiid/Makefile
+--- gnokii-0.6.31_orig/gnokiid/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/gnokiid/Makefile	2014-06-19 04:15:12.000000000 +0700
+@@ -154,7 +154,7 @@
+ LIBOBJS =  ${LIBOBJDIR}memcmp$U.o
+ LIBPCSCLITE_CFLAGS = 
+ LIBPCSCLITE_LIBS = 
+-LIBS =  
++LIBS =  -L/opt/toolchains/motomagx/arm-eabi2/lib -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lffi -lbluetooth
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool $(shell echo "$(MFLAGS)" | awk '/^[^ ]*s/ { print "--silent" }')
+ LIPO = 
+ LN_S = ln -s
+diff -Nuar -Nuar gnokii-0.6.31_orig/libtool gnokii-0.6.31/libtool
+--- gnokii-0.6.31_orig/libtool	2014-06-19 04:04:38.000000000 +0700
++++ gnokii-0.6.31/libtool	2014-06-19 04:10:12.000000000 +0700
+@@ -5975,7 +5975,7 @@
+ 	case $dir in
+ 	[\\/]* | [A-Za-z]:[\\/]*) ;;
+ 	*)
+-	  absdir=`cd "$dir" && pwd`
++	  absdir="/opt/toolchains/motomagx/arm-eabi2/lib/"
+ 	  test -z "$absdir" && \
+ 	    func_fatal_error "cannot determine absolute directory name of \`$dir'"
+ 	  dir="$absdir"
+diff -Nuar -Nuar gnokii-0.6.31_orig/smsd/Makefile gnokii-0.6.31/smsd/Makefile
+--- gnokii-0.6.31_orig/smsd/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/smsd/Makefile	2014-06-19 04:17:47.000000000 +0700
+@@ -159,7 +159,7 @@
+ CATOBJEXT = .gmo
+ CC = arm-linux-gnueabi-gcc
+ CCDEPMODE = depmode=gcc3
+-CFLAGS = -g -O2 -Wall -fvisibility=hidden -fno-strict-aliasing 
++CFLAGS = -g -O2 -Wall -fvisibility=hidden -fno-strict-aliasing -I/opt/toolchains/motomagx/arm-eabi2/include
+ CPP = arm-linux-gnueabi-gcc -E
+ CPPFLAGS = 
+ CYGPATH_W = echo
+@@ -179,7 +179,7 @@
+ GETTEXT_PACKAGE = gnokii
+ GLDFLAGS = 
+ GLIB_CFLAGS = -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include  
+-GLIB_LIBS = -lglib-2.0  
++GLIB_LIBS = -L/opt/toolchains/motomagx/arm-eabi2/lib -lglib-2.0 -lsqlite3 -lffi -lbluetooth
+ GMODULE_CFLAGS = -pthread -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include  
+ GMODULE_LIBS = -Wl,--export-dynamic -pthread -lgmodule-2.0 -lglib-2.0  
+ GMOFILES = 
+diff -Nuar -Nuar gnokii-0.6.31_orig/utils/Makefile gnokii-0.6.31/utils/Makefile
+--- gnokii-0.6.31_orig/utils/Makefile	2014-06-19 04:04:36.000000000 +0700
++++ gnokii-0.6.31/utils/Makefile	2014-06-19 04:15:58.000000000 +0700
+@@ -176,7 +176,7 @@
+ LIBOBJS =  ${LIBOBJDIR}memcmp$U.o
+ LIBPCSCLITE_CFLAGS = 
+ LIBPCSCLITE_LIBS = 
+-LIBS =  
++LIBS =  -L/opt/toolchains/motomagx/arm-eabi2/lib -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lglib-2.0 -lffi -lbluetooth
+ LIBTOOL = $(SHELL) $(top_builddir)/libtool $(shell echo "$(MFLAGS)" | awk '/^[^ ]*s/ { print "--silent" }')
+ LIPO = 
+ LN_S = ln -s

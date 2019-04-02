@@ -1,0 +1,105 @@
+From f57428dc9d7e5093ddc7350276c7a592cbaa91fa Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Mon, 12 Jun 2017 16:12:37 +0300
+Subject: [PATCH 3/6] Fix page margins
+
+---
+ cr3qt/src/settings.ui | 60 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 60 insertions(+)
+
+diff --git a/cr3qt/src/settings.ui b/cr3qt/src/settings.ui
+index 3434f82..3dc9c26 100644
+--- a/cr3qt/src/settings.ui
++++ b/cr3qt/src/settings.ui
+@@ -208,21 +208,66 @@
+              </item>
+              <item>
+               <property name="text">
++               <string>1</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
++               <string>2</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
++               <string>3</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
++               <string>4</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
+                <string>5</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
++               <string>6</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
++               <string>7</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
+                <string>8</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
++               <string>9</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
+                <string>10</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
++               <string>11</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
++               <string>12</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
+                <string>15</string>
+               </property>
+              </item>
+@@ -241,6 +286,21 @@
+                <string>30</string>
+               </property>
+              </item>
++             <item>
++              <property name="text">
++               <string>40</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
++               <string>50</string>
++              </property>
++             </item>
++             <item>
++              <property name="text">
++               <string>60</string>
++              </property>
++             </item>
+             </widget>
+            </item>
+           </layout>
+-- 
+2.7.4
+

@@ -1,0 +1,76 @@
+From 45179f4ed4f3369a24d2d0f7f7efde61fd39476c Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Tue, 22 Jul 2014 18:24:24 +0700
+Subject: [PATCH] Show app version with reduced SHA-1 hash
+
+---
+ CMakeLists.txt           | 9 ++++++---
+ config.h.cmake           | 1 +
+ config.h.qmake           | 1 +
+ otter.pro                | 2 ++
+ src/core/Application.cpp | 2 +-
+ 5 files changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 637b80c..dd787ca 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -2,9 +2,12 @@ cmake_minimum_required(VERSION 2.8.10.2)
+ 
+ project(otter-browser)
+ 
+-set(MAJOR_VERSION "0")
+-set(MINOR_VERSION "9")
+-set(PATCH_VERSION "02-dev")
++exec_program(
++    "git"
++    ${CMAKE_CURRENT_SOURCE_DIR}
++    ARGS "describe --tags"
++    OUTPUT_VARIABLE VERSION
++)
+ 
+ if (EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
+ 	include(InstallRequiredSystemLibraries)
+diff --git a/config.h.cmake b/config.h.cmake
+index 650f614..129a004 100644
+--- a/config.h.cmake
++++ b/config.h.cmake
+@@ -1 +1,2 @@
+ #cmakedefine INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@"
++#cmakedefine VERSION "@VERSION@"
+diff --git a/config.h.qmake b/config.h.qmake
+index 3569eca..fdbe7da 100644
+--- a/config.h.qmake
++++ b/config.h.qmake
+@@ -1 +1,2 @@
+ #define INSTALL_PREFIX \"$$PREFIX\"
++#define VERSION \"$$VERSION\"
+diff --git a/otter.pro b/otter.pro
+index b1c85a5..f32154a 100644
+--- a/otter.pro
++++ b/otter.pro
+@@ -14,6 +14,8 @@ win32: QT += winextras
+ win32: INCLUDEPATH += .\
+ unix: INCLUDEPATH += ./
+ 
++VERSION = $$system(git describe --tags)
++isEmpty(VERSION) : VERSION = 0.9.02-dev
+ isEmpty(PREFIX): PREFIX = /usr/local
+ 
+ TARGET = otter-browser
+diff --git a/src/core/Application.cpp b/src/core/Application.cpp
+index 42414db..87dac0d 100644
+--- a/src/core/Application.cpp
++++ b/src/core/Application.cpp
+@@ -53,7 +53,7 @@ Application::Application(int &argc, char **argv) : QApplication(argc, argv),
+ 	m_localServer(NULL)
+ {
+ 	setApplicationName(QLatin1String("Otter"));
+-	setApplicationVersion(QLatin1String("0.9.02-dev"));
++	setApplicationVersion(QLatin1String(VERSION));
+ 	setWindowIcon(QIcon::fromTheme(QLatin1String("otter-browser"), QIcon(QLatin1String(":/icons/otter-browser.png"))));
+ 
+ 	m_instance = this;
+-- 
+1.8.3.2
+

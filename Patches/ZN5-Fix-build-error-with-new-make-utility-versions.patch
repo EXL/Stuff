@@ -1,0 +1,26 @@
+From b85b4525cdf02d9c3ad4a43297b5853bfc3e3fee Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Fri, 10 Aug 2018 08:27:01 +0300
+Subject: [PATCH] Fix build error with new 'make' utility versions
+
+Error:
+    drivers/media/dvb/b2c2/Makefile:4: *** missing separator.  Stop.
+---
+ linux-2.6.x/drivers/media/dvb/b2c2/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/linux-2.6.x/drivers/media/dvb/b2c2/Makefile b/linux-2.6.x/drivers/media/dvb/b2c2/Makefile
+index 9fb1247..6db5952 100644
+--- a/linux-2.6.x/drivers/media/dvb/b2c2/Makefile
++++ b/linux-2.6.x/drivers/media/dvb/b2c2/Makefile
+@@ -1,6 +1,6 @@
+ obj-b2c2-usb = b2c2-usb-core.o b2c2-common.o
+ 
+ obj-$(CONFIG_DVB_B2C2_SKYSTAR) += skystar2.o
+-obj-$(CONFIG_DVB_B2C2_USB) + = b2c2-usb.o
++obj-$(CONFIG_DVB_B2C2_USB) += b2c2-usb.o
+ 
+ EXTRA_CFLAGS = -Idrivers/media/dvb/dvb-core/ -Idrivers/media/dvb/frontends/
+-- 
+2.7.4
+

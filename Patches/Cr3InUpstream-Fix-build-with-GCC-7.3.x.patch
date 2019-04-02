@@ -1,0 +1,39 @@
+From 4236f4317dce61e3c936eb3198e05d951c43452c Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Thu, 3 May 2018 06:46:16 +0700
+Subject: [PATCH 1/2] Fix build with GCC 7.3.x
+
+---
+ crengine/include/lvdocview.h | 2 +-
+ crengine/src/lvdocview.cpp   | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/crengine/include/lvdocview.h b/crengine/include/lvdocview.h
+index 95efb4ac..d2457f77 100755
+--- a/crengine/include/lvdocview.h
++++ b/crengine/include/lvdocview.h
+@@ -605,7 +605,7 @@ public:
+     /// set list of icons to display at left side of header
+     void setHeaderIcons( LVRefVec<LVImageSource> icons );
+     /// set list of battery icons to display battery state
+-    void setBatteryIcons( LVRefVec<LVImageSource> & icons );
++    void setBatteryIcons( const LVRefVec<LVImageSource> & icons );
+     /// sets page margins
+     void setPageMargins(lvRect rc);
+     /// update page margins based on current settings
+diff --git a/crengine/src/lvdocview.cpp b/crengine/src/lvdocview.cpp
+index 8669e1d2..7561a9b3 100755
+--- a/crengine/src/lvdocview.cpp
++++ b/crengine/src/lvdocview.cpp
+@@ -1569,7 +1569,7 @@ bool LVDocView::setBatteryState(int newState) {
+ }
+ 
+ /// set list of battery icons to display battery state
+-void LVDocView::setBatteryIcons(LVRefVec<LVImageSource> & icons) {
++void LVDocView::setBatteryIcons(const LVRefVec<LVImageSource> & icons) {
+ 	m_batteryIcons = icons;
+ }
+ 
+-- 
+2.17.0
+

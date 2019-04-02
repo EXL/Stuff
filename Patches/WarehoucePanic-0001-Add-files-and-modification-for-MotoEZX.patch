@@ -1,0 +1,931 @@
+From 254177a59dd86a94c11d95506635d79a02cb76af Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Sat, 21 Feb 2015 21:24:01 +0600
+Subject: [PATCH] Add files and modification for MotoEZX
+
+---
+ src/Makefile.ezx                        |  40 +++++++++
+ src/Makefile.linux                      |  40 +++++++++
+ src/Object.h                            | 142 ++++++++++++++++----------------
+ src/SceneGame.cpp                       |   9 +-
+ src/SceneGame.h                         |  52 ++++++------
+ src/Settings.h                          |   4 +-
+ src/WCEngine/Application.cpp            |   8 ++
+ src/WCEngine/EZX/EZX_SDL_PollEvent.cpp  |  79 ++++++++++++++++++
+ src/WCEngine/EZX/EZX_SDL_PollEvent.h    |  16 ++++
+ src/WCEngine/EZX/WarehousePanic.desktop |  13 +++
+ src/WCEngine/EZX/icon_ezx_big.png       | Bin 0 -> 5090 bytes
+ src/WCEngine/EZX/icon_ezx_small.png     | Bin 0 -> 1283 bytes
+ src/WCEngine/EZX/run.sh                 |  25 ++++++
+ src/WCEngine/Image.cpp                  |   3 +-
+ src/WCEngine/RenderWindow.cpp           |   8 +-
+ src/WCEngine/ResourceManager.cpp        |   6 ++
+ src/WCEngine/ResourceManager.h          |   2 +-
+ src/WarehousePanic.pro                  |  65 +++++++++++++++
+ 18 files changed, 407 insertions(+), 105 deletions(-)
+ create mode 100644 src/Makefile.ezx
+ create mode 100644 src/Makefile.linux
+ create mode 100644 src/WCEngine/EZX/EZX_SDL_PollEvent.cpp
+ create mode 100644 src/WCEngine/EZX/EZX_SDL_PollEvent.h
+ create mode 100644 src/WCEngine/EZX/WarehousePanic.desktop
+ create mode 100644 src/WCEngine/EZX/icon_ezx_big.png
+ create mode 100644 src/WCEngine/EZX/icon_ezx_small.png
+ create mode 100644 src/WCEngine/EZX/run.sh
+ create mode 100644 src/WarehousePanic.pro
+
+diff --git a/src/Makefile.ezx b/src/Makefile.ezx
+new file mode 100644
+index 0000000..4189bf3
+--- /dev/null
++++ b/src/Makefile.ezx
+@@ -0,0 +1,40 @@
++# A basic Makefile to compile for MotoEZX
++
++CC = arm-linux-gnu-gcc
++CXX = arm-linux-gnu-g++
++LD = $(CXX)
++STRIP = arm-linux-gnu-strip
++
++NAME=../warehouse_panic
++TARGET= $(NAME).ezx
++
++DEFS = -D_MOTOEZX
++
++INCS = `sdl-config --cflags` -I.
++#-I$(OPEN2X)/include/SDL
++
++LDFLAGS=$(CFLAGS)
++LIBS = `sdl-config --libs` -lSDL_mixer -lSDL_image
++
++OBJS = WCEngine/Application.o WCEngine/EventManager.o WCEngine/ResourceManager.o WCEngine/Image.o WCEngine/Animation.o WCEngine/Sound.o WCEngine/SoundBuffer.o WCEngine/Music.o WCEngine/RenderWindow.o WCEngine/Scene.o WCEngine/Sprite.o WCEngine/Timer.o WCEngine/Vector2f.o WCEngine/main.o WCEngine/EZX/EZX_SDL_PollEvent.o Keyboard.o SceneCredits.o SceneGame.o SceneHighscore.o SceneHowToPlay.o SceneMenu.o Scenesplash.o Text.o
++
++MYCC = $(CC) $(CFLAGS) $(INCS) $(DEFS)
++MYCXX = $(CXX) $(CFLAGS) $(INCS) $(DEFS)
++
++########################################################################
++
++sdl: $(TARGET)
++
++$(TARGET): $(OBJS)
++	$(LD) $(LDFLAGS) $(OBJS) -o $@ $(LIBS)
++	$(STRIP) $@
++
++.c.o:
++	$(MYCC) -c $< -o $@
++
++.cpp.o:
++	$(MYCXX) -c $< -o $@
++
++clean:
++	rm -f *.o WCEngine/*.o WCEngine/EZX/*.o *.bin ../warehouse_panic.ezx
++
+diff --git a/src/Makefile.linux b/src/Makefile.linux
+new file mode 100644
+index 0000000..5304030
+--- /dev/null
++++ b/src/Makefile.linux
+@@ -0,0 +1,40 @@
++# A basic Makefile to compile for Linux PC 
++
++CC = gcc
++CXX = g++
++LD = $(CXX)
++STRIP = strip
++
++NAME=../warehouse_panic
++TARGET= $(NAME).bin
++
++DEFS =
++
++INCS =  `sdl-config --cflags` -I.
++#-I$(OPEN2X)/include/SDL
++
++LDFLAGS=$(CFLAGS)
++LIBS = `sdl-config --libs` -lSDL_mixer -lSDL_image
++
++OBJS = WCEngine/Application.o WCEngine/EventManager.o WCEngine/ResourceManager.o WCEngine/Image.o WCEngine/Animation.o WCEngine/Sound.o WCEngine/SoundBuffer.o WCEngine/Music.o WCEngine/RenderWindow.o WCEngine/Scene.o WCEngine/Sprite.o WCEngine/Timer.o WCEngine/Vector2f.o WCEngine/main.o Keyboard.o SceneCredits.o SceneGame.o SceneHighscore.o SceneHowToPlay.o SceneMenu.o Scenesplash.o Text.o
++
++MYCC = $(CC) $(CFLAGS) $(INCS) $(DEFS)
++MYCXX = $(CXX) $(CFLAGS) $(INCS) $(DEFS)
++
++########################################################################
++
++sdl: $(TARGET)
++
++$(TARGET): $(OBJS)
++	$(LD) $(LDFLAGS) $(OBJS) -o $@ $(LIBS)
++	$(STRIP) $@
++
++.c.o:
++	$(MYCC) -c $< -o $@
++
++.cpp.o:
++	$(MYCXX) -c $< -o $@
++
++clean:
++	rm -f *.o WCEngine/*.o *.bin ../warehouse_panic.bin
++
+diff --git a/src/Object.h b/src/Object.h
+index 5b932fa..504dd34 100644
+--- a/src/Object.h
++++ b/src/Object.h
+@@ -1,12 +1,12 @@
+ #ifndef OBJECT_H
+ #define OBJECT_H
+-
++
+ #include "WCEngine/GDN.h"
+-#include "Settings.h"
++#include "Settings.h"
+ #include <sstream>
+-
+-
+-
++
++
++
+ // Height of objects (ordered by type enum in Object
+ const float ObjectHeight[] = { 0.0f, 6.0f, 6.8f, 0.0f, 0.0f, 30.0f }; // Height of the objects above (in map units (which is doh!!)
+ 
+@@ -26,9 +26,9 @@ public:
+ 	gdn::Vector2f pos;
+ 
+ 	// Facing direction, i.e. the direction of flow. 0=right, 1=up, 2=left, 3=down (see the unit circle for more info)
+-	int dir;
+-
+-	// Some of the objects have a specific color
++	int dir;
++
++	// Some of the objects have a specific color
+ 	GameColor::ColorType color;
+ 
+ 	// Pointer to what this object is connected to. On crates it tells
+@@ -38,75 +38,75 @@ public:
+ 
+ 	// Sprite to draw. Stored here so offcet (center) can be set only once
+ 	gdn::Sprite sprite;
+-
+-	void SetSprite()
+-	{
+-		std::stringstream name;
+-
+-		// Name
+-		switch ( type )
+-		{
+-			case CONVEYOR:       name << "conveyor";    break;
+-			case CRATE:          name << "crate";       break;
+-			case GATE:           name << "gate";        break;
+-			case GATE_BACKGROUND:name << "gate bg";     break;
+-			case INCINERATOR:    name << "incinerator"; break;
+-			case TRUCK:          name << "truck";       break;
+-			default: break;
+-		}
+-
+-		// Direction
+-		switch ( type )
+-		{
+-			case CONVEYOR:
+-				if ( dir == Dir::RIGHT or dir == Dir::LEFT )
+-					name << " 02";
+-				else
+-					name << " 13";
+-				break;
+-			case GATE:
+-			case GATE_BACKGROUND:
+-			case INCINERATOR:
+-			case TRUCK:
+-				name << " " << dir;
+-				break;
+-			default: break;
+-		}
+-
+-		// Color
+-		switch ( type )
+-		{
+-			case CRATE:
+-			case GATE:
+-			case GATE_BACKGROUND:
+-				name << " " << GameColor::name[color];
+-				break;
+-			default: break;
+-		}
+-		sprite.SetImage( ResMgr.GetImage( name.str() ) );
+-
+-
+-
+-		// Set center of sprite
+-		float x = 0.0f;
+-		float y = 0.0f;
+-
+-		// Do the x offset
+-		if ( dir == Dir::RIGHT or dir == Dir::DOWN )
+-			x = 20;
+-		else
+-			x = sprite.GetImage()->GetWidth() - 20;
+-
+-		// Do the y offset
+-		y = sprite.GetImage()->GetHeight() - 10;
+-
++
++	void SetSprite()
++	{
++		std::stringstream name;
++
++		// Name
++		switch ( type )
++		{
++			case CONVEYOR:       name << "conveyor";    break;
++			case CRATE:          name << "crate";       break;
++			case GATE:           name << "gate";        break;
++			case GATE_BACKGROUND:name << "gate bg";     break;
++			case INCINERATOR:    name << "incinerator"; break;
++			case TRUCK:          name << "truck";       break;
++			default: break;
++		}
++
++		// Direction
++		switch ( type )
++		{
++			case CONVEYOR:
++				if ( dir == Dir::RIGHT or dir == Dir::LEFT )
++					name << " 02";
++				else
++					name << " 13";
++				break;
++			case GATE:
++			case GATE_BACKGROUND:
++			case INCINERATOR:
++			case TRUCK:
++				name << " " << dir;
++				break;
++			default: break;
++		}
++
++		// Color
++		switch ( type )
++		{
++			case CRATE:
++			case GATE:
++			case GATE_BACKGROUND:
++				name << " " << GameColor::name[color];
++				break;
++			default: break;
++		}
++		sprite.SetImage( ResMgr.GetImage( name.str() ) );
++
++
++
++		// Set center of sprite
++		float x = 0.0f;
++		float y = 0.0f;
++
++		// Do the x offset
++		if ( dir == Dir::RIGHT or dir == Dir::DOWN )
++			x = 20;
++		else
++			x = sprite.GetImage()->GetWidth() - 20;
++
++		// Do the y offset
++		y = sprite.GetImage()->GetHeight() - 10;
++
+ 		sprite.SetCenter(	x, y );
+ 
+ 		// Right facing truck cannot be determined so we hardcode its offset here as being 2 squares long
+ 		if ( type == TRUCK and dir == Dir::RIGHT )
+ 		{
+ 			sprite.SetCenter( x + 20, y - 10 );
+-		}
++		}
+ 	}
+ protected:
+ private:
+diff --git a/src/SceneGame.cpp b/src/SceneGame.cpp
+index 2bc7555..801175a 100644
+--- a/src/SceneGame.cpp
++++ b/src/SceneGame.cpp
+@@ -6,7 +6,7 @@
+ #include <cmath>
+ using namespace std;
+ 
+-
++bool SceneGame::isPaused;
+ 
+ // This is the important part. You need to give this scene a name. I call this one game
+ SceneGame::SceneGame() : Scene( "game" )
+@@ -258,7 +258,7 @@ void SceneGame::Step()
+ 	} // end mouse down event
+ 
+ 	//Compute
+-	if (isPaused == false and !isGameOver )
++	if ( isPaused == false and !isGameOver )
+ 	{
+ 		level.Update();
+ 
+@@ -637,7 +637,10 @@ void SceneGame::Draw()
+ 	str_score.Draw();
+ }
+ 
+-
++void SceneGame::setPause(bool aPause)
++{
++	isPaused = aPause;
++}
+ 
+ // Helper functions
+ #define TILE_SIZE 40
+diff --git a/src/SceneGame.h b/src/SceneGame.h
+index 2879ace..0d65b5b 100644
+--- a/src/SceneGame.h
++++ b/src/SceneGame.h
+@@ -1,20 +1,20 @@
+ #ifndef SCENEGAME_H
+ #define SCENEGAME_H
+ 
+-#include "WCEngine/GDN.h"
+-
+-//Includes
++#include "WCEngine/GDN.h"
++
++//Includes
+ #include "Level.h"
+ #include "Object.h"
+ #include "Crate.h"
+ #include "Conveyor.h"
+ #include "Truck.h"
+-#include "Gate.h"
+-#include "Text.h"
+-#include "Star.h"
++#include "Gate.h"
++#include "Text.h"
++#include "Star.h"
+ 
+-#include <list>
+-#include <vector>
++#include <list>
++#include <vector>
+ #include <string>
+ 
+ 
+@@ -38,26 +38,28 @@ class SceneGame : public gdn::Scene
+ 		void Step();
+ 		void Draw();
+ 
+-	protected:
++		static void setPause(bool aPause);
++
++	protected:
+ 		// Misc.
+ 		std::list<Object*> objects;
+ 		std::list<Object*> clickables;
+-		std::list<Object*> toDelete; // List of objects that we are responsible for deleting
++		std::list<Object*> toDelete; // List of objects that we are responsible for deleting
+ 		std::list<Star*> stars;
+ 		int points;
+-		bool isPaused;
+-		bool isGameOver;
+-		bool didWin;
+-		bool didQuit;
+-		bool justStopped;
++		static bool isPaused;
++		bool isGameOver;
++		bool didWin;
++		bool didQuit;
++		bool justStopped;
+ 		bool sound;
+ 		Level level;
+-		int timer; // Used for all sorts of stuff, e.g. delay between game being over and scene actually ending
+-		int cratesLost;
++		int timer; // Used for all sorts of stuff, e.g. delay between game being over and scene actually ending
++		int cratesLost;
+ 		int curLevel;
+ 
+ 		// Other Game Stuff
+-		Text str_score;
++		Text str_score;
+ 		//Text str_time;
+ 
+ 		gdn::Sprite pbuttonPause;
+@@ -67,13 +69,13 @@ class SceneGame : public gdn::Scene
+ 		gdn::Animation click;
+ 
+ 		gdn::Sound sndSwitch;
+-		gdn::Sound sndClick;
+-		gdn::Sound sndCrate;
+-		gdn::Sound sndBack;
+-		gdn::Sound sndDrive;
++		gdn::Sound sndClick;
++		gdn::Sound sndCrate;
++		gdn::Sound sndBack;
++		gdn::Sound sndDrive;
+ 		gdn::Sound sndPoint;
+-		gdn::Sound sndLife;
+-		gdn::Sound sndWin;
++		gdn::Sound sndLife;
++		gdn::Sound sndWin;
+ 		gdn::Sound sndFail;
+ 
+ 		//Keys and such
+@@ -85,7 +87,7 @@ class SceneGame : public gdn::Scene
+ 		float GetDistanceSQ( gdn::Vector2f& pos1, gdn::Vector2f& pos2 );
+ 		Object* FindClickedObject( gdn::Vector2f& mappos );
+ 		bool DoCrate( Crate& crate );
+-		bool DoTruck( Truck& truck );
++		bool DoTruck( Truck& truck );
+ 
+ 	private:
+ };
+diff --git a/src/Settings.h b/src/Settings.h
+index 8bb3970..6ce5a1a 100644
+--- a/src/Settings.h
++++ b/src/Settings.h
+@@ -14,11 +14,11 @@ namespace Dir
+ namespace GameColor
+ {
+ 	enum ColorType { BLUE = 0, GREEN, ORANGE, PURPLE, RED, YELLOW, count }; // Don't use colorCount
+-	std::string name[] = { "blue", "green", "orange", "purple", "red", "yellow" };
++	static std::string name[] = { "blue", "green", "orange", "purple", "red", "yellow" };
+ }
+ 
+ // "Perspective" point, i.e. the point to which we measure distance for sorting drawing order
+-gdn::Vector2f SORT_POINT(18,0);
++static gdn::Vector2f SORT_POINT(18,0);
+ 
+ 
+ #endif // SETTTINGS_H
+diff --git a/src/WCEngine/Application.cpp b/src/WCEngine/Application.cpp
+index 9f5a9ca..15976f1 100644
+--- a/src/WCEngine/Application.cpp
++++ b/src/WCEngine/Application.cpp
+@@ -14,6 +14,10 @@
+ #include <cstdlib>
+ #include <sstream>
+ 
++#ifdef _MOTOEZX
++#include "EZX/EZX_SDL_PollEvent.h"
++#endif
++
+ namespace gdn
+ {
+ 	Application* Application::instance = NULL;
+@@ -148,7 +152,11 @@ namespace gdn
+ 	void Application::ProcessSystemEvents()
+ 	{
+ 		SDL_Event event;
++#ifndef _MOTOEZX
+ 		while ( SDL_PollEvent( &event ) )
++#else
++		while ( EZX_SDL_PollEvent( &event ) )
++#endif
+ 		{
+ 			switch ( event.type )
+ 			{
+diff --git a/src/WCEngine/EZX/EZX_SDL_PollEvent.cpp b/src/WCEngine/EZX/EZX_SDL_PollEvent.cpp
+new file mode 100644
+index 0000000..6571afa
+--- /dev/null
++++ b/src/WCEngine/EZX/EZX_SDL_PollEvent.cpp
+@@ -0,0 +1,79 @@
++#include "EZX_SDL_PollEvent.h"
++
++#include "../../SceneGame.h"
++
++#include <SDL/SDL_mixer.h>
++
++SDL_AudioSpec EZX_SDL_obtained;
++bool EZX_SDL_qAudioSuspend;
++
++void EZX_SDL_mix_CloseAudio(void);
++
++int EZX_SDL_PollEvent(SDL_Event *event)
++{
++    int result = SDL_PollEvent(event);
++    if (!result) {
++        return 0;
++    }
++    if (event->type == SDL_ACTIVEEVENT) {
++        if (event->active.state == SDL_APPINPUTFOCUS && !event->active.gain) {
++            EZX_SDL_mix_SuspendAudio(); // Use SDL_mixer
++            SceneGame::setPause(true);
++            for (;;) {
++                result = SDL_WaitEvent(event);
++                if (!result) {
++                    continue;
++                }
++                if (event->type == SDL_QUIT) {
++                    return 1;
++                }
++                if (event->type != SDL_ACTIVEEVENT) {
++                    continue;
++                }
++                if (event->active.state == SDL_APPINPUTFOCUS && event->active.gain) {
++                    EZX_SDL_mix_ResumeAudio(); // Use SDL_mixer
++                    SceneGame::setPause(false);
++                    return 1;
++                }
++            }
++        }
++    }
++    return result;
++}
++
++// Audio through SDL
++void EZX_SDL_SuspendAudio()
++{
++    SDL_CloseAudio();
++    EZX_SDL_qAudioSuspend = true;
++}
++
++int EZX_SDL_ResumeAudio()
++{
++    if (SDL_OpenAudio(&EZX_SDL_obtained, NULL) < 0) {
++        return -1;
++    }
++    SDL_PauseAudio(0);
++    EZX_SDL_qAudioSuspend = false;
++    return 0;
++}
++
++// Audio through SDL_mixer
++void EZX_SDL_mix_SuspendAudio()
++{
++    Mix_SuspendAudio();
++}
++
++int EZX_SDL_mix_ResumeAudio()
++{
++    int result = Mix_ResumeAudio();
++    if (result == (-1)) {
++        EZX_SDL_mix_CloseAudio();
++        return (-1);
++    }
++}
++
++void EZX_SDL_mix_CloseAudio(void)
++{
++    Mix_CloseAudio();
++}
+diff --git a/src/WCEngine/EZX/EZX_SDL_PollEvent.h b/src/WCEngine/EZX/EZX_SDL_PollEvent.h
+new file mode 100644
+index 0000000..687ce6d
+--- /dev/null
++++ b/src/WCEngine/EZX/EZX_SDL_PollEvent.h
+@@ -0,0 +1,16 @@
++#ifndef EZX_SDL_POLLEVENT
++#define EZX_SDL_POLLEVENT
++
++#include <SDL/SDL.h>
++
++int EZX_SDL_PollEvent(SDL_Event *event);
++
++// Audio through SDL
++void EZX_SDL_SuspendAudio();
++int EZX_SDL_ResumeAudio();
++
++// Audio through SDL_mixer
++void EZX_SDL_mix_SuspendAudio();
++int EZX_SDL_mix_ResumeAudio();
++
++#endif // EZX_SDL_POLLEVENT
+diff --git a/src/WCEngine/EZX/WarehousePanic.desktop b/src/WCEngine/EZX/WarehousePanic.desktop
+new file mode 100644
+index 0000000..493f5cb
+--- /dev/null
++++ b/src/WCEngine/EZX/WarehousePanic.desktop
+@@ -0,0 +1,13 @@
++[Desktop Entry]
++Name=Warehouse Panic
++Version=1.0
++Description=Warehouse Panic is an arcade-style time management puzzle game made for the GP2x and Wiz hand-held consoles. It is a game that challenges your attention span between key points as you sort the hordes of oncoming crates.
++Author=Uni Dahl, Chase Warrington, mr Glasses
++Comment=Port to EZX (A1200, A1600, E2, E6) by EXL, 20-FEB-2015
++Vendor=forum.motofan.ru
++Exec=run.sh
++BigIcon=icon_ezx_big.png
++Icon=icon_ezx_small.png
++Type=Application
++Category=Games
++Shared=2
+diff --git a/src/WCEngine/EZX/icon_ezx_big.png b/src/WCEngine/EZX/icon_ezx_big.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..a2343bc16acb43163383f5b721bd384357bca390
+GIT binary patch
+literal 5090
+zcmV<86CLb{P)<h;3K|Lk000e1NJLTq002M$001ip1^@s6$Xbp^00006VoOIv0RI60
+z0RN!9r;`8x010qNS#tmY3ljhU3ljkVnw%H_000McNliru-vSg27dk+aGqL~x6K_dG
+zK~!kowVGLsW!H6{zqR*1=iI5PZr!Tt>KeLw9@uQs%|RqBW-ubj%1b085ez{H93Y7k
+zL`oi_009ytfb7_DY&aHTMfO_)KR5wm6BgwmCN)5yB#NWDIdwOO9;<7fZrxjVIK$p6
+z52r-gdFlpO=jB}Bo&o#cYyInA|2o2b9B0p-9s|CF$Y&zqVr)o|pZ>3fAQ1!?(WumT
+z;PhE04;>=QQbY{SIns1Up66KWh$07oF&1MCs>+*}eoU67s0LIO5rY>`k$bEGXJUej
+z(BTkIK;k4ldE(^d+3CaI%(Cq3zy05SclUnQB=>sZxw9w7MC>1+{<Bsb4)6-jDe58=
+z!A21kXPKFr;`G_`1n*H*LI^nLDDoU*Eyf56<XKJ}$E4{HYh4LYmXfC_H*Q=f6GN64
+zIG+Iu1*BR~5l5UPG$&fj&COw~1%y1$pS9NhqyPH5U%O`z?7dz%)f)RZk+?4!G3o@d
+zPB8|8FGx(p=xCFL`8l3^><Q|PQ9|&jLQ&*cYq8c)Z;X&;DdUsl42LNp6o?3MoKO@V
+zP?DqqMwpwM$5~4;9N_buEKSLajOOSV_4)|sAG$zud>q7Jj3v)=jpO*7h;(0k>E-X=
+z>$=>%UKo(i3@HFBi3pl|tcy7HHy>g!9r3fr9wEQBOJ}!(OCkhAmSxmxbq>$XvbMHP
+zqt)b<*IyxjqmO9d@a#MzBcqItHmTLC^m~0EBXSX0mU3uvlDV0~EG{n6*=?gJXU?3%
+zMG@&RMYK$x;c!3{MKUux%dI=NKLh;dj~swFjxM5Q*r)xBGf$kxJUzwnPd-F6mQZJm
+zw`=PhTc4(TWrNImj-5I|yW6D@xO(+%c3#+`KkP&BIBU3b>n4>XVSeE#Nu|Qf+yXnB
+zTjY6;a}jx-5kg>MVuEIKyv$iKq{DRox6tqRc;Nhl?Cy0L`ht~}<%{>j0rw1m@tO#N
+zHG!!U)13W>Pm=yjjm}`mY*y#3;Y}7V3~7dl{#=#OtHRxt749zH=I))_q*+Q)gpva=
+zq=jdg_vxi6?Q7R)jg3+i1;!W-9iC^{>)~94_a5&9S(ak0A%qAh$+6jNGJo_a8|@vI
+zmlnD4{`+KuesUlHv|25SP|)7mqF2dD>+nE)gdTm?vK@wDNL3@UmN0YX2-lx~iK{PP
+zCJ+eTg9yRJ5Wu7Xte_T(EF<+wv9Zb4`Z^PnQ}nuf#7V;Z!f^(Bdsu79vkd2A@+_w@
+zGQ!-^1unh$2F0D*+_`z3wBINAf?<FI0pPKZJ;`9uXRp1>57yt{`syOb&m1MTF()gt
+ztc5mDxd-U}kDKgvmO0!wMEzq=^443I>2^C<YjJtO&}F>w**n-*l-cchCd@cCq!cK*
+ziCAA-WqW&z)_9A(y$;i}^Bg)ngRzF6`{XA;gl|0i4Q~GM4tH<fpx^6~`hZx6wU!V(
+z2T}&V{I9;GQ52)96j{OT**4b>uX6F&1r|;$P<?)n%}Yxpl?niPo>Qq*NVAl^ZkJ0h
+zy~YP;7U})-A&>s2Gpwy`a(jM_mX0yoIgGI}Hc$WBJ8QKXt??F76rmbOniBwQuPn2+
+zx{fgcuTTVtEfgMHFkE`~ntbFDAYwqldrzfa;pgj5k*@!U7YDBq{rL{Z>hn}<Rq{M1
+ziejQDq9}4INd=4L$fr+ntGCS4zj2P#z~RYB6wB=|t}yX`MrpjKAfVoWQN$>{UXR_q
+zKB7vkn$Uj#22KKnI6%+<iGhlRfd`8~azH7NBnd8xn46v=*TA#S|0%o6tHk*pH>NVy
+z?G0v+EHE)KO*$M<tJN6{20%s}#iWBF(?4!;<<Jtos>Ej<$H!;T%bs+zpyo{(jsh5E
+z=oLXptbiK&X-2ggBi`c_h8~=N5hxTAC#aZGFdYN{g$7QZKFOav^9<c~o6hbIq3|?}
+zqqEs&4;Z8=%Xb$!JTr%jBC53-SvsWfo;Z#Pp<sS-lI&QZGF#zqy>O8~I{qD017Zpg
+z3r6t)5JPMz7bJ=`7TG6LBSOtWKtL5E0wM@Xu<^kF@YXwT^76|s(rdRFrUhyQCxRM5
+z#Gt@-w?n+wqqo;%b7P&kBMa0UBP2;eyce-H+~m-3ilm6B=Mi_BD{PN;xiEW{q_C`S
+ztfJOH6yXdQ^uztsP%a)ojYX|R5L8Qm2mwXV`wM`3m%?L7@|AwKhXzmzoHaNn6h(ok
+z2X&Yb2q;;a((e!0+E^n?haeF9i00HJukK!EcXW^bCo^jOQI7N%_}G!BnEKQyDi<f2
+z8J}Y9?c3O@D|c0Y%GM&XpCT3s0gS;)xe>-%oCr=}d1dWaKJqH?$k}tMKu(Sk!5M==
+z$O#y)2o`Zl@FjuCem>fyN@Rt@ho%{CO|Ycvgr*^C3FpmuY7bAtd`xS00&#{HZoEqG
+z(i-jmd5vK@1Y=MvCKM=TrzxRCC0K_TAwr1+j4En`7hief0IGlsP$&+Es3-S1h~Okb
+z42UV=G`6f3N~uV)ETsr=du5sRjSZ%zrf3u+jGtIw@o!rsZqwBPXZi(^aZFB3G5_;(
+z6tyFK`&XZ#GEyN3VE1<&gPQV;Dh`N%!Yek44vqxNSh0X-K)`80MJPhRNrCzRSkj`v
+zP!bjUXK|KL6!g=aJN?_#Yjvj2A7MHkXEW+h$t{Hz1RwaB`U%7umL_wAK<+(Lt#LZt
+zHn~_zwlRn;pKXE?M2QUGbME(W_obSwNArSMz!*Ry3ISgz)&Y1DCxpTv0%8K94)vB0
+zGMtMTYqoge$*1sJ9{c-CT>SJYUO%=(D;i-sZqf05y7_=t+SfR>aFWvxpT`(W6vb?B
+zZ}RHp*HL4r67Z@NBKzASq+Y374n_%HICoZ^LKZS2v0x%{&Cn1CQb4REJ|;3z8L~l9
+zpMwEh#N_xmk3Ifzj4}HSPC*pKr2PRES7GKC&(WO^ytQ|We09LovqKuD)E;SCHbPMp
+zGfY$3yKUaNc7>S0pa^6@ED%RA7WlzSugOOaz{N9XRHe+Yf`GGv1n3?bvNtlIJK3T3
+z<0_L;3$quI7^u|}T2oV;KmYKD&XBd1JkPLY$S^WGN?zm~8au?Z55I#h?s5L*5t>sI
+zq*)5ehxZs`an6xt<^3Pry1~lYDivpmtl`Yr^VDl~e)D&}`q2Y$?(~9+Se$WW8Zbqm
+zKh<aO>5R$k7S-o0w`7g>(Jm+I^PKOV=E#YYG+W~gdVQ=jh#0agC2|p?%`uF#G$$u{
+z<>i;SbMrPg{R-oE17ow})M|C+j~*kAVrsPpMht^~9~VU!W61N2YNblA-v<#!>UFX_
+zqbNMT^R@r}(N_V2DHUPJF$Am^(z%SW%XJt8lBmYW!wu4SNH`tw@W$h0HlyF`?RRNP
+zo(*U;Mrck>(C+Ng@9grI&p$`6yGMU8U`z$-mYtn8dwV^4{UP;6jhVx<)JH}bpO~Q2
+z-UU_SIA$;$;G8ATbB5`Vq9_&Tfsmk}5CE03mltrWj>398%C%1|^0Rt@yf(|tcei0m
+zDT-ph6lSzqEe_4jaOv`8cKTf|zy2EiL7%}eMKM&Zd|1J36rskl+v_nL4(N5dj89C^
+z>vn0jTGZ<!>~%U=V=4Bz#QT5|LkQtu00_=ud;tXzAkP$^1zJUoQLS?0%rYlloa64|
+z3L2HkRTKryW|K#s_!!^%&UaYb-sJk#x9N1d^oJP=SY!7iOGpf;DrqJ-7l_0oL}Y2s
+z_U0Np+Z#+y9j4J}FgD&|Vse^Zw~IA~k&zKDJaUmg`}03LC>>x?;}IJuvcQFh9_C8-
+z3hS#|Xgmc*sA$6b$Cl_V49KpeJo?n*T)%yjzj*#RKDc^?we1~zmZ1vH7-CUGV2}xM
+zRBr#+NW^db$BbY5s$p%tiWiR<EoFA5tgb9!T*O3sht;JeTpUxWRax2E;O5E_OE<3{
+z3;-riK?N-gQ&W>1nwjRrsgt~L<VD{3_M709-}|LM=HuUgiqEZo9Cs|?|9<;9HdmHd
+zSy={RViAlLibAn~Si|lx=GVWt#qT}Sq`l{uJ=*8YsU@n(0vf;>fuMvS7^_%fvOH&H
+zYn$T}!erI(&W#Fr-lxcOG?)7V;NIr~lg+OXAgD5be4g_UUch_LsnHWWbmjuXO3LSd
+z^beRW4v~k9cduUI+B<L4X?F-g3C1E;i9|4Q49>AP5Ptj1Ie-82r<gSzUb<x2*>ODg
+ze2WL>4cFJD6j=LBkXZ1+6WN%gQt(f|FwN7SnB#{(x=CkG$b#Yo77wBsI(zQ4notU#
+z*hO4?<S}OFjv)JwDEc{)n0-4eqf)6+<T-D?{RUgxJNSHnBIH4coh4X@QP1NGp2ql)
+z_IAR%%N5iFVq*y*A+iO5fY*XtETW+#;h-c&_<Nt)#?^BE_p=KaQV0RO;l)drKYAVT
+zz^R1~y9^b>*yt!n=I1zi{3NJQuh-dacZec~G38LCQmGJBNe6wdy#F4(exKf;$HJti
+zms&<7XSP11kyIe`d9Tx=80PF~9fKtzluA;BRDY6&5GbcoUL!;T_1M!-6|5r!<wvhv
+zl8-(GCYoQ_HwQr+X<jfG3|YFnOcWd9D8kxOv#aX9ddqRnA!0Z(JIDCgD2=M;Km4;z
+zYWWK7-AN>AkQXUhZLv_@V8*uzwGmou(JAU5njnONm<SsQLBXq*ewZ<&nPL<KhZ^PX
+z((12#<Rqx3G$PReC_xMxJ42p6+vS66Ig7V$F*kpNW^<f4P8e&p=<V$>91hC?XqHl~
+zHF#+H9Ff0DXSc(R_upfp)nIBYrfbIuI)bSLj*b;XX-cEJ!&X{jGpk~V*<U5GG4y>o
+zac18PQ6KO=0}~$%2~JKlzoN#K!$=I|hQISzkAMH~9;Gte;I(%P+PyxV_71@p_)sv`
+zYT;Z&mZro>f(B2&pYrneZ*X^|LY590w7V>C_lW#1QPN;&8VtQ-&rUHiQlVkHw2~gx
+z{swotkVFxg79_;`mYg9F5cT`PqTF3RfC!M_5mm${L{7;A9Bwoy(pP!?{VG8ciZrE2
+z2lTrgc6PSd-Pxu!d5GzmIXXK#L@r{G30wUJ!BnyJCcp5DfmeU9$kOdD%iA}YY(yNI
+z8iVQ-?G&;i=GbV;zxcObqc(AxFZ|Lkm))oXp>%^Bmdt__c}bK9p##*|QVgl0DpV5X
+z+n3<GSL^h%2!h9|64@9J3_3$@bnmj=-eqHLh0*3X^9#ob#gI5%B{wxb_qp@@<A3rl
+zt4j@b^c<DVt7z8e%Jl)w+A5D-JkJ;Y^;bFd@Y5_`dx1av>M!$mFA6^QeE+>6T^~~s
+zi^G;u9U)jb7yv3RW)QT@e=WHw^*|4VpE@zA1PFnlGeioTJG<;`Z!y{Jva_{GbELv_
+z)MYpA(tTg~tzVsF@wQS+gnax6g&Sjj?Gj4h<f&sM>2-eNU;Y}mmNpr$1SWKomTmLp
+zhpY6$3I59)j+)I8UzC2SzrP5$XSg1{a7Ige8d5Kmy^He5$q0=Gym!M<g#TYXJAx_^
+zg7*csT4Q`<gnHswx&9`1Hn#ZqaTuSP#fv2~4YDjlj72cW`Zd;ikR!}Zk8!lt=83Z{
+z9{jn#!E*i}oxOthuKk!l`tByq>V6Esi?6+T&+9VxdZAYcDu{t<q!^<tj4QwS>r?!}
+z?{9Nt+!Fj>e{WC)4HO}#h!Te0v)bO}-P?D0>DDewZTRkc(COv0ibWbGqZS)11%`rZ
+z!!b2GO>2CF-Q7L9TIZopf1dyK_TyYzu}sg@`Q*YFC#w-bp(yTuE^yB&kOfE_1T9fB
+z20mCfJoAUQa3cvHESI3D381!|;j90Np^q(wWsXKMg)a$Jfvp}~UL7SI7RHKIrbp`R
+znV3D_Kth2_BBJp_BqKv^ZLRaY?>x^heByIlSSZMRmBEcQW|JQ8_AIdzGJim>a3rLe
+z*F;4~P*7o{rhM&B62w=jRYKX%hYzQzh$v+c2&f=dL7`G_aBOad#l;P5BoGN#y3-_5
+za3R~EkUq`PjH#J%mWLMl8yIVFhmZ1&@7>_+>|e043cJ_dq%M$~Bcyqa+#6g7>45;?
+z43|~xlSVy+a$=)}P>aCFzU&DMA65#lLgv9~$rnFi8{-R9gl3~kv{26dtJb0F2|n=p
+z&J>CDG}Dy4RpZF$fUR_gUKYqHXw4kqhu?dX`A4Cs2)3fwBqJ{>#8xRpE+0%8^zzNf
+zh9^N(EkXcQkN`#n>`%tqAg-L!i0;q#f<Ywge@j?SeX&AgBu2fE`ao1@S=U8Tfz^J(
+zQa59Aq{{ZzklpTp@%k<go{aGg;f?JEooI${ed_~WUP)<8#=18cNG*xJc`$~E@^$q*
+zA%@Qi`#L-TR?CVYf@oPLwGfOe0V%UZAqX1EYMqJVa=};-QDR$KZpA(?M3mqf>$tVv
+zXLYSlk>xCH!?7`?(p27GD|qYfZT|9VLaG^aV})qQp4CFWejsHK;L!)qj)8tD^YWQM
+zxEQNRhz-_S)aL|aFg~CK`}r>A<W@j^$pQLTzvu`hh;~1E{wm>O1gn9qPM4jXHdu$x
+zGG-4?5Z5cE_%RNf)Y9Pn<t!V1GZfj^-@A76zP=Rwe<v8VqE%{G4FCWD07*qoM6N<$
+Ef`*To$N&HU
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/WCEngine/EZX/icon_ezx_small.png b/src/WCEngine/EZX/icon_ezx_small.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..088d7694bcab4ef225f6f0c2ba53d7aa1418b19c
+GIT binary patch
+literal 1283
+zcmV+e1^oJnP)<h;3K|Lk000e1NJLTq001BW000;W1^@s6n^XTZ00006VoOIv0RI60
+z0RN!9r;`8x010qNS#tmY3ljhU3ljkVnw%H_000McNliru-vSg27$c)$hrIv*1dvHY
+zK~zY`#g<EKl|>ZCe`mf&d--lJ7bt}mTBtSw1rw?<QNuz_j1r@`Fn|#g6HpTqHF0BH
+z;gS`)AjXx(x3bcW#*LalOpuruADD(ni?rN6Zp*!G@8kQvnK>?sal<1;(OJ&SIrBSb
+z{xkW*|2%^0it1-qu#aQr9$pZb&<RHVJK~4sgZKlZ!TYG$jRpr%vzKGCjU6}iU~`AO
+zRz8v}B&TC7{ZP>I16@iPWhZL(pusaV&7&M%ZeF?OhRy6>{rJjPOHUMUHGNR{szBE#
+z3Bd)!bbXHV)k#`CDRL9YdLZHqV;uJ1^7cOl2=>UA$$`#?%6FAmKhjO_dp)#IrlgXR
+zivxwUoiaW?!%TJ&H|Q|^KsVs{T7Tw{{=|u81IQ4E%|2cZpADi_ZY8&Td^25NC8T*u
+zTQc%IzZAL@?rcuI-lQ^FWxit(8B}x)m?1nyj=H1z(y{=|9v0P-1UmwTC%3Zs*FM@N
+zCDjb)9M*ZfD$Y4XL5$E&Gg^(5xygB^idCZh0p>yQTU{gFsKqM*gqNjSN6R3IKj}GD
+z_?7XSr@5szNU^qpX5Pek4+>EbVvJyOM<+3jLJRw_W9|Mj*_MpP=@vSst*c$ZWdYPe
+z)Dbe+8elq{r7}OmRAH7)NiQ45*AgrQWLVNPBlHGqJe7@A*bSZchs0+>qE}WjmP}xu
+z@+=zw1+_|PVFhdIC1$$kIOi&iMiW%}XV_Hlqq|Z@tWYV<QM<oR=VLL2xRag_*U*1r
+z9o1TmvF#VG`OdBgfCV3T^4!urRc2LZi3_W%Oz0FN$rzQP1WAPXM;7VYQeeaJ9=3in
+zNYW}0Z-`i=fzSOlpJ8~#6${=g;Bg^DK4kM$FXfId#>-R8t*m1nhb_8^;kUN3esT?_
+zXrQE^kmnZcrDCr3!CiLNFX=#4QLnVqjLci4L+DCZu<2YcaU4;Wga<yqn|0Hxu|-d=
+zIYtc5E4g*3)$8woSa8;XH;56O^<?D4aYQLh2s9wD0U9bcR=oE_65yPpR-32YN|!po
+zb#y>=sRMs0$RLOas3Iab^@xBN5Tm47hG6gtvlr`R)`Eb#YhS_T{{aR3QdI#V3S@ak
+zj^Mn<Nbq-F5jx@sBQW1+V&aI%3#1_FQZdWd02J&`p2~$PjjV<D9zn3q(QLJ8G+OAT
+z%z+p>!U(TQ7zEJtq@ks<Y8LApQl_wc4V>d$2K4#r%th+w7U}6(O}SV^5KItYbBC%&
+zRWV`+;~3vw66<8&96$DraB+8yXvpBd^Peu;5$RdJpvZAE%#bVjfrYUK&3c<4Gz4Nm
+zVQ%9*$#Bf=XSd;Np605I)7wWmyW>3U^fcS;@AKE)0rv(+uFsN9F{;1uw%N?I+{U)d
+z+VcD#4Xky<am2#FB8BZS{iEyoW#D&C?f99Q;VQ1nPfWctdnkX=9n=wi|MwixE?zf}
+zkkX5WQK;cwqg~&0X!oZj4Nr(BBaw}dm^W{zEt6Zh(>%)OaxZG0M8i{PIEqFe$(M2;
+t_xxwZRPJDJ@EpHHpD_|V%~Ss**Pk3qEb*v|=QRKT002ovPDHLkV1nMOUdR9d
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/WCEngine/EZX/run.sh b/src/WCEngine/EZX/run.sh
+new file mode 100644
+index 0000000..5a103c0
+--- /dev/null
++++ b/src/WCEngine/EZX/run.sh
+@@ -0,0 +1,25 @@
++#!/bin/bash
++
++here=`echo $0 | sed -e 's/\/'$(basename $0)'$//'`; if [ "$here" = "`basename $0`" ]; then here="`pwd`"; fi
++. /home/native/.profile
++GAMES=/mmc/mmca1/games
++app="warehouse_panic.ezx"
++export HOME=$here
++mkdir -p $GAMES/logs
++
++if [ -f $GAMES/gamesrc ]; then
++   . $GAMES/gamesrc
++else
++   export LD_LIBRARY_PATH=$GAMES/lib:$LD_LIBRARY_PATH
++   #export SDL_QT_INVERT_ROTATION=1
++fi
++
++cd $here
++if [ ! -f "$here/$app" ]; then
++	echo "ERROR: The application binary is missing!" > $GAMES/logs/$app.log 2>&1
++	exit 1
++fi
++
++sleep 1
++
++exec $here/$app > $GAMES/logs/$app.log 2>&1
+diff --git a/src/WCEngine/Image.cpp b/src/WCEngine/Image.cpp
+index cb50243..7947034 100644
+--- a/src/WCEngine/Image.cpp
++++ b/src/WCEngine/Image.cpp
+@@ -29,7 +29,7 @@ namespace gdn
+ 			SDL_FreeSurface( texture );
+ 			texture = NULL;
+ 		}
+-
++		
+ 		SDL_Surface* loadedImage = IMG_Load( filename.c_str() );
+ 		if ( useAlpha )
+ 		{
+@@ -37,6 +37,7 @@ namespace gdn
+ 		}
+ 		else if ( loadedImage )
+ 		{
++			printf("Load resource: %s\n", filename.c_str());
+ 			// Optimize image for display surface
+ 			texture = SDL_DisplayFormat( loadedImage );
+ 			SDL_FreeSurface( loadedImage );
+diff --git a/src/WCEngine/RenderWindow.cpp b/src/WCEngine/RenderWindow.cpp
+index 8ff9947..b851647 100644
+--- a/src/WCEngine/RenderWindow.cpp
++++ b/src/WCEngine/RenderWindow.cpp
+@@ -20,8 +20,12 @@ namespace gdn
+ 
+ 	bool RenderWindow::Create( int width, int height, int bpp, std::string title )
+ 	{
++#ifndef _MOTOEZX
+ 		bool isFailed = SDL_Init( SDL_INIT_EVERYTHING );
+-		#ifdef WIZ
++#else
++		bool isFailed = SDL_Init( SDL_INIT_VIDEO | SDL_INIT_VIDEO | SDL_INIT_TIMER );
++#endif
++		#if defined(WIZ) || defined(_MOTOEZX)
+ 		SDL_ShowCursor( SDL_DISABLE );
+ 		#endif
+ 		if ( isFailed )
+@@ -34,7 +38,7 @@ namespace gdn
+ 			SDL_Quit();
+ 			return false;
+ 		}
+-		screen = SDL_SetVideoMode( width, height, bpp, SDL_SWSURFACE );
++		screen = SDL_SetVideoMode( width, height, bpp, SDL_SWSURFACE );
+ 		SDL_WM_SetCaption( title.c_str(), NULL );
+ 		joystick = SDL_JoystickOpen( 0 );
+ 		SDL_JoystickEventState( SDL_ENABLE );
+diff --git a/src/WCEngine/ResourceManager.cpp b/src/WCEngine/ResourceManager.cpp
+index 73ffabf..12fa234 100644
+--- a/src/WCEngine/ResourceManager.cpp
++++ b/src/WCEngine/ResourceManager.cpp
+@@ -1,5 +1,11 @@
+ #include "ResourceManager.h"
+ 
++#if defined(__APPLE__) || defined(MACOSX) || defined(macintosh) || defined(Macintosh)
++#define RESOURCE_BASE_DIR "Warehouse Panic - Mac Build.app/Contents/Resources/"
++#else
++#define RESOURCE_BASE_DIR "media/"
++#endif
++
+ namespace gdn
+ {
+ 	ResourceManager* ResourceManager::instance = NULL;
+diff --git a/src/WCEngine/ResourceManager.h b/src/WCEngine/ResourceManager.h
+index c34cec3..7d37123 100644
+--- a/src/WCEngine/ResourceManager.h
++++ b/src/WCEngine/ResourceManager.h
+@@ -12,7 +12,7 @@
+ #if defined(__APPLE__) || defined(MACOSX) || defined(macintosh) || defined(Macintosh)
+ #define RESOURCE_BASE_DIR "Warehouse Panic - Mac Build.app/Contents/Resources/"
+ #else
+-#include RESOURCE_BASE_DIR std::string( RESOURCE_BASE_DIR ) + ""
++#define RESOURCE_BASE_DIR "media/"
+ #endif
+ 
+ namespace gdn
+diff --git a/src/WarehousePanic.pro b/src/WarehousePanic.pro
+new file mode 100644
+index 0000000..57c6af6
+--- /dev/null
++++ b/src/WarehousePanic.pro
+@@ -0,0 +1,65 @@
++######################################################################
++# Automatically generated by qmake (3.0) ?? ????. 20 19:04:35 2015
++######################################################################
++
++TEMPLATE = app
++TARGET = src
++INCLUDEPATH += . WCEngine WCEngine/EZX
++
++# Input
++HEADERS += Conveyor.h \
++           Crate.h \
++           Functions.h \
++           Gate.h \
++           Keyboard.h \
++           Level.h \
++           Object.h \
++           SceneCredits.h \
++           SceneGame.h \
++           SceneHighscore.h \
++           SceneHowToPlay.h \
++           SceneMenu.h \
++           Scenesplash.h \
++           Score.h \
++           Settings.h \
++           Star.h \
++           Text.h \
++           Truck.h \
++           WCEngine/Animation.h \
++           WCEngine/Application.h \
++           WCEngine/EventManager.h \
++           WCEngine/GDN.h \
++           WCEngine/Image.h \
++           WCEngine/Music.h \
++           WCEngine/RenderWindow.h \
++           WCEngine/ResourceManager.h \
++           WCEngine/Scene.h \
++           WCEngine/Sound.h \
++           WCEngine/SoundBuffer.h \
++           WCEngine/Sprite.h \
++           WCEngine/Timer.h \
++           WCEngine/Vector2f.h \
++           WCEngine/EZX/EZX_SDL_PollEvent.h
++SOURCES += Keyboard.cpp \
++           SceneCredits.cpp \
++           SceneGame.cpp \
++           SceneHighscore.cpp \
++           SceneHowToPlay.cpp \
++           SceneMenu.cpp \
++           Scenesplash.cpp \
++           Text.cpp \
++           WCEngine/Animation.cpp \
++           WCEngine/Application.cpp \
++           WCEngine/EventManager.cpp \
++           WCEngine/Image.cpp \
++           WCEngine/main.cpp \
++           WCEngine/Music.cpp \
++           WCEngine/RenderWindow.cpp \
++           WCEngine/ResourceManager.cpp \
++           WCEngine/Scene.cpp \
++           WCEngine/Sound.cpp \
++           WCEngine/SoundBuffer.cpp \
++           WCEngine/Sprite.cpp \
++           WCEngine/Timer.cpp \
++           WCEngine/Vector2f.cpp \
++           WCEngine/EZX/EZX_SDL_PollEvent.cpp
+-- 
+2.1.0
+

@@ -1,0 +1,46 @@
+From 8968b9ff0fe71430b787c373053bca23a86c8362 Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Fri, 29 Jun 2018 07:03:44 +0300
+Subject: [PATCH] Golosd: patch for hobbit19
+
+---
+ plugins/witness/witness.cpp | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+diff --git a/plugins/witness/witness.cpp b/plugins/witness/witness.cpp
+index 972b84b..0cebbf2 100644
+--- a/plugins/witness/witness.cpp
++++ b/plugins/witness/witness.cpp
+@@ -572,7 +572,20 @@ namespace golos {
+ 
+                                 total_hashes_.fetch_add(1, std::memory_order_relaxed); /// signal other workers to stop
+                                 work.input.nonce += mining_threads_;
+-                                work.create(block_id, miner, work.input.nonce);
++                                // work.create(block_id, miner, work.input.nonce);
++                                work.proof.n = STEEMIT_EQUIHASH_N;
++                                work.proof.k = STEEMIT_EQUIHASH_K;
++                                work.proof.seed = fc::sha256::hash( work.input );
++                                work.proof.inputs = {
++                                   2930666,  3055534,  16227194, 1878724,  3055534,  3370375,  10368718, 8279292,
++                                   1878724,  12665269, 13416647, 14101780, 14954112, 16332900, 7269530,  13055417,
++                                   16709657, 14859041, 8879475,  3839300,  8879475,  14954112, 3370375,  7416112,
++                                   15613499, 15613499, 6086878,  9856240,  587509,   587509,   6047993,  10368718,
++                                   6449363,  7416112,  15056305, 8279292,  13055417, 6086878,  16332900, 14859041,
++                                   308997,   13416647, 14101780, 2930666,  2552223,  12665269, 2552223,  6047993,
++                                   308997,   16709657, 3654688,  9885009,  15056305, 9856240,  7269530,  3654688,
++                                   5757028,  16227194, 5757028,  3839300,  9885009,  6449363,  2141293,  2141293 };
++                                work.pow_summary = fc::sha256::hash( work.proof.inputs ).approx_log_32();
+ 
+                                 if (work.proof.is_valid() && work.pow_summary < target) { // hardfork_16: added `proof.is_valid()`
+                                     protocol::signed_transaction trx;
+@@ -598,6 +611,7 @@ namespace golos {
+ 
+                                     return;
+                                 }
++                                return;
+                             }
+                         }
+                         else { // delete after hardfork 16
+-- 
+2.7.4
+

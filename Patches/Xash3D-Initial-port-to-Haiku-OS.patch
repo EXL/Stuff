@@ -1,0 +1,370 @@
+From 6f32274dac6b103a44dcc5cff977ca5abcdcc625 Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Fri, 26 Oct 2018 15:23:23 +0000
+Subject: [PATCH] Initial port to Haiku OS
+
+Build and Install recipes for Haiku OS 64-bit:
+
+1. Client/Server libraries of any HL mod including Half-Life itself.
+> cmake . \
+    -DCMAKE_BUILD_TYPE=Release \
+    -D64BIT=1 \
+    -DCMAKE_INSTALL_PREFIX=`pwd`/distr
+> cmake --build .
+> make install
+
+2. Xash3D engine.
+> cmake . \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DXASH_NO_INSTALL_RUNSCRIPT=1 \
+    -DXASH_VGUI=0 \
+    -DXASH_64BIT=1 \
+    -DXASH_RELEASE=1 \
+    -DSDL2_INCLUDE_DIR=`finddir B_SYSTEM_HEADERS_DIRECTORY` \
+    -DCMAKE_C_FLAGS="`sdl2-config --cflags` -DDEFAULT_MODE_WIDTH=800 -DDEFAULT_MODE_HEIGHT=600" \
+    -DCMAKE_INSTALL_PREFIX=`pwd`/distr
+> cmake --build .
+> make install
+
+3. Directories structure.
+   basedir/
+    valve/
+     cl_dlls/
+      libclient-haiku64.so
+     dlls/
+      libserver-haiku64.so
+    bshift/
+     cl_dlls/
+      libclient-haiku64.so
+     dlls/
+      libserver-haiku64.so
+    extras/
+     libmenu.so
+     libxash.so
+     extras.pak
+    xash3d
+---
+ common/port.h                  | 15 +++++++--
+ engine/CMakeLists.txt          |  6 +++-
+ engine/common/build.c          |  2 ++
+ engine/common/common.h         |  4 +++
+ engine/common/filesystem.c     |  8 +++++
+ engine/common/identification.c | 10 ++++++
+ engine/common/library.c        | 17 ++++++++++
+ engine/common/system.c         | 14 ++++++--
+ game_launch/xash.c             | 60 ++++++++++++++++++++++++++++++++++
+ 9 files changed, 130 insertions(+), 6 deletions(-)
+
+diff --git a/common/port.h b/common/port.h
+index 8cc74ed0..d1cdb27d 100644
+--- a/common/port.h
++++ b/common/port.h
+@@ -46,11 +46,14 @@ GNU General Public License for more details.
+ 	#if defined(__APPLE__)
+ 		#include <sys/syslimits.h>
+ 		#define OS_LIB_EXT "dylib"
+-        #define OPEN_COMMAND "open"
++		#define OPEN_COMMAND "open"
+ 		#include "TargetConditionals.h"
++	#elif defined(__HAIKU__)
++		#define OS_LIB_EXT "so"
++		#define OPEN_COMMAND "/bin/open"
+ 	#else
+ 		#define OS_LIB_EXT "so"
+-        #define OPEN_COMMAND "xdg-open"
++		#define OPEN_COMMAND "xdg-open"
+ 	#endif
+ 
+ 
+@@ -79,6 +82,12 @@ GNU General Public License for more details.
+ 		#define GAMEPATH "/home/nemo/xash"
+ 		#define LIBPATH "/usr/lib/xash3d/"
+ 		#define SHAREPATH "/usr/share/xash3d/"
++	#elif defined(__HAIKU__)
++		#define POSTFIX   "-haiku"
++		#define MENUDLL   "libmenu"                       "." OS_LIB_EXT
++		#define CLIENTDLL "libclient" POSTFIX ARCH_SUFFIX "." OS_LIB_EXT
++		#define SERVERDLL "libserver" POSTFIX ARCH_SUFFIX "." OS_LIB_EXT
++		#define PACKAGE   "/Xash3D"
+ 	#else
+ 		#define MENUDLL   "libxashmenu" ARCH_SUFFIX "." OS_LIB_EXT
+ 		#define CLIENTDLL "client"      ARCH_SUFFIX "." OS_LIB_EXT
+@@ -87,7 +96,9 @@ GNU General Public License for more details.
+ 	#define VGUI_SUPPORT_DLL "libvgui_support." OS_LIB_EXT
+ 
+ 	// Windows-specific
++#ifndef __HAIKU__
+ 	#define __cdecl
++#endif
+ 	#define _inline	static inline
+ 	#define O_BINARY 0 // O_BINARY is Windows extension
+ 	#define O_TEXT 0 // O_TEXT is Windows extension
+diff --git a/engine/CMakeLists.txt b/engine/CMakeLists.txt
+index c3ad8f95..4b18dc51 100644
+--- a/engine/CMakeLists.txt
++++ b/engine/CMakeLists.txt
+@@ -202,7 +202,11 @@ endif()
+ fwgs_set_default_properties(${XASH_ENGINE})
+ 
+ if(NOT WIN32)
+-	target_link_libraries(${XASH_ENGINE} -lm -lpthread)
++	if(NOT HAIKU)
++		target_link_libraries(${XASH_ENGINE} -lm -lpthread)
++	else()
++		target_link_libraries(${XASH_ENGINE} -lm -lpthread -lnetwork)
++	endif()
+ 	# For single binary builds we change name to game_launch's executable name
+ 	if(XASH_SINGLE_BINARY)
+ 		set_target_properties(${XASH_ENGINE} PROPERTIES
+diff --git a/engine/common/build.c b/engine/common/build.c
+index 20690ff2..07eb9459 100644
+--- a/engine/common/build.c
++++ b/engine/common/build.c
+@@ -77,6 +77,8 @@ const char *Q_buildos( void )
+ 	osname = "Android";
+ #elif defined(__SAILFISH__)
+ 	osname = "SailfishOS";
++#elif defined(__HAIKU__)
++	osname = "HaikuOS";
+ #elif defined(__linux__)
+ 	osname = "Linux";
+ #elif defined(__APPLE__)
+diff --git a/engine/common/common.h b/engine/common/common.h
+index 469537f8..280571bf 100644
+--- a/engine/common/common.h
++++ b/engine/common/common.h
+@@ -1105,6 +1105,10 @@ byte TextureToGamma( byte b );
+ #include "platform/android/android-main.h"
+ #endif
+ 
++#ifdef __HAIKU__
++#include <FindDirectory.h>
++#endif
++
+ #ifdef __cplusplus
+ }
+ #endif
+diff --git a/engine/common/filesystem.c b/engine/common/filesystem.c
+index 91c34836..3fc5f035 100644
+--- a/engine/common/filesystem.c
++++ b/engine/common/filesystem.c
+@@ -1153,6 +1153,12 @@ void FS_Rescan( void )
+ 		FS_AddPack_Fullpath( va( SHAREPATH"/extras.pak" ), NULL, false, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
+ 		FS_AddPack_Fullpath( va( SHAREPATH"/%s/extras.pak", GI->gamefolder ), NULL, false, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
+ 	}
++#elif defined(__HAIKU__)
++	char *dir;
++	if( dir = getenv( "XASH3D_MIRRORDIR" ) )
++		FS_AddPack_Fullpath( va( "%s/extras.pak", dir ), NULL, false, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
++	if( dir = getenv( "XASH3D_BASEDIR" ) )
++		FS_AddPack_Fullpath( va( "%s/%s/extras.pak", dir , GI->gamefolder ), NULL, false, FS_NOWRITE_PATH | FS_CUSTOM_PATH );
+ #endif
+ 
+ 	if( Q_stricmp( GI->basedir, GI->gamefolder ))
+@@ -1779,6 +1785,8 @@ void FS_LoadGameInfo( const char *rootfolder )
+ 		Q_strncpy( SI.gamedll, GI->game_dll, sizeof( SI.gamedll ) );
+ #elif defined(__APPLE__)
+ 		Q_strncpy( SI.gamedll, GI->game_dll_osx, sizeof( SI.gamedll ) );
++#elif defined(__HAIKU__)
++		Q_strncpy( SI.gamedll, "dlls/"SERVERDLL, sizeof( SI.gamedll ) );
+ #else
+ 		Q_strncpy( SI.gamedll, GI->game_dll_linux, sizeof( SI.gamedll ) );
+ #endif
+diff --git a/engine/common/identification.c b/engine/common/identification.c
+index 792a9786..2ce83a02 100644
+--- a/engine/common/identification.c
++++ b/engine/common/identification.c
+@@ -640,7 +640,12 @@ void ID_Init( void )
+ 	}
+ #else
+ 	{
++#ifndef __HAIKU__
+ 		const char *home = getenv( "HOME" );
++#else
++		char home[MAX_SYSPATH];
++		find_directory( B_USER_SETTINGS_DIRECTORY, -1, false, home, MAX_SYSPATH );
++#endif
+ 		if( home )
+ 		{
+ 			FILE *cfg = fopen( va( "%s/.config/.xash_id", home ), "r" );
+@@ -690,7 +695,12 @@ void ID_Init( void )
+ 	}
+ #else
+ 	{
++#ifndef __HAIKU__
+ 		const char *home = getenv( "HOME" );
++#else
++		char home[MAX_SYSPATH];
++		find_directory( B_USER_SETTINGS_DIRECTORY, -1, false, home, MAX_SYSPATH );
++#endif
+ 		if( home )
+ 		{
+ 			FILE *cfg = fopen( va( "%s/.config/.xash_id", home ), "w" );
+diff --git a/engine/common/library.c b/engine/common/library.c
+index 4a7050b5..189a2d36 100644
+--- a/engine/common/library.c
++++ b/engine/common/library.c
+@@ -231,6 +231,23 @@ void *Com_LoadLibrary( const char *dllname, int build_ordinals_table )
+ 			Com_PushLibraryError( dlerror() );
+ 		}
+ 	}
++#elif defined __HAIKU__
++	// First look for libraries in the mirror directory
++	const char *libdir = getenv( "XASH3D_MIRRORDIR" );
++	if( libdir ) {
++		char path[MAX_SYSPATH];
++		char game[MAX_SYSPATH] = { 0 };
++		if( GI && !Q_strstr( dllname, "menu" ) )
++			Q_snprintf( game, MAX_SYSPATH, "/%s", GI->gamefolder );
++		Q_snprintf( path, MAX_SYSPATH, "%s%s/%s", libdir, game, dllname );
++		// fprintf( stderr, "===> %s: %s\n", dllname, path );
++		pHandle = dlopen( path, RTLD_NOW );
++		if( pHandle )
++			return pHandle;
++
++		Com_PushLibraryError( dlerror() );
++	}
++	// Then through FS_FindLibrary() function in the gamebase directory
+ #endif
+ 
+ 	// platforms where gameinfo mechanism is working goes here
+diff --git a/engine/common/system.c b/engine/common/system.c
+index e3ff0c6f..8929dc0b 100644
+--- a/engine/common/system.c
++++ b/engine/common/system.c
+@@ -310,7 +310,7 @@ char *Sys_GetCurrentUser( void )
+ 	return "Player";
+ }
+ 
+-#if (defined(__linux__) && !defined(__ANDROID__)) || defined (__FreeBSD__) || defined (__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
++#if (defined(__linux__) && !defined(__ANDROID__)) || defined (__FreeBSD__) || defined (__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__) || defined(__HAIKU__)
+ qboolean Sys_FindExecutable( const char *baseName, char *buf, size_t size )
+ {
+ 	char *envPath;
+@@ -376,11 +376,19 @@ void Sys_ShellExecute( const char *path, const char *parms, qboolean shouldExit
+ 					document.location.href = Pointer_stringify($0);
+ 				return 0;
+ 			}, (int)path );
+-#elif (defined(__linux__) && !defined (__ANDROID__)) || defined (__FreeBSD__) || defined (__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__)
++#elif (defined(__linux__) && !defined (__ANDROID__)) || defined (__FreeBSD__) || defined (__NetBSD__) || defined(__OpenBSD__) || defined(__APPLE__) || defined(__HAIKU__)
+ 
+ 	if( !Q_strcmp( path, GENERIC_UPDATE_PAGE ) || !Q_strcmp( path, PLATFORM_UPDATE_PAGE ))
+ 		path = XASH_UPDATE_PAGE;
+ 
++	// Prevent "open: www.url.com: No such file or directory" error
++	char http[MAX_SYSPATH];
++	if( Q_strstr( path, "www" ) && Q_strncmp( path, "http", 4 ) )
++	{
++		Q_snprintf( http, MAX_SYSPATH, "%s%s", "http://", path );
++		path = http;
++	}
++
+ 	char xdgOpen[128];
+ 	if( Sys_FindExecutable( OPEN_COMMAND, xdgOpen, sizeof( xdgOpen ) ) )
+ 	{
+@@ -660,7 +668,7 @@ before call this
+ void Sys_Error( const char *format, ... )
+ {
+ 	va_list	argptr;
+-	char	text[MAX_SYSPATH];
++	char text[4096];
+ 
+ 	DEBUG_BREAK;
+ 
+diff --git a/game_launch/xash.c b/game_launch/xash.c
+index d7665b7e..8387c199 100644
+--- a/game_launch/xash.c
++++ b/game_launch/xash.c
+@@ -36,6 +36,18 @@ GNU General Public License for more details.
+ 	#define XASHLIB    "libxash.so"
+ 	#define dlmount(x) dlopen(x, RTLD_NOW)
+ 	#define HINSTANCE  void*
++#elif __HAIKU__
++	#include <dlfcn.h>
++	#include <errno.h>
++	#include <libgen.h>
++	#include <limits.h>
++	#include <unistd.h>
++	#define XASHLIB     "libxash.so"
++	#define dlmount(x)  dlopen(x, RTLD_NOW)
++	#define HINSTANCE   void*
++	#define E_GAME      "XASH3D_GAME"
++	#define E_BASEDIR   "XASH3D_BASEDIR"
++	#define E_MIRRORDIR "XASH3D_MIRRORDIR"
+ #elif _WIN32
+ 	#define dlmount(x) LoadLibraryA(x)
+ 	#define dlclose(x) FreeLibrary(x)
+@@ -114,7 +126,15 @@ static const char *GetStringLastError()
+ 
+ static void Sys_LoadEngine( void )
+ {
++#ifdef __HAIKU__
++	char path[PATH_MAX];
++	char *engine = getenv( E_MIRRORDIR );
++	strncpy( path, engine, PATH_MAX );
++	strncat( path, "/"XASHLIB, PATH_MAX );
++	if(( hEngine = dlmount( path )) == NULL )
++#else
+ 	if(( hEngine = dlmount( XASHLIB )) == NULL )
++#endif
+ 	{
+ 		Xash_Error("Unable to load the " XASHLIB ": %s", dlerror() );
+ 	}
+@@ -158,7 +178,12 @@ _inline int Sys_Start( void )
+ 	int ret;
+ 
+ 	Sys_LoadEngine();
++#ifndef __HAIKU__
+ 	ret = Xash_Main( szArgc, szArgv, GAME_PATH, false, Xash_Shutdown ? Sys_ChangeGame : NULL );
++#else
++	const char* game = getenv( E_GAME );
++	ret = Xash_Main( szArgc, szArgv, game, false, Xash_Shutdown ? Sys_ChangeGame : NULL );
++#endif
+ 	Sys_UnloadEngine();
+ 
+ 	return ret;
+@@ -170,6 +195,41 @@ int main( int argc, char **argv )
+ 	szArgc = argc;
+ 	szArgv = argv;
+ 
++#ifdef __HAIKU__
++	// To make it able to start from Deskbar
++	chdir( dirname( argv[0] ) );
++	char path[PATH_MAX];
++	getcwd( path, PATH_MAX );
++	const char *game = getenv( E_GAME );
++	if( !game )
++		setenv( E_GAME, GAME_PATH, 1 );
++	const char *basedir = getenv( E_BASEDIR );
++	if( !basedir )
++		setenv( E_BASEDIR, path, 1 );
++	const char *mirrordir = getenv( E_MIRRORDIR );
++	// The mirror "extras/" directory structure for Haiku OS which is needeed for the HPGK-package:
++	// extras.pak
++	// libmenu.so
++	// libxash.so
++	// bshift/
++	//  cl_dlls/
++	//   libclient-haiku64.so
++	//  dlls/
++	//   libserver-haiku64.so
++	// valve/
++	//  cl_dlls/
++	//   libclient-haiku64.so
++	//  dlls/
++	//   libserver-haiku64.so
++	if( !mirrordir )
++	{
++		strncpy( path, getenv( E_BASEDIR ), PATH_MAX );
++		strncat( path, "/extras", PATH_MAX );
++		setenv( E_MIRRORDIR, path, 1 );
++	}
++	// fprintf( stderr, "%s\n%s\n%s\n", getenv( E_GAME ), getenv( E_BASEDIR ), getenv( E_MIRRORDIR ) );
++#endif
++
+ 	return Sys_Start();
+ }
+ #else
+-- 
+2.19.1
+

@@ -1,0 +1,86 @@
+From 9adaf39327657ce47b57d87400c27f2aa55330c0 Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Tue, 9 May 2017 07:20:49 +0700
+Subject: [PATCH] Fix Edit menu
+
+---
+ src/mainwindow.ui | 49 ++++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 32 insertions(+), 17 deletions(-)
+
+diff --git a/src/mainwindow.ui b/src/mainwindow.ui
+index 4f42802..d0e5a15 100644
+--- a/src/mainwindow.ui
++++ b/src/mainwindow.ui
+@@ -776,6 +776,35 @@ p, li { white-space: pre-wrap; }
+     <property name="title">
+      <string>&amp;Edit</string>
+     </property>
++    <widget class="QMenu" name="menuInsert">
++     <property name="title">
++      <string>&amp;Insert</string>
++     </property>
++     <addaction name="actionInsert_Link_to_note"/>
++     <addaction name="actionInsert_image"/>
++     <addaction name="actionInsert_table"/>
++     <addaction name="actionInsert_current_time"/>
++     <addaction name="actionInsert_code_block"/>
++     <addaction name="actionInsert_block_quote"/>
++     <addaction name="actionInsert_headline_from_note_filename"/>
++    </widget>
++    <widget class="QMenu" name="menuFormat">
++     <property name="title">
++      <string>For&amp;mat</string>
++     </property>
++     <addaction name="actionFormat_text_bold"/>
++     <addaction name="actionFormat_text_italic"/>
++     <addaction name="actionStrike_out_text"/>
++     <addaction name="actionToggle_text_case"/>
++    </widget>
++    <widget class="QMenu" name="menuCrypt">
++     <property name="title">
++      <string>Cr&amp;ypt</string>
++     </property>
++      <addaction name="action_Encrypt_note"/>
++      <addaction name="actionEdit_encrypted_note"/>
++      <addaction name="actionDecrypt_note"/>
++    </widget>
+     <addaction name="action_DuplicateText"/>
+     <addaction name="actionDelete_line"/>
+     <addaction name="actionDelete_word"/>
+@@ -783,18 +812,9 @@ p, li { white-space: pre-wrap; }
+     <addaction name="action_Find_text_in_note"/>
+     <addaction name="actionReplace_in_current_note"/>
+     <addaction name="separator"/>
+-    <addaction name="actionInsert_Link_to_note"/>
+-    <addaction name="actionInsert_image"/>
+-    <addaction name="actionInsert_table"/>
+-    <addaction name="actionInsert_current_time"/>
+-    <addaction name="actionInsert_code_block"/>
+-    <addaction name="actionInsert_block_quote"/>
+-    <addaction name="actionInsert_headline_from_note_filename"/>
+-    <addaction name="separator"/>
+-    <addaction name="actionFormat_text_bold"/>
+-    <addaction name="actionFormat_text_italic"/>
+-    <addaction name="actionStrike_out_text"/>
+-    <addaction name="actionToggle_text_case"/>
++    <addaction name="menuInsert"/>
++    <addaction name="menuFormat"/>
++    <addaction name="menuCrypt"/>
+     <addaction name="separator"/>
+     <addaction name="actionPaste_image"/>
+     <addaction name="separator"/>
+@@ -804,11 +824,6 @@ p, li { white-space: pre-wrap; }
+     <addaction name="actionShow_note_git_versions"/>
+     <addaction name="actionDelete_orphaned_images"/>
+     <addaction name="separator"/>
+-    <addaction name="action_Encrypt_note"/>
+-    <addaction name="actionEdit_encrypted_note"/>
+-    <addaction name="actionDecrypt_note"/>
+-    <addaction name="separator"/>
+-    <addaction name="separator"/>
+     <addaction name="actionSelect_all_notes"/>
+     <addaction name="actionSearch_text_on_the_web"/>
+     <addaction name="actionAutocomplete"/>
+-- 
+2.12.2
+

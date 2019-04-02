@@ -1,0 +1,183 @@
+diff --git a/Config.mk b/Config.mk
+index f44bbcf..fcbf36e 100755
+--- a/Config.mk
++++ b/Config.mk
+@@ -37,7 +37,7 @@ HOSTCFLAGS = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
+ #
+ # Cross Tool chain configuration
+ #
+-TOOLCHAIN_PREFIX = /opt/arm-none-linux-gnueabi/bin/arm-none-linux-gnueabi-
++#TOOLCHAIN_PREFIX = /home/exl/x-tools/arm-qemu-eabi/bin/arm-qemu-eabi-
+ 
+ #
+ # Toolchain configuration
+diff --git a/tools/minios/Config.mk b/tools/minios/Config.mk
+index b63f4fe..3496483 100755
+--- a/tools/minios/Config.mk
++++ b/tools/minios/Config.mk
+@@ -15,7 +15,7 @@ HOSTCFLAGS 		= -Wall -Werror -Wstrict-prototypes -g -fomit-frame-pointer
+ # Cross Tool chain configuration
+ #
+ #CROSS_COMPILE		= arm_v4t_le-
+-CROSS_COMPILE		= /opt/arm-linux-4.1.1/bin/arm-linux-
++#CROSS_COMPILE		= /home/exl/x-tools/arm-qemu-eabi/bin/arm-qemu-eabi-
+ 
+ #
+ # Target Configuration for Xeno-mini
+diff --git a/tools/minios/Makefile b/tools/minios/Makefile
+index 39b878e..7672d50 100755
+--- a/tools/minios/Makefile
++++ b/tools/minios/Makefile
+@@ -10,6 +10,8 @@ OBJS            := arch/$(XENO_TARGET_ARCH)/$(XENO_TARGET_ARCH).o
+ OBJS            += kernel/built_in.o
+ OBJS            += lib/built_in.o
+ 
++all: default
++
+ default: $(XENO_TARGET_IMAGE)
+ 
+ $(XENO_TARGET_IMAGE): build
+diff --git a/tools/minios/kernel/gnttab.c b/tools/minios/kernel/gnttab.c
+index 0cea337..e2fb465 100755
+--- a/tools/minios/kernel/gnttab.c
++++ b/tools/minios/kernel/gnttab.c
+@@ -190,7 +190,7 @@ gnttab_end_foreign_access_ref(grant_ref_t ref, int readonly)
+ 			return 0;
+ 		}
+ 	}
+-	while ((nflags = atomic_cmpxchg_u16(&shared[ref].flags, flags, 0)) !=
++	while ((nflags = atomic_cmpxchg_u16((u16 *)&shared[ref].flags, flags, 0)) !=
+ 	       flags);
+ 
+ 	return 1;
+@@ -248,7 +248,7 @@ gnttab_end_foreign_transfer_ref(grant_ref_t ref)
+          * reference and return failure (== 0).
+          */
+ 	while (!((flags = shared[ref].flags) & GTF_transfer_committed)) {
+-		if ( atomic_cmpxchg_u16(&shared[ref].flags, flags, 0) == flags )
++		if ( atomic_cmpxchg_u16((u16 *)shared[ref].flags, flags, 0) == flags )
+ 			return 0;
+ 		cpu_relax();
+ 	}
+diff --git a/tools/minios/lib/lib1funcs.S b/tools/minios/lib/lib1funcs.S
+index 6dc0648..4e824b6 100644
+--- a/tools/minios/lib/lib1funcs.S
++++ b/tools/minios/lib/lib1funcs.S
+@@ -36,6 +36,7 @@ Boston, MA 02111-1307, USA.  */
+ #include <linux/linkage.h>
+ #include <asm/assembler.h>
+ 
++#define CONFIG_AEABI
+ 
+ .macro ARM_DIV_BODY dividend, divisor, result, curbit
+ 
+@@ -205,7 +206,9 @@ Boston, MA 02111-1307, USA.  */
+ .endm
+ 
+ 
++/*
+ ENTRY(__udivsi3)
++*/
+ ENTRY(__aeabi_uidiv)
+ 
+ 	subs	r2, r1, #1
+@@ -230,9 +233,12 @@ ENTRY(__aeabi_uidiv)
+ 	mov	r0, r0, lsr r2
+ 	mov	pc, lr
+ 
++/*
+ ENDPROC(__udivsi3)
++*/
+ ENDPROC(__aeabi_uidiv)
+ 
++/*
+ ENTRY(__umodsi3)
+ 
+ 	subs	r2, r1, #1			@ compare divisor with 1
+@@ -248,8 +254,11 @@ ENTRY(__umodsi3)
+ 	mov	pc, lr
+ 
+ ENDPROC(__umodsi3)
++*/
+ 
++/*
+ ENTRY(__divsi3)
++*/
+ ENTRY(__aeabi_idiv)
+ 
+ 	cmp	r1, #0
+@@ -287,9 +296,12 @@ ENTRY(__aeabi_idiv)
+ 	rsbmi	r0, r0, #0
+ 	mov	pc, lr
+ 
++/*
+ ENDPROC(__divsi3)
++*/
+ ENDPROC(__aeabi_idiv)
+ 
++/*
+ ENTRY(__modsi3)
+ 
+ 	cmp	r1, #0
+@@ -311,6 +323,7 @@ ENTRY(__modsi3)
+ 	mov	pc, lr
+ 
+ ENDPROC(__modsi3)
++*/
+ 
+ #ifdef CONFIG_AEABI
+ 
+@@ -336,13 +349,26 @@ ENTRY(__aeabi_idivmod)
+ 
+ ENDPROC(__aeabi_idivmod)
+ 
++ENTRY(__aeabi_uldivmod)
++
++	sub sp, sp, #8
++	stmfd sp!, {sp, lr}
++	bl __qdivrem
++	ldr lr, [sp, #4]
++	add sp, sp, #8
++	ldmfd sp!, {r2, r3}
++	mov	pc, lr
++
++ENDPROC(__aeabi_uldivmod)
++
+ #endif
+ 
+ Ldiv0:
+ 
+ 	str	lr, [sp, #-8]!
+-	bl	__div0
++/*	bl	__div0 */			@ See fix on arch/arm/common/math.S:242
+ 	mov	r0, #0			@ About as wrong as it could be.
+ 	ldr	pc, [sp], #8
+ 
+ 
++#undef CONFIG_AEABI
+diff --git a/tools/minios/lib/math.c b/tools/minios/lib/math.c
+index 9a7eb18..058073f 100755
+--- a/tools/minios/lib/math.c
++++ b/tools/minios/lib/math.c
+@@ -57,7 +57,7 @@
+ 
+ #include <os/types.h>
+ 
+-#if 0
++#if 1
+ /*
+  * Depending on the desired operation, we view a `long long' (aka quad_t) in
+  * one or more of the following formats.
+diff --git a/xen/include/public/xen.h b/xen/include/public/xen.h
+index 0f5b4e5..625b6b7 100644
+--- a/xen/include/public/xen.h
++++ b/xen/include/public/xen.h
+@@ -386,7 +386,7 @@ typedef struct vcpu_info {
+      * to block: this avoids wakeup-waiting races.
+      */
+     uint32_t evtchn_upcall_pending;
+-    //uint32_t evtchn_upcall_mask;
++    uint32_t evtchn_upcall_mask;
+     unsigned long evtchn_pending_sel;
+     arch_vcpu_info_t arch;
+     vcpu_time_info_t time;
