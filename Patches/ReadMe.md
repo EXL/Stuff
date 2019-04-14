@@ -1,4 +1,4 @@
 Patches
 =======
 
-Just a repository storage of various patches.
+Just a repository storage of my various software patches.
