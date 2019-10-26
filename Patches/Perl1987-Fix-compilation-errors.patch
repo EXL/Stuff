@@ -1,0 +1,131 @@
+From b259889775b3f10864a2aee42bc6bfa398646bdb Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Sat, 26 Oct 2019 03:27:19 +0700
+Subject: [PATCH 1/2] Fix compilation errors
+
+---
+ malloc.c |  3 +++
+ perl.h   | 22 +++++++++++-----------
+ perl.y   |  1 +
+ perly.c  |  2 ++
+ stab.c   |  1 +
+ util.h   |  2 +-
+ 6 files changed, 19 insertions(+), 12 deletions(-)
+
+diff --git a/malloc.c b/malloc.c
+index 17c3b27..a1dfe9c 100644
+--- a/malloc.c
++++ b/malloc.c
+@@ -79,6 +79,9 @@ static	u_int nmalloc[NBUCKETS];
+ #include <stdio.h>
+ #endif
+ 
++static findbucket(union overhead *freep, int srchlen);
++static morecore(register bucket);
++
+ #ifdef debug
+ #define	ASSERT(p)   if (!(p)) botch("p"); else
+ static
+diff --git a/perl.h b/perl.h
+index 3ccff10..e98ded5 100644
+--- a/perl.h
++++ b/perl.h
+@@ -6,16 +6,16 @@
+  * 
+  */
+ 
+-#define DEBUGGING
+-#define STDSTDIO	/* eventually should be in config.h */
++//#define DEBUGGING
++//#define STDSTDIO	/* eventually should be in config.h */
+ 
+ #define VOIDUSED 1
+ #include "config.h"
+ 
+-#ifndef BCOPY
+-#   define bcopy(s1,s2,l) memcpy(s2,s1,l);
+-#   define bzero(s,l) memset(s,0,l);
+-#endif
++//#ifndef BCOPY
++//#   define bcopy(s1,s2,l) memcpy(s2,s1,l);
++//#   define bzero(s,l) memset(s,0,l);
++//#endif
+ 
+ #include <stdio.h>
+ #include <ctype.h>
+@@ -183,11 +183,11 @@ double atof();
+ long time();
+ struct tm *gmtime(), *localtime();
+ 
+-#ifdef CHARSPRINTF
+-    char *sprintf();
+-#else
+-    int sprintf();
+-#endif
++//#ifdef CHARSPRINTF
++//    char *sprintf();
++//#else
++//    int sprintf();
++//#endif
+ 
+ #ifdef EUNICE
+ #define UNLINK(f) while (unlink(f) >= 0)
+diff --git a/perl.y b/perl.y
+index 16f8a9a..1ab769f 100644
+--- a/perl.y
++++ b/perl.y
+@@ -7,6 +7,7 @@
+  */
+ 
+ %{
++#include <stdlib.h>
+ #include "handy.h"
+ #include "EXTERN.h"
+ #include "search.h"
+diff --git a/perly.c b/perly.c
+index bc32318..fe945eb 100644
+--- a/perly.c
++++ b/perly.c
+@@ -246,12 +246,14 @@ yylex()
+     static bool firstline = TRUE;
+ 
+   retry:
++#ifdef DEBUGGING
+ #ifdef YYDEBUG
+     if (yydebug)
+ 	if (index(s,'\n'))
+ 	    fprintf(stderr,"Tokener at %s",s);
+ 	else
+ 	    fprintf(stderr,"Tokener at %s\n",s);
++#endif
+ #endif
+     switch (*s) {
+     default:
+diff --git a/stab.c b/stab.c
+index b9ef533..9757cfe 100644
+--- a/stab.c
++++ b/stab.c
+@@ -7,6 +7,7 @@
+  */
+ 
+ #include <signal.h>
++#include <errno.h>
+ #include "handy.h"
+ #include "EXTERN.h"
+ #include "search.h"
+diff --git a/util.h b/util.h
+index 4f92eeb..95cb9bf 100644
+--- a/util.h
++++ b/util.h
+@@ -28,7 +28,7 @@ void	prexit();
+ char	*get_a_line();
+ char	*savestr();
+ int	makedir();
+-void	setenv();
++//void	setenv();
+ int	envix();
+ void	notincl();
+ char	*getval();
+-- 
+2.23.0
+

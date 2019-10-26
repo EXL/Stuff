@@ -1,0 +1,136 @@
+From 77e85c6cae1000638f01fe2d9cbbf91c321b1888 Mon Sep 17 00:00:00 2001
+From: EXL <exlmotodev@gmail.com>
+Date: Sat, 26 Oct 2019 07:32:54 +0700
+Subject: [PATCH 2/2] Fix some Segmentation Faults
+
+---
+ malloc.c |  2 ++
+ perl.y   |  2 ++
+ perly.c  | 24 +++++++++++++-----------
+ util.c   |  4 ++--
+ 4 files changed, 19 insertions(+), 13 deletions(-)
+
+diff --git a/malloc.c b/malloc.c
+index a1dfe9c..5f7410e 100644
+--- a/malloc.c
++++ b/malloc.c
+@@ -96,6 +96,7 @@ botch(s)
+ #define	ASSERT(p)
+ #endif
+ 
++#if 0
+ char *
+ malloc(nbytes)
+ 	register unsigned nbytes;
+@@ -145,6 +146,7 @@ malloc(nbytes)
+ #endif
+   	return ((char *)(p + 1));
+ }
++#endif
+ 
+ /*
+  * Allocate more memory to the indicated bucket.
+diff --git a/perl.y b/perl.y
+index 1ab769f..6527901 100644
+--- a/perl.y
++++ b/perl.y
+@@ -8,6 +8,8 @@
+ 
+ %{
+ #include <stdlib.h>
++#include <string.h>
++#include <limits.h>
+ #include "handy.h"
+ #include "EXTERN.h"
+ #include "search.h"
+diff --git a/perly.c b/perly.c
+index fe945eb..465e327 100644
+--- a/perly.c
++++ b/perly.c
+@@ -12,6 +12,7 @@ bool assume_p = FALSE;
+ bool doswitches = FALSE;
+ char *filename;
+ char *e_tmpname = "/tmp/perl-eXXXXXX";
++char t_name[NAME_MAX];
+ FILE *e_fp = Nullfp;
+ ARG *l();
+ 
+@@ -41,8 +42,9 @@ register char **env;
+ #endif
+ 	case 'e':
+ 	    if (!e_fp) {
+-		mktemp(e_tmpname);
+-		e_fp = fopen(e_tmpname,"w");
++		strncpy(t_name, e_tmpname, strlen(e_tmpname) + 1);
++		mkstemp(t_name);
++		e_fp = fopen(t_name,"w");
+ 	    }
+ 	    if (argv[1])
+ 		fputs(argv[1],e_fp);
+@@ -94,7 +96,7 @@ register char **env;
+     if (e_fp) {
+ 	fclose(e_fp);
+ 	argc++,argv--;
+-	argv[0] = e_tmpname;
++	argv[0] = t_name;
+     }
+ 
+     str_set(&str_no,No);
+@@ -143,7 +145,7 @@ register char **env;
+ 
+     if (e_fp) {
+ 	e_fp = Nullfp;
+-	UNLINK(e_tmpname);
++	UNLINK(t_name);
+     }
+     argc--,argv++;	/* skip name of script */
+     if (doswitches) {
+@@ -1462,20 +1464,20 @@ char *s;
+     if (yychar > 256) {
+ 	tname = tokename[yychar-256];
+ 	if (strEQ(tname,"word"))
+-	    strcpy(tname,tokenbuf);
++	    strcpy(tmpbuf,tokenbuf);
+ 	else if (strEQ(tname,"register"))
+-	    sprintf(tname,"$%s",tokenbuf);
++	    sprintf(tmpbuf,"$%s",tokenbuf);
+ 	else if (strEQ(tname,"array_length"))
+-	    sprintf(tname,"$#%s",tokenbuf);
++	    sprintf(tmpbuf,"$#%s",tokenbuf);
+     }
+     else if (!yychar)
+-	strcpy(tname,"EOF");
++	strcpy(tmpbuf,"EOF");
+     else if (yychar < 32)
+-	sprintf(tname,"^%c",yychar+64);
++	sprintf(tmpbuf,"^%c",yychar+64);
+     else if (yychar == 127)
+-	strcpy(tname,"^?");
++	strcpy(tmpbuf,"^?");
+     else
+-	sprintf(tname,"%c",yychar);
++	sprintf(tmpbuf,"%c",yychar);
+     printf("%s in file %s at line %d, next token \"%s\"\n",
+       s,filename,line,tname);
+ }
+diff --git a/util.c b/util.c
+index b0b78f1..fa88613 100644
+--- a/util.c
++++ b/util.c
+@@ -203,11 +203,11 @@ fatal(pat,a1,a2,a3,a4)
+ char *pat;
+ {
+     extern FILE *e_fp;
+-    extern char *e_tmpname;
++    extern char *t_name;
+ 
+     fprintf(stderr,pat,a1,a2,a3,a4);
+     if (e_fp)
+-	UNLINK(e_tmpname);
++	UNLINK(t_name);
+     exit(1);
+ }
+ 
+-- 
+2.23.0
+
