@@ -1,7 +1,7 @@
-From 3c12c62dbeea984063c2ecb3153dcef3977d1855 Mon Sep 17 00:00:00 2001
+From 3fedf47c35c4fcb24b9980d205bb2822c4244f23 Mon Sep 17 00:00:00 2001
 From: EXL <exlmotodev@gmail.com>
-Date: Wed, 5 Dec 2018 07:02:11 +0000
-Subject: Implement message box for Haiku
+Date: Mon, 11 Nov 2019 16:44:40 -0500
+Subject: [PATCH 005/199] haiku: Implement message box for Haiku
 
 Add implementation for functions:
 
@@ -11,11 +11,24 @@ SDL_ShowMessageBox()
 Add simple customization support also.
 Fix build for x86_gcc2.
 
+Partially fixes Bugzilla #4442.
+---
+ include/SDL_syswm.h                |   3 +-
+ src/main/haiku/SDL_BeApp.cc        |   5 +-
+ src/main/haiku/SDL_BeApp.h         |   3 +
+ src/video/SDL_video.c              |  12 +-
+ src/video/haiku/SDL_bmessagebox.cc | 425 +++++++++++++++++++++++++++++
+ src/video/haiku/SDL_bmessagebox.h  |  45 +++
+ src/video/haiku/SDL_bwindow.cc     |  12 +-
+ 7 files changed, 500 insertions(+), 5 deletions(-)
+ create mode 100644 src/video/haiku/SDL_bmessagebox.cc
+ create mode 100644 src/video/haiku/SDL_bmessagebox.h
+
 diff --git a/include/SDL_syswm.h b/include/SDL_syswm.h
-index f1c4021..384753c 100644
+index 1469b23..c823651 100644
 --- a/include/SDL_syswm.h
 +++ b/include/SDL_syswm.h
-@@ -126,7 +126,8 @@ typedef enum
+@@ -132,7 +132,8 @@ typedef enum
      SDL_SYSWM_WINRT,
      SDL_SYSWM_ANDROID,
      SDL_SYSWM_VIVANTE,
@@ -26,7 +39,7 @@ index f1c4021..384753c 100644
  
  /**
 diff --git a/src/main/haiku/SDL_BeApp.cc b/src/main/haiku/SDL_BeApp.cc
-index cbd2129..5c06744 100644
+index 2d78059..4eb215c 100644
 --- a/src/main/haiku/SDL_BeApp.cc
 +++ b/src/main/haiku/SDL_BeApp.cc
 @@ -48,13 +48,14 @@ extern "C" {
@@ -47,7 +60,7 @@ index cbd2129..5c06744 100644
      image_info info;
      int32 cookie = 0;
 diff --git a/src/main/haiku/SDL_BeApp.h b/src/main/haiku/SDL_BeApp.h
-index 83a2beb..7d5e569 100644
+index d14e14f..5fcfa54 100644
 --- a/src/main/haiku/SDL_BeApp.h
 +++ b/src/main/haiku/SDL_BeApp.h
 @@ -31,6 +31,9 @@ extern int SDL_InitBeApp(void);
@@ -61,10 +74,10 @@ index 83a2beb..7d5e569 100644
  
  #ifdef __cplusplus
 diff --git a/src/video/SDL_video.c b/src/video/SDL_video.c
-index 336fdaa..290cfef 100644
+index 6361e39..e34c6d4 100644
 --- a/src/video/SDL_video.c
 +++ b/src/video/SDL_video.c
-@@ -3818,9 +3818,12 @@ SDL_IsScreenKeyboardShown(SDL_Window *window)
+@@ -3846,9 +3846,12 @@ SDL_IsScreenKeyboardShown(SDL_Window *window)
  #if SDL_VIDEO_DRIVER_X11
  #include "x11/SDL_x11messagebox.h"
  #endif
@@ -78,7 +91,7 @@ index 336fdaa..290cfef 100644
  static SDL_bool SDL_MessageboxValidForDriver(const SDL_MessageBoxData *messageboxdata, SDL_SYSWM_TYPE drivertype)
  {
      SDL_SysWMinfo info;
-@@ -3912,6 +3915,13 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
+@@ -3940,6 +3943,13 @@ SDL_ShowMessageBox(const SDL_MessageBoxData *messageboxdata, int *buttonid)
          X11_ShowMessageBox(messageboxdata, buttonid) == 0) {
          retval = 0;
      }
@@ -575,7 +588,7 @@ index 0000000..4f35cda
 +
 +/* vi: set ts=4 sw=4 expandtab: */
 diff --git a/src/video/haiku/SDL_bwindow.cc b/src/video/haiku/SDL_bwindow.cc
-index 142a3fa..462608b 100644
+index 6c68802..e818532 100644
 --- a/src/video/haiku/SDL_bwindow.cc
 +++ b/src/video/haiku/SDL_bwindow.cc
 @@ -26,6 +26,8 @@
@@ -605,5 +618,5 @@ index 142a3fa..462608b 100644
  
  
 -- 
-2.19.1
+2.24.0
 
