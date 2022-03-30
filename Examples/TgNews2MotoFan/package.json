@@ -6,7 +6,7 @@
     "start": "node TgNews2MotoFan"
   },
   "dependencies": {
-    "mysql": "~2.15.0",
-    "node-telegram-bot-api": "~0.30.0"
+    "mysql": "~2.18.0",
+    "node-telegram-bot-api": "~0.50.0"
   }
 }
