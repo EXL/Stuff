@@ -1,4 +1,4 @@
-SDL2-Android-Example
+Android-SDL2
 ====================
 
 A simple SDL2 example for Android.
