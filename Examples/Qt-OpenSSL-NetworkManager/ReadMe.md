@@ -1,5 +1,5 @@
-NetworkManagerDemo
-==================
+Qt-OpenSSL-NetworkManager
+=========================
 
 ![NetworkManagerDemo, KDE Plasma 5](screenshot.png)
 
