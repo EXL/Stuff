@@ -1,5 +1,5 @@
-MockLocation
-============
+Android-MockLocation
+====================
 
 A simple Mock Location application prototype for Android.
 
