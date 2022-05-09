@@ -1,5 +1,5 @@
-QmlDestroyTest
-==============
+Android-QtQuick-QML
+===================
 
 ![Android Screenshot](screenshot.png)
 
