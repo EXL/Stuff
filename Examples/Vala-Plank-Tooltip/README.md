@@ -1,6 +1,11 @@
 Vala-Plank-Tooltip
 ==================
 
+Add toolip option to the Plank dock for @yakimka.
+
+![Plank Settings](Screenshot_Plank.png)
+
+**[Plank_0_11_1_show_tooltips_feature_for_yakimka.patch](../../Patches/Plank_0_11_1_show_tooltips_feature_for_yakimka.patch)**
 
 ## Build and Run instructions
 
@@ -48,4 +53,3 @@ Vala-Plank-Tooltip
     ```bash
     $ dconf reset -f /net/launchpad/plank/docks/dock1/
     ```
-
