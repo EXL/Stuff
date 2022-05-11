@@ -1,9 +1,9 @@
-QmlDestroyTest
-==============
+Android Mock Location QtQuick
+=============================
 
 ![Android Screenshot](screenshot.jpg)
 
-A simple QML example for Android OS that demonstrates Mock Location tricks:
+A simple QtQuick/QML example for Android OS that demonstrates Mock Location tricks:
 
 1. Important! Enable "Allow mock locations" in the "Developer options".
 2. Enable "Access to my location" and "GPS satellites" in the "Location access".
@@ -15,7 +15,7 @@ Use `javah` utility for generaring new JNI-header file if your `NativeHelper.jav
 
 ```bash
 $ pwd
-~/QmlDestroyTest/android/src
+~/Android-MockLocation-QtQuick/android/src
 $ javah ru.exlmoto.qmldestroytest.NativeHelper
 $ mv *.h ../..
 ```
