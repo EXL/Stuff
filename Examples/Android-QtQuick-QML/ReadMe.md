@@ -21,7 +21,7 @@ Use `javah` utility for generaring new JNI-header file if your `NativeHelper.jav
 
 ```bash
 $ pwd
-~/QmlDestroyTest/android/src
+~/Android-QtQuick-QML/android/src
 $ javah ru.exlmoto.qmldestroytest.NativeHelper
 $ mv *.h ../..
 ```
