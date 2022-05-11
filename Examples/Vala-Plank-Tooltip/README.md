@@ -19,7 +19,8 @@ Add toolip option to the Plank dock specially for @yakimka.
 
 4. Clone this gist repo:
     ```bash
-    $ git clone https://gist.github.com/9596722a2b62a84483e861a43e08d847.git PlankTooltipPatch
+    $ git clone https://github.com/EXL/Stuff
+    $ cd Stuff/Examples/Vala-Plank-Tooltip/
     ```
 
 5. Patch the sources:

@@ -1,7 +1,7 @@
 Android SDL2 Example
 ====================
 
-A simple SDL2 example for Android.
+A simple SDL2 example for Android OS.
 
 ## Build, Install and Run on Android:
 

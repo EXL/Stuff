@@ -1,6 +1,8 @@
 QtNetworkManager Demo
 =====================
 
+An example of using the OpenSSL library with Qt framework.
+
 ![NetworkManagerDemo, KDE Plasma 5](screenshot.png)
 
 For the Qt from the official site (which compiled with the OpenSSL v1.0.x):

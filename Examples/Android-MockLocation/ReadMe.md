@@ -1,7 +1,7 @@
 Android Mock Location
 =====================
 
-A simple Mock Location application prototype for Android.
+A simple Mock Location application prototype for Android OS.
 
 ![Android Emulator Screenshot](screenshot.png)
 
