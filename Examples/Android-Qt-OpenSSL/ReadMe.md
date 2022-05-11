@@ -2,6 +2,7 @@ Android Qt OpenSSL Example
 ==========================
 
 ```sh
-git clone --recursive --shallow-submodules https://github.com/EXL/Stuff
+git clone https://github.com/EXL/Stuff
 cd Stuff/Examples/Android-Qt-OpenSSL/
+git submodule update --init --depth=1 android-openssl
 ```

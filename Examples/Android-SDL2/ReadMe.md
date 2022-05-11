@@ -6,8 +6,9 @@ A simple SDL2 example for Android.
 ## Build, Install and Run on Android:
 
 ```bash
-git clone --recursive --shallow-submodules https://github.com/EXL/Stuff
-cd Stuff/Examples/Android-SDL2
+git clone https://github.com/EXL/Stuff
+cd Stuff/Examples/Android-SDL2/
+git submodule update --init --depth=1 app/jni/SDL
 ANDROID_HOME="/opt/android-sdk/" ./gradlew assembleDebug
 
 <connect your smartphone>
