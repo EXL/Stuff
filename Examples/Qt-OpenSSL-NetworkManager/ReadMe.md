@@ -1,13 +1,13 @@
-Qt-OpenSSL-NetworkManager
-=========================
+QtNetworkManager Demo
+=====================
 
 ![NetworkManagerDemo, KDE Plasma 5](screenshot.png)
 
-For Qt from the official site (compiled with the OpenSSL v1.0.x):
+For the Qt from the official site (which compiled with the OpenSSL v1.0.x):
 
 ```bash
-$ git clone https://github.com/EXLMOTODEV/NetworkManagerDemo
-$ cd NetworkManagerDemo/
+$ git clone https://github.com/EXL/Stuff
+$ cd Stuff/Examples/Qt-OpenSSL-NetworkManager/
 $ /opt/Qt5.10.1/5.10.1/gcc_64/bin/qmake NetworkManagerDemo.pro
 $ make
 $ ls /usr/lib/openssl-1.0/ -al

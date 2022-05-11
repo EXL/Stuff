@@ -1,4 +1,4 @@
-C++-Iterator
+C++ Iterator
 ============
 
-A simple template iterator by file content.
+A simple template iterator by the file content.

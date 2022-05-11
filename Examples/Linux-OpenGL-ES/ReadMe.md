@@ -1,6 +1,6 @@
-Linux-OpenGL-ES
-===============
+Linux OpenGL ES Example
+=======================
 
-An simple example of using OpenGL ES library on Linux.
+A simple example of using OpenGL ES library on Linux distros.
 
 ![OpenGL ES Screenshot](screen.png)

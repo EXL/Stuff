@@ -1,4 +1,4 @@
-Qt-Window-Icon-Extras
-=====================
+Qt Window Icon Extras Example
+=============================
 
-A simple Qt Window Icon test with Qt Win Extras module.
+A simple Qt Window Icon example with the Qt Win Extras module.

@@ -1,5 +1,5 @@
-Qt-4-EZX
-========
+Qt 4 port for EZX
+=================
 
 Patch and recipe for building Qt 4.8.x for Motorola MotoEZX phones.
 

@@ -1,7 +1,7 @@
 Vala-Plank-Tooltip
 ==================
 
-Add toolip option to the Plank dock for @yakimka.
+Add toolip option to the Plank dock specially for @yakimka.
 
 ![Plank Settings](Screenshot_Plank.png)
 

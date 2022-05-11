@@ -1,5 +1,5 @@
-Android-QtQuick-QML
-===================
+Android QtQuick QML Example
+===========================
 
 ![Android Screenshot](screenshot.png)
 

@@ -1,5 +1,5 @@
-MotoFan-to-Wordpress
-====================
+MotoFan to Wordpress Migration
+==============================
 
 Various scripts and utilities for import MotoFan.Ru database and IntenseDebate comments to the WordPress engine.
 

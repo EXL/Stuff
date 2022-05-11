@@ -1,5 +1,5 @@
-BuildSystemsBenchmark
-=====================
+CMake Build Systems Benchmark
+=============================
 
 A simple benchmark for various building systems.
 

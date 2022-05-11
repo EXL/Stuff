@@ -1,3 +1,0 @@
-[submodule "app/jni/SDL"]
-	path = app/jni/SDL
-	url = https://github.com/SDL-mirror/SDL/

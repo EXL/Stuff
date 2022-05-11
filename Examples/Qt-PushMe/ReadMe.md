@@ -1,6 +1,6 @@
-Qt-PushMe
-=========
+QtPushMe
+========
 
-PushMe is fun elusive button using Qt framework.
+A fun elusive button example using Qt framework.
 
 ![Qt PushMe demonstration](demonstration.gif)

@@ -1,5 +1,5 @@
-Python-DailyFileDownloader
-==========================
+Daily File Downloader
+=====================
 
 A simple Python-script for daily file downloading.
 

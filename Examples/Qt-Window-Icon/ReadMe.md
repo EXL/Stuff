@@ -1,4 +1,4 @@
-Qt-Window-Icon
-==============
+Qt Window Icon Example
+======================
 
-A simple Qt Window Icon test.
+A simple Qt Window Icon example.

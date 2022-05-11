@@ -1,6 +1,7 @@
-Android Qt OpenSSL
-==================
+Android Qt OpenSSL Example
+==========================
 
 ```sh
-git clone --recursive https://github.com/EXLMOTODEV/Android-Qt-OpenSSL-Test
+git clone --recursive --shallow-submodules https://github.com/EXL/Stuff
+cd Stuff/Examples/Android-Qt-OpenSSL/
 ```

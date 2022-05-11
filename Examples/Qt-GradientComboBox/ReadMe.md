@@ -1,7 +1,7 @@
-Qt-GradientComboBox
-===================
+QtGradientComboBox
+==================
 
-A simple QComboBox with color gradients.
+A simple QComboBox with color gradients for the Qt framework.
 
 ![Gradient QComboBox Screenshot](ScreenShot.png)
 

@@ -1,5 +1,5 @@
-Python-PyHLDM
-=============
+PyHLDM
+======
 
 A python script for generating static page about "Half-Life: Deathmatch" maps.
 
