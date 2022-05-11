@@ -1,3 +1,0 @@
-[submodule "SDL2"]
-	path = app/jni/SDL
-	url = https://github.com/libsdl-org/SDL
