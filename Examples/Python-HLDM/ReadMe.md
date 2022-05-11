@@ -1,3 +1,8 @@
+Python-PyHLDM
+=============
+
+A python script for generating static page about "Half-Life: Deathmatch" maps.
+
 ### Convert BMP files to JPG images:
 
 ```bash
