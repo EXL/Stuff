@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<weatherdata>
+  <location>
+    <name>Chornobyl’</name>
+    <type/>
+    <country>UA</country>
+    <timezone/>
+    <location altitude="0" latitude="51.2736" longitude="30.2225" geobase="geonames" geobaseid="710403"/>
+  </location>
+  <credit/>
+  <meta>
+    <lastupdate/>
+    <calctime>0.0029</calctime>
+    <nextupdate/>
+  </meta>
+  <sun rise="2018-12-12T05:54:27" set="2018-12-12T13:51:07"/>
+  <forecast>
+    <time from="2018-12-12T03:00:00" to="2018-12-12T06:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.305" type="snow"/>
+      <windDirection deg="3.00018" code="N" name="North"/>
+      <windSpeed mps="5.46" name=""/>
+      <temperature unit="celsius" value="-1.84" min="-1.84" max="-1"/>
+      <pressure unit="hPa" value="1009.75"/>
+      <humidity value="97" unit="%"/>
+      <clouds value="overcast clouds" all="88" unit="%"/>
+    </time>
+    <time from="2018-12-12T06:00:00" to="2018-12-12T09:00:00">
+      <symbol number="601" name="сніг" var="13d"/>
+      <precipitation unit="3h" value="1.705" type="snow"/>
+      <windDirection deg="3.50336" code="N" name="North"/>
+      <windSpeed mps="7.36" name="Moderate breeze"/>
+      <temperature unit="celsius" value="-1.18" min="-1.18" max="-0.55"/>
+      <pressure unit="hPa" value="1008.82"/>
+      <humidity value="99" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-12T09:00:00" to="2018-12-12T12:00:00">
+      <symbol number="601" name="сніг" var="13d"/>
+      <precipitation unit="3h" value="3.9225" type="snow"/>
+      <windDirection deg="12.5032" code="NNE" name="North-northeast"/>
+      <windSpeed mps="7.12" name="Moderate breeze"/>
+      <temperature unit="celsius" value="-0.36" min="-0.36" max="0.06"/>
+      <pressure unit="hPa" value="1007.54"/>
+      <humidity value="97" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-12T12:00:00" to="2018-12-12T15:00:00">
+      <symbol number="601" name="сніг" var="13n"/>
+      <precipitation unit="3h" value="3.515" type="snow"/>
+      <windDirection deg="26.0008" code="NNE" name="North-northeast"/>
+      <windSpeed mps="6.46" name="Moderate breeze"/>
+      <temperature unit="celsius" value="0.16" min="0.16" max="0.37"/>
+      <pressure unit="hPa" value="1007.71"/>
+      <humidity value="100" unit="%"/>
+      <clouds value="overcast clouds" all="88" unit="%"/>
+    </time>
+    <time from="2018-12-12T15:00:00" to="2018-12-12T18:00:00">
+      <symbol number="601" name="сніг" var="13n"/>
+      <precipitation unit="3h" value="2.3" type="snow"/>
+      <windDirection deg="29.5011" code="NNE" name="North-northeast"/>
+      <windSpeed mps="6.43" name="Moderate breeze"/>
+      <temperature unit="celsius" value="0.36" min="0.36" max="0.36"/>
+      <pressure unit="hPa" value="1007.66"/>
+      <humidity value="98" unit="%"/>
+      <clouds value="overcast clouds" all="88" unit="%"/>
+    </time>
+    <time from="2018-12-12T18:00:00" to="2018-12-12T21:00:00">
+      <symbol number="601" name="сніг" var="13n"/>
+      <precipitation unit="3h" value="1.765" type="snow"/>
+      <windDirection deg="32.5021" code="NNE" name="North-northeast"/>
+      <windSpeed mps="6.21" name="Moderate breeze"/>
+      <temperature unit="celsius" value="0.17" min="0.17" max="0.17"/>
+      <pressure unit="hPa" value="1007.78"/>
+      <humidity value="99" unit="%"/>
+      <clouds value="overcast clouds" all="88" unit="%"/>
+    </time>
+    <time from="2018-12-12T21:00:00" to="2018-12-13T00:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="1.455" type="snow"/>
+      <windDirection deg="35.0013" code="NE" name="NorthEast"/>
+      <windSpeed mps="5.76" name="Moderate breeze"/>
+      <temperature unit="celsius" value="-0.1" min="-0.1" max="-0.1"/>
+      <pressure unit="hPa" value="1008.02"/>
+      <humidity value="98" unit="%"/>
+      <clouds value="overcast clouds" all="88" unit="%"/>
+    </time>
+    <time from="2018-12-13T00:00:00" to="2018-12-13T03:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="1.105" type="snow"/>
+      <windDirection deg="32.0017" code="NNE" name="North-northeast"/>
+      <windSpeed mps="5.66" name="Moderate breeze"/>
+      <temperature unit="celsius" value="-0.36" min="-0.36" max="-0.36"/>
+      <pressure unit="hPa" value="1007.97"/>
+      <humidity value="95" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-13T03:00:00" to="2018-12-13T06:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.67" type="snow"/>
+      <windDirection deg="30.5072" code="NNE" name="North-northeast"/>
+      <windSpeed mps="5.61" name="Moderate breeze"/>
+      <temperature unit="celsius" value="-0.55" min="-0.55" max="-0.55"/>
+      <pressure unit="hPa" value="1008.22"/>
+      <humidity value="97" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-13T06:00:00" to="2018-12-13T09:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.64" type="snow"/>
+      <windDirection deg="29.0031" code="NNE" name="North-northeast"/>
+      <windSpeed mps="5.66" name="Moderate breeze"/>
+      <temperature unit="celsius" value="0.02" min="0.02" max="0.02"/>
+      <pressure unit="hPa" value="1008.54"/>
+      <humidity value="97" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-13T09:00:00" to="2018-12-13T12:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.39" type="snow"/>
+      <windDirection deg="27.0004" code="NNE" name="North-northeast"/>
+      <windSpeed mps="5.52" name="Moderate breeze"/>
+      <temperature unit="celsius" value="0.54" min="0.54" max="0.54"/>
+      <pressure unit="hPa" value="1008.54"/>
+      <humidity value="99" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-13T12:00:00" to="2018-12-13T15:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.49" type="snow"/>
+      <windDirection deg="42.5047" code="NE" name="NorthEast"/>
+      <windSpeed mps="4.3" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="0.58" min="0.58" max="0.58"/>
+      <pressure unit="hPa" value="1009.4"/>
+      <humidity value="99" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-13T15:00:00" to="2018-12-13T18:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.115" type="snow"/>
+      <windDirection deg="81.0022" code="E" name="East"/>
+      <windSpeed mps="3.82" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="0.48" min="0.48" max="0.48"/>
+      <pressure unit="hPa" value="1010.72"/>
+      <humidity value="100" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-13T18:00:00" to="2018-12-13T21:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.080000000000002" type="snow"/>
+      <windDirection deg="73.0024" code="ENE" name="East-northeast"/>
+      <windSpeed mps="3.82" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-0.19" min="-0.19" max="-0.19"/>
+      <pressure unit="hPa" value="1012.16"/>
+      <humidity value="99" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-13T21:00:00" to="2018-12-14T00:00:00">
+      <symbol number="800" name="чисте небо" var="01n"/>
+      <precipitation unit="3h" value="0.004999999999999" type="snow"/>
+      <windDirection deg="60.0035" code="ENE" name="East-northeast"/>
+      <windSpeed mps="3.69" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-2.26" min="-2.26" max="-2.26"/>
+      <pressure unit="hPa" value="1013.77"/>
+      <humidity value="91" unit="%"/>
+      <clouds value="broken clouds" all="56" unit="%"/>
+    </time>
+    <time from="2018-12-14T00:00:00" to="2018-12-14T03:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.065000000000001" type="snow"/>
+      <windDirection deg="43.5085" code="NE" name="NorthEast"/>
+      <windSpeed mps="3.41" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-2.92" min="-2.92" max="-2.92"/>
+      <pressure unit="hPa" value="1014.57"/>
+      <humidity value="99" unit="%"/>
+      <clouds value="broken clouds" all="76" unit="%"/>
+    </time>
+    <time from="2018-12-14T03:00:00" to="2018-12-14T06:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.09" type="snow"/>
+      <windDirection deg="29.5005" code="NNE" name="North-northeast"/>
+      <windSpeed mps="3.47" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-3.48" min="-3.48" max="-3.48"/>
+      <pressure unit="hPa" value="1016.07"/>
+      <humidity value="96" unit="%"/>
+      <clouds value="broken clouds" all="80" unit="%"/>
+    </time>
+    <time from="2018-12-14T06:00:00" to="2018-12-14T09:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.115" type="snow"/>
+      <windDirection deg="22.5012" code="NNE" name="North-northeast"/>
+      <windSpeed mps="3.91" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-2" min="-2" max="-2"/>
+      <pressure unit="hPa" value="1017.7"/>
+      <humidity value="99" unit="%"/>
+      <clouds value="broken clouds" all="80" unit="%"/>
+    </time>
+    <time from="2018-12-14T09:00:00" to="2018-12-14T12:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.115" type="snow"/>
+      <windDirection deg="28.5106" code="NNE" name="North-northeast"/>
+      <windSpeed mps="4.33" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-1.31" min="-1.31" max="-1.31"/>
+      <pressure unit="hPa" value="1018.95"/>
+      <humidity value="97" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-14T12:00:00" to="2018-12-14T15:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.105" type="snow"/>
+      <windDirection deg="28.503" code="NNE" name="North-northeast"/>
+      <windSpeed mps="3.91" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-1.78" min="-1.78" max="-1.78"/>
+      <pressure unit="hPa" value="1020.92"/>
+      <humidity value="97" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-14T15:00:00" to="2018-12-14T18:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.115" type="snow"/>
+      <windDirection deg="35.0017" code="NE" name="NorthEast"/>
+      <windSpeed mps="3.88" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-1.9" min="-1.9" max="-1.9"/>
+      <pressure unit="hPa" value="1022.74"/>
+      <humidity value="98" unit="%"/>
+      <clouds value="overcast clouds" all="92" unit="%"/>
+    </time>
+    <time from="2018-12-14T18:00:00" to="2018-12-14T21:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.039999999999999" type="snow"/>
+      <windDirection deg="40.5034" code="NE" name="NorthEast"/>
+      <windSpeed mps="3.31" name=""/>
+      <temperature unit="celsius" value="-2.82" min="-2.82" max="-2.82"/>
+      <pressure unit="hPa" value="1024.59"/>
+      <humidity value="96" unit="%"/>
+      <clouds value="broken clouds" all="76" unit="%"/>
+    </time>
+    <time from="2018-12-14T21:00:00" to="2018-12-15T00:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.030000000000001" type="snow"/>
+      <windDirection deg="39" code="NE" name="NorthEast"/>
+      <windSpeed mps="3.08" name="Light breeze"/>
+      <temperature unit="celsius" value="-3.66" min="-3.66" max="-3.66"/>
+      <pressure unit="hPa" value="1026.07"/>
+      <humidity value="98" unit="%"/>
+      <clouds value="broken clouds" all="76" unit="%"/>
+    </time>
+    <time from="2018-12-15T00:00:00" to="2018-12-15T03:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.030000000000001" type="snow"/>
+      <windDirection deg="24.0016" code="NNE" name="North-northeast"/>
+      <windSpeed mps="2.56" name="Light breeze"/>
+      <temperature unit="celsius" value="-5.44" min="-5.44" max="-5.44"/>
+      <pressure unit="hPa" value="1027.05"/>
+      <humidity value="93" unit="%"/>
+      <clouds value="broken clouds" all="80" unit="%"/>
+    </time>
+    <time from="2018-12-15T03:00:00" to="2018-12-15T06:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.064999999999998" type="snow"/>
+      <windDirection deg="35.5007" code="NE" name="NorthEast"/>
+      <windSpeed mps="2.81" name="Light breeze"/>
+      <temperature unit="celsius" value="-4.91" min="-4.91" max="-4.91"/>
+      <pressure unit="hPa" value="1028.72"/>
+      <humidity value="97" unit="%"/>
+      <clouds value="broken clouds" all="80" unit="%"/>
+    </time>
+    <time from="2018-12-15T06:00:00" to="2018-12-15T09:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.074999999999999" type="snow"/>
+      <windDirection deg="35.5013" code="NE" name="NorthEast"/>
+      <windSpeed mps="2.42" name="Light breeze"/>
+      <temperature unit="celsius" value="-3.32" min="-3.32" max="-3.32"/>
+      <pressure unit="hPa" value="1030.21"/>
+      <humidity value="100" unit="%"/>
+      <clouds value="broken clouds" all="76" unit="%"/>
+    </time>
+    <time from="2018-12-15T09:00:00" to="2018-12-15T12:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.050000000000001" type="snow"/>
+      <windDirection deg="44.001" code="NE" name="NorthEast"/>
+      <windSpeed mps="2.5" name="Light breeze"/>
+      <temperature unit="celsius" value="-2.41" min="-2.41" max="-2.41"/>
+      <pressure unit="hPa" value="1030.86"/>
+      <humidity value="90" unit="%"/>
+      <clouds value="broken clouds" all="76" unit="%"/>
+    </time>
+    <time from="2018-12-15T12:00:00" to="2018-12-15T15:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.035" type="snow"/>
+      <windDirection deg="36.0041" code="NE" name="NorthEast"/>
+      <windSpeed mps="2.76" name="Light breeze"/>
+      <temperature unit="celsius" value="-3.77" min="-3.77" max="-3.77"/>
+      <pressure unit="hPa" value="1032.04"/>
+      <humidity value="93" unit="%"/>
+      <clouds value="broken clouds" all="76" unit="%"/>
+    </time>
+    <time from="2018-12-15T15:00:00" to="2018-12-15T18:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.050000000000001" type="snow"/>
+      <windDirection deg="57.5034" code="ENE" name="East-northeast"/>
+      <windSpeed mps="2.97" name="Light breeze"/>
+      <temperature unit="celsius" value="-3.9" min="-3.9" max="-3.9"/>
+      <pressure unit="hPa" value="1032.98"/>
+      <humidity value="94" unit="%"/>
+      <clouds value="broken clouds" all="76" unit="%"/>
+    </time>
+    <time from="2018-12-15T18:00:00" to="2018-12-15T21:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.055" type="snow"/>
+      <windDirection deg="71.5029" code="ENE" name="East-northeast"/>
+      <windSpeed mps="2.85" name="Light breeze"/>
+      <temperature unit="celsius" value="-4.44" min="-4.44" max="-4.44"/>
+      <pressure unit="hPa" value="1033.81"/>
+      <humidity value="94" unit="%"/>
+      <clouds value="broken clouds" all="76" unit="%"/>
+    </time>
+    <time from="2018-12-15T21:00:00" to="2018-12-16T00:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.045000000000002" type="snow"/>
+      <windDirection deg="74.0027" code="ENE" name="East-northeast"/>
+      <windSpeed mps="3.41" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-4.96" min="-4.96" max="-4.96"/>
+      <pressure unit="hPa" value="1034.1"/>
+      <humidity value="98" unit="%"/>
+      <clouds value="broken clouds" all="56" unit="%"/>
+    </time>
+    <time from="2018-12-16T00:00:00" to="2018-12-16T03:00:00">
+      <symbol number="800" name="чисте небо" var="01n"/>
+      <precipitation unit="3h" value="0.009999999999998" type="snow"/>
+      <windDirection deg="80.0018" code="E" name="East"/>
+      <windSpeed mps="3.69" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-6.03" min="-6.03" max="-6.03"/>
+      <pressure unit="hPa" value="1034.16"/>
+      <humidity value="89" unit="%"/>
+      <clouds value="broken clouds" all="68" unit="%"/>
+    </time>
+    <time from="2018-12-16T03:00:00" to="2018-12-16T06:00:00">
+      <symbol number="803" name="хмарно" var="04d"/>
+      <precipitation/>
+      <windDirection deg="87.5064" code="E" name="East"/>
+      <windSpeed mps="3.51" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-7.07" min="-7.07" max="-7.07"/>
+      <pressure unit="hPa" value="1034.89"/>
+      <humidity value="92" unit="%"/>
+      <clouds value="broken clouds" all="68" unit="%"/>
+    </time>
+    <time from="2018-12-16T06:00:00" to="2018-12-16T09:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.030000000000001" type="snow"/>
+      <windDirection deg="97.0066" code="E" name="East"/>
+      <windSpeed mps="4.15" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-5.54" min="-5.54" max="-5.54"/>
+      <pressure unit="hPa" value="1035.22"/>
+      <humidity value="94" unit="%"/>
+      <clouds value="broken clouds" all="68" unit="%"/>
+    </time>
+    <time from="2018-12-16T09:00:00" to="2018-12-16T12:00:00">
+      <symbol number="600" name="легкий снігопад" var="13d"/>
+      <precipitation unit="3h" value="0.030000000000001" type="snow"/>
+      <windDirection deg="99.0086" code="E" name="East"/>
+      <windSpeed mps="4.37" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-5.09" min="-5.09" max="-5.09"/>
+      <pressure unit="hPa" value="1034.31"/>
+      <humidity value="91" unit="%"/>
+      <clouds value="broken clouds" all="56" unit="%"/>
+    </time>
+    <time from="2018-12-16T12:00:00" to="2018-12-16T15:00:00">
+      <symbol number="800" name="чисте небо" var="01n"/>
+      <precipitation unit="3h" value="0.014999999999997" type="snow"/>
+      <windDirection deg="101.501" code="ESE" name="East-southeast"/>
+      <windSpeed mps="4.15" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-5.78" min="-5.78" max="-5.78"/>
+      <pressure unit="hPa" value="1034.27"/>
+      <humidity value="92" unit="%"/>
+      <clouds value="broken clouds" all="68" unit="%"/>
+    </time>
+    <time from="2018-12-16T15:00:00" to="2018-12-16T18:00:00">
+      <symbol number="800" name="чисте небо" var="01n"/>
+      <precipitation unit="3h" value="0.015000000000001" type="snow"/>
+      <windDirection deg="112.002" code="ESE" name="East-southeast"/>
+      <windSpeed mps="4.18" name="Gentle Breeze"/>
+      <temperature unit="celsius" value="-6.15" min="-6.15" max="-6.15"/>
+      <pressure unit="hPa" value="1033.67"/>
+      <humidity value="94" unit="%"/>
+      <clouds value="broken clouds" all="68" unit="%"/>
+    </time>
+    <time from="2018-12-16T18:00:00" to="2018-12-16T21:00:00">
+      <symbol number="600" name="легкий снігопад" var="13n"/>
+      <precipitation unit="3h" value="0.045000000000002" type="snow"/>
+      <windDirection deg="116.501" code="ESE" name="East-southeast"/>
+      <windSpeed mps="3.63" name="Gentle Breeze"/>
+      <temperature unit2="fahrengeit" unit="celsius" value="-6.35" min="-6.35" max="-6.35"/>
+      <pressure unit="hPa" value="1033"/>
+      <humidity value="91" unit="%"/>
+      <clouds value="broken clouds" all="68" unit="%"/>
+    </time>
+  </forecast>
+</weatherdata>

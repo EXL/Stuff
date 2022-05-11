@@ -1,0 +1,29 @@
+QMenuBar {
+	height: 18px;
+}
+
+QMenuBar::item {
+	padding: 0px 5px 0px 5px;
+}
+
+QMenuBar::item:selected {
+	background: rgba(147, 206, 233, 1);
+}
+
+QMenuBar::item:pressed {
+	background: rgba(61, 174, 233, 1);
+	color: rgba(235, 238, 241, 1);
+}
+
+QMenu {
+	margin-left: 2px;
+}
+
+QMenu::item {
+	padding: 2px 25px 2px 19px;
+}
+
+QMenu::item:selected {
+	background: rgba(61, 174, 233, 1);
+	color: rgba(235, 238, 241, 1);
+}
