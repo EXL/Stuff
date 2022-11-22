@@ -223,7 +223,7 @@ static void copy_files(const QDir &input_directory, const QDir &output_directory
 
 		fprintf(
 			stderr,
-			"Rename [%d]: %s => %s\n",
+			"Rename [%04d]: %s => %s\n",
 			i + 1,
 			original.toStdString().c_str(),
 			(!renamed.isNull()) ? (renamed + "!").toStdString().c_str() : "Unknown filename format, skipped."
