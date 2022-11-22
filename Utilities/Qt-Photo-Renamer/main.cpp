@@ -9,6 +9,7 @@
  *   MIT
  *
  * History:
+ *   22-Nov-2022: Fixed warnings and polished code.
  *   11-Oct-2022: Created initial version.
  *
  * Usage:
@@ -85,7 +86,7 @@ static QString get_month(const QString &month) {
 		case 11: return "Nov";
 		case 12: return "Dec";
 	}
-	return QString::null;
+	return QString();
 }
 
 static QString create_new_filename_from_d2_format(const QString &old_filename) {
@@ -94,15 +95,15 @@ static QString create_new_filename_from_d2_format(const QString &old_filename) {
 	// 2020-09-22_19-01-07_950.jpg
 	const QStringList string_list = old_filename.split("_");
 	if (string_list.length() != 3)
-		return QString::null;
+		return QString();
 
 	const QStringList date_list = string_list[0].split("-");
 	if (date_list.length() != 3)
-		return QString::null;
+		return QString();
 
 	const QStringList time_list = string_list[1].split("-");
 	if (time_list.length() != 3)
-		return QString::null;
+		return QString();
 
 	// IMGM_09-Nov-2020_06-00_01.jpg
 	return
@@ -121,7 +122,7 @@ static QString create_new_filename_from_d4_and_pq_format(const QString &old_file
 	// IMG_20200927_122939_834.jpg
 	const QStringList string_list = old_filename.split("_");
 	if (string_list.length() != 4)
-		return QString::null;
+		return QString();
 
 	QString prefix(IMG_PREFIX_FILENAME);
 	if (string_list[0] == "IMG")
@@ -156,12 +157,12 @@ static QString generate_new_filename(const QString &old_filename) {
 	else if (is_d4_and_pq_format(old_filename))
 		return create_new_filename_from_d4_and_pq_format(old_filename);
 	else
-		return QString::null;
+		return QString();
 }
 
 static QString generate_unique_filename(const QString &original_filename, const QString &old_filename) {
-	if (old_filename == QString::null)
-		return QString::null;
+	if (old_filename.isNull())
+		return QString();
 
 	const int size = all_file_names.size();
 	int count = 0;
@@ -170,7 +171,7 @@ static QString generate_unique_filename(const QString &original_filename, const 
 			count++;
 
 	if (count == 0)
-		return QString::null;
+		return QString();
 
 	QString ext(IMG_EXTENS_FILENAME);
 	if (original_filename.endsWith(".jpg"))
@@ -198,7 +199,7 @@ static void fill_names_table(QFile &input_file) {
 	while (!stream.atEnd()) {
 		const QString line = stream.readLine();
 		const QString renamed = generate_new_filename(line);
-		if (renamed != QString::null) {
+		if (!renamed.isNull()) {
 			all_file_names.append(renamed);
 			names_table.insert(line, generate_unique_filename(line, renamed));
 		}
@@ -213,7 +214,7 @@ static void copy_files(const QDir &input_directory, const QDir &output_directory
 		const QString original = iterator.key();
 		const QString renamed = iterator.value();
 
-		if (renamed != QString::null) {
+		if (!renamed.isNull()) {
 			QFile::copy(
 				input_directory.absolutePath() + QDir::separator() + original,
 				output_directory.absolutePath() + QDir::separator() + renamed
@@ -225,7 +226,7 @@ static void copy_files(const QDir &input_directory, const QDir &output_directory
 			"Rename [%d]: %s => %s\n",
 			i + 1,
 			original.toStdString().c_str(),
-			(renamed != QString::null) ? (renamed + "!").toStdString().c_str() : "Unknown filename format, skipped."
+			(!renamed.isNull()) ? (renamed + "!").toStdString().c_str() : "Unknown filename format, skipped."
 		);
 	}
 }
@@ -303,7 +304,7 @@ static int handle_file(const char *input, const char *output) {
 int main(int argc, char *argv[]) {
 	if (argc != 4) {
 		fprintf(stderr, "Error: Wrong argument count!\n\n");
-		fprintf(stderr, "Usage:\n\trenamer %mode% %input% %output%\n\n");
+		fprintf(stderr, "Usage:\n\trenamer %%mode%% %%input%% %%output%%\n\n");
 		fprintf(stderr, "Examples:\n\trenamer dir C:\\Photos C:\\OutPhotos\n");
 		fprintf(stderr, "\trenamer file C:\\Photos\\List.txt C:\\OutPhotos\\List.txt\n\n");
 		return EXIT_FAILURE;
