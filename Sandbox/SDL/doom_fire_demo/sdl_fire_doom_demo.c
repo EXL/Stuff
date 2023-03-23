@@ -13,59 +13,54 @@
 
 #define G_ATI_RGB_565(r, g, b) ((uint32_t) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b & 0xF8) >> 3))
 
-static const uint8_t g_palette_rgb_table[] = {
-	0x07, 0x07, 0x07, /*  0 */
-	0x1F, 0x07, 0x07, /*  1 */
-	0x2F, 0x0F, 0x07, /*  2 */
-	0x47, 0x0F, 0x07, /*  3 */
-	0x57, 0x17, 0x07, /*  4 */
-	0x67, 0x1F, 0x07, /*  5 */
-	0x77, 0x1F, 0x07, /*  6 */
-	0x8F, 0x27, 0x07, /*  7 */
-	0x9F, 0x2F, 0x07, /*  8 */
-	0xAF, 0x3F, 0x07, /*  9 */
-	0xBF, 0x47, 0x07, /* 10 */
-	0xC7, 0x47, 0x07, /* 11 */
-	0xDF, 0x4F, 0x07, /* 12 */
-	0xDF, 0x57, 0x07, /* 13 */
-	0xDF, 0x57, 0x07, /* 14 */
-	0xD7, 0x5F, 0x07, /* 15 */
-	0xD7, 0x5F, 0x07, /* 16 */
-	0xD7, 0x67, 0x0F, /* 17 */
-	0xCF, 0x6F, 0x0F, /* 18 */
-	0xCF, 0x77, 0x0F, /* 19 */
-	0xCF, 0x7F, 0x0F, /* 20 */
-	0xCF, 0x87, 0x17, /* 21 */
-	0xC7, 0x87, 0x17, /* 22 */
-	0xC7, 0x8F, 0x17, /* 23 */
-	0xC7, 0x97, 0x1F, /* 24 */
-	0xBF, 0x9F, 0x1F, /* 25 */
-	0xBF, 0x9F, 0x1F, /* 26 */
-	0xBF, 0xA7, 0x27, /* 27 */
-	0xBF, 0xA7, 0x27, /* 28 */
-	0xBF, 0xAF, 0x2F, /* 29 */
-	0xB7, 0xAF, 0x2F, /* 30 */
-	0xB7, 0xB7, 0x2F, /* 31 */
-	0xB7, 0xB7, 0x37, /* 32 */
-	0xCF, 0xCF, 0x6F, /* 33 */
-	0xDF, 0xDF, 0x9F, /* 34 */
-	0xEF, 0xEF, 0xC7, /* 35 */
-	0xFF, 0xFF, 0xFF  /* 36 */
+static const uint16_t g_palette_rgb_table[] = {
+	G_ATI_RGB_565(0x07, 0x07, 0x07), /*  0 */
+	G_ATI_RGB_565(0x1F, 0x07, 0x07), /*  1 */
+	G_ATI_RGB_565(0x2F, 0x0F, 0x07), /*  2 */
+	G_ATI_RGB_565(0x47, 0x0F, 0x07), /*  3 */
+	G_ATI_RGB_565(0x57, 0x17, 0x07), /*  4 */
+	G_ATI_RGB_565(0x67, 0x1F, 0x07), /*  5 */
+	G_ATI_RGB_565(0x77, 0x1F, 0x07), /*  6 */
+	G_ATI_RGB_565(0x8F, 0x27, 0x07), /*  7 */
+	G_ATI_RGB_565(0x9F, 0x2F, 0x07), /*  8 */
+	G_ATI_RGB_565(0xAF, 0x3F, 0x07), /*  9 */
+	G_ATI_RGB_565(0xBF, 0x47, 0x07), /* 10 */
+	G_ATI_RGB_565(0xC7, 0x47, 0x07), /* 11 */
+	G_ATI_RGB_565(0xDF, 0x4F, 0x07), /* 12 */
+	G_ATI_RGB_565(0xDF, 0x57, 0x07), /* 13 */
+	G_ATI_RGB_565(0xDF, 0x57, 0x07), /* 14 */
+	G_ATI_RGB_565(0xD7, 0x5F, 0x07), /* 15 */
+	G_ATI_RGB_565(0xD7, 0x5F, 0x07), /* 16 */
+	G_ATI_RGB_565(0xD7, 0x67, 0x0F), /* 17 */
+	G_ATI_RGB_565(0xCF, 0x6F, 0x0F), /* 18 */
+	G_ATI_RGB_565(0xCF, 0x77, 0x0F), /* 19 */
+	G_ATI_RGB_565(0xCF, 0x7F, 0x0F), /* 20 */
+	G_ATI_RGB_565(0xCF, 0x87, 0x17), /* 21 */
+	G_ATI_RGB_565(0xC7, 0x87, 0x17), /* 22 */
+	G_ATI_RGB_565(0xC7, 0x8F, 0x17), /* 23 */
+	G_ATI_RGB_565(0xC7, 0x97, 0x1F), /* 24 */
+	G_ATI_RGB_565(0xBF, 0x9F, 0x1F), /* 25 */
+	G_ATI_RGB_565(0xBF, 0x9F, 0x1F), /* 26 */
+	G_ATI_RGB_565(0xBF, 0xA7, 0x27), /* 27 */
+	G_ATI_RGB_565(0xBF, 0xA7, 0x27), /* 28 */
+	G_ATI_RGB_565(0xBF, 0xAF, 0x2F), /* 29 */
+	G_ATI_RGB_565(0xB7, 0xAF, 0x2F), /* 30 */
+	G_ATI_RGB_565(0xB7, 0xB7, 0x2F), /* 31 */
+	G_ATI_RGB_565(0xB7, 0xB7, 0x37), /* 32 */
+	G_ATI_RGB_565(0xCF, 0xCF, 0x6F), /* 33 */
+	G_ATI_RGB_565(0xDF, 0xDF, 0x9F), /* 34 */
+	G_ATI_RGB_565(0xEF, 0xEF, 0xC7), /* 35 */
+	G_ATI_RGB_565(0xFF, 0xFF, 0xFF)  /* 36 */
 };
 
-typedef struct {
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
-} palette_rgb_t;
-
-static palette_rgb_t g_palette_rgb[sizeof(g_palette_rgb_table) / 3];
 static int g_pixel_map_fire[G_SCREEN_WIDTH * G_SCREEN_HEIGHT];
 static int g_y_coord_scrolling;
 
-static void DoFireDemo(void) {
+static void DrawFireDemo(SDL_Surface *surface, SDL_Surface *bmp, SDL_Surface *screen) {
 	int x;
 	int y;
+	SDL_Rect rect;
+
 	for (x = 0; x < G_SCREEN_WIDTH; ++x) {
 		for (y = 1; y < G_SCREEN_HEIGHT; ++y) {
 			const int pixel = g_pixel_map_fire[y * G_SCREEN_WIDTH + x];
@@ -78,14 +73,6 @@ static void DoFireDemo(void) {
 			}
 		}
 	}
-}
-
-static void DrawFireDemo(SDL_Surface *surface, SDL_Surface *bmp, SDL_Surface *screen) {
-	int x;
-	int y;
-	SDL_Rect rect;
-
-	DoFireDemo();
 
 	rect.x = G_SCREEN_WIDTH / 2 - bmp->w / 2;
 	rect.y = g_y_coord_scrolling;
@@ -97,10 +84,10 @@ static void DrawFireDemo(SDL_Surface *surface, SDL_Surface *bmp, SDL_Surface *sc
 
 	for (y = 0; y < G_SCREEN_HEIGHT; ++y) {
 		for (x = 0; x < G_SCREEN_WIDTH; ++x) {
-			const palette_rgb_t pixel = g_palette_rgb[g_pixel_map_fire[y * G_SCREEN_WIDTH + x]];
-			if (!(pixel.r == 0x07 && pixel.g == 0x07 && pixel.b == 0x07)) {
+			const uint16_t pixel = g_palette_rgb_table[g_pixel_map_fire[y * G_SCREEN_WIDTH + x]];
+			if (pixel != G_ATI_RGB_565(0x07, 0x07, 0x07)) {
 				* ((uint16_t *)((uint8_t *)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel)) =
-					G_ATI_RGB_565(pixel.r, pixel.g, pixel.b);
+					pixel;
 			}
 		}
 	}
@@ -127,12 +114,6 @@ static void DrawFireDemo(SDL_Surface *surface, SDL_Surface *bmp, SDL_Surface *sc
 static void InitFireDemo(void) {
 	int i;
 
-	for (i = 0; i < sizeof(g_palette_rgb_table) / 3; ++i) {
-		g_palette_rgb[i].r = g_palette_rgb_table[i * 3 + 0];
-		g_palette_rgb[i].g = g_palette_rgb_table[i * 3 + 1];
-		g_palette_rgb[i].b = g_palette_rgb_table[i * 3 + 2];
-	}
-
 	for (i = 0; i < G_SCREEN_WIDTH * G_SCREEN_HEIGHT; ++i) {
 		g_pixel_map_fire[i] = 0; /* 0x07, 0x07, 0x07 */
 	}
@@ -144,7 +125,7 @@ static void InitFireDemo(void) {
 	g_y_coord_scrolling = G_Y_COORD_START;
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
 	int exit;
 	SDL_Surface *screen;
 	SDL_Surface *surface;
